@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-项目结构迁移已完成，Phase 8 自动化验收通过；迁移后本地构建垃圾清理和清理后自动验证已通过；页签级业务交互仍建议做人工冒烟。
+项目结构迁移已完成，Phase 8 自动化验收通过；迁移后本地构建垃圾清理和清理后自动验证已通过；GitHub public 首次上线和 clone 验收已通过；页签级业务交互仍建议做人工冒烟。
 
 ## 最终验收范围
 
@@ -14,6 +14,18 @@
 - Git 跟踪文件清单不包含明确构建产物。
 
 ## 验收记录
+
+### 2026-08-27 GitHub public 首次上线
+
+| 验收项 | 命令 / 方法 | 结果 | 备注 |
+|---|---|---|---|
+| public 仓库 | GitHub CLI / GitHub API | 通过 | `https://github.com/yinsheng508-byte/scene-image-tool`，visibility=`PUBLIC` |
+| 远端分支 | GitHub ref API | 通过 | `main` 和 `platform/macos-bootstrap` 均指向 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b` |
+| 远端禁止清单 | GitHub tree API | 通过 | 无 `.bootstrap`、字体二进制、`code/desktop/vendor/libreoffice/`、`code/desktop/vendor/redist/vc_redist.x64.exe` |
+| clone 验收 | `git clone --depth 1 --branch platform/macos-bootstrap` | 通过 | clone 目录 `D:\deptask\scene-image-tool-clone-verify-20260827-163358`，tracked 文件数 117 |
+| 公开 clone 依赖安装 | `npm --prefix code/desktop ci` | 通过，有告警 | 375 packages installed；仍有 21 个 npm audit 漏洞，后续独立治理 |
+| 公开 clone 拼图阴影回归 | `npm --prefix code/desktop run puzzle:shadow:smoke` | 通过 | `failed=0` |
+| 公开 clone 拼图文字回归 | `npm --prefix code/desktop run puzzle:text:smoke` | 通过 | `failed=0`，`previewExportMeanAlphaDiff=0.018467150054466232` |
 
 ### 2026-08-26 Phase 8
 
@@ -56,6 +68,7 @@
 
 - 迁移前已有 `code/desktop` 业务改动仍保留在工作区，未纳入本次结构迁移提交。
 - `code/desktop/fonts/` 和 `code/desktop/vendor/libreoffice/` 仍保留在当前 Git 索引，历史瘦身需后续独立任务。
+- GitHub public 首次线上基线不包含字体二进制和 Windows LibreOffice runtime；严格字体探针和 Windows full build 需在本地资源或 artifact provisioning 完成后执行。
 - `dist:dev` 产物因 `asar=false` 不适用于严格 packaged 字体探针；正式 `dist:checked` 已验证 packaged 探针通过。
 - 页签级业务交互未使用自动化工具点击验证；当前项目未引入 Playwright / Electron 自动化依赖。
 - `local-artifacts/` 已删除，当前没有内置 PPT smoke fixture；需要常规复跑时应新增脱敏的 `code/desktop/test-fixtures/`。

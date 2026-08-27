@@ -3,7 +3,8 @@
 > 日期：2026-08-26
 > 当前模式：生产变更，必须完整备份
 > 目标：把项目同步到 GitHub，并作为后续 macOS 版本开发基线。
-> 结论先行：当前仓库不能直接推送 GitHub。用户已要求公开仓库，因此只能公开 GitHub-ready 干净导出仓库，不能公开当前 `.git` 历史。
+> 结论先行：当前仓库不能直接推送 GitHub。用户已要求公开仓库，因此已公开 GitHub-ready 干净导出仓库，未公开当前 `.git` 历史。
+> GitHub 仓库：`https://github.com/yinsheng508-byte/scene-image-tool`
 > 并行开发方案：`docs/current/win-mac-parallel-development.md`。
 > 公开执行手册：`docs/current/github-public-sync-runbook.md`。
 > Mac 落地指令：`docs/current/mac-development-runbook.md`。
@@ -16,8 +17,9 @@
 |---|---|
 | 当前分支 | `codex/project-structure-template-migration` |
 | 当前 HEAD | `13ac1b3 chore: remove local build clutter` |
-| Git remote | 当前无 remote |
-| GitHub CLI | 当前环境未安装 `gh` |
+| 当前迁移仓库 Git remote | 当前无 remote |
+| public GitHub 远端 | `https://github.com/yinsheng508-byte/scene-image-tool` |
+| GitHub CLI | 已安装并登录 `yinsheng508-byte` |
 | Git LFS | 已安装，`git-lfs/3.7.0` |
 | `git filter-repo` | 未安装 |
 | Git 对象体量 | loose 约 1.07 GiB，pack 约 1.71 GiB |
@@ -88,7 +90,8 @@ scene-image-tool/
       scripts/
       shared/
       assets/
-      fonts/                  # 短期保留，后续评估授权和外部化
+      fonts/
+        README.md             # public 首次线上基线只保留说明，不保留字体二进制
       vendor/
         libreoffice/          # 不进入 GitHub-ready 仓库，改为外部 artifact 或本机安装
         redist/               # Windows-only，后续放 Release artifact 或安装脚本
@@ -121,18 +124,18 @@ scene-image-tool/
 
 ### Phase G0：同步决策冻结
 
-状态：已确认公开干净导出路线，待确认真实远端 URL。
+状态：已完成。
 
-要确认：
+已确认：
 
-- GitHub 仓库名和归属：例如 `yinsheng508-byte/scene-image-tool`。
+- GitHub 仓库名和归属：`yinsheng508-byte/scene-image-tool`。
 - 仓库可见性：用户已要求 public。
 - 历史策略：采用“干净仓库首次导入”，不公开原历史。
 - 当前迁移前业务改动：导出仓库纳入当前工作树快照，当前迁移仓库不混入业务提交。
 
 验收：
 
-- 远端 URL 明确。
+- 远端 URL 明确：`https://github.com/yinsheng508-byte/scene-image-tool`。
 - 历史策略明确。
 - 业务改动处理策略明确。
 - 本地导出目录 `D:\deptask\scene-image-tool-github-public` 初始化成功。
@@ -178,29 +181,34 @@ scene-image-tool/
 
 ### Phase G3：创建 GitHub-ready 仓库并首次推送
 
-状态：本地导出和初始化已完成；真实 push 等待 public 远端 URL 或 `gh` 登录。
+状态：已完成并上线。
 
 执行：
 
-具体命令见 `docs/current/github-public-sync-runbook.md`。当前固定本地导出目录：
+具体过程见 `docs/current/github-public-sync-runbook.md`。当前保留两个本地导出目录：
 
 ```powershell
 D:\deptask\scene-image-tool-github-public
+D:\deptask\scene-image-tool-github-public-split
 ```
 
 验收：
 
-- GitHub 远端 `main` 首次 push 成功。
+- GitHub 远端 `main` 首次上线成功。
+- GitHub 远端 `platform/macos-bootstrap` 已创建。
 - GitHub 页面不显示大文件警告。
-- clone 到新目录后能 `npm --prefix code/desktop install`。
+- clone 到新目录后能 `npm --prefix code/desktop ci`。
 
-本地已完成：
+已完成：
 
 - `D:\deptask\scene-image-tool-github-public` 已初始化为 `main` 分支。
-- 导出仓库跟踪 144 个文件，不包含当前迁移仓库历史。
-- 当前树无 95 MiB+ 文件。
+- `D:\deptask\scene-image-tool-github-public-split` 已作为 public 首次线上基线。
+- public 远端 `main` 和 `platform/macos-bootstrap` 均指向 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`。
+- public 首次线上基线跟踪 117 个文件，不包含当前迁移仓库历史。
+- public 首次线上基线无 95 MiB+ 文件。
 - 未跟踪敏感文件路径。
-- `npm ci`、`font:probe`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 已通过。
+- public 首次线上基线不包含字体二进制、`code/desktop/vendor/libreoffice/` 和 `code/desktop/vendor/redist/vc_redist.x64.exe`。
+- 公开 clone 后 `npm ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 已通过。
 
 ### Phase M0：macOS 技术基线拆分
 
@@ -299,8 +307,8 @@ git rev-list --objects --all | Select-String -Pattern 'API_key|\.env|settings\.l
 
 下一步不要直接 push 当前迁移历史。建议顺序：
 
-1. 使用本轮生成的 `D:\deptask\scene-image-tool-github-public` 作为公开仓库首次导入源。
-2. 用户在 GitHub 创建 public 空仓库，或安装并登录 `gh`。
-3. 将导出仓库 push 到 public `main`。
-4. 从 `main` 切 `platform/macos-bootstrap`，开始 macOS 平台 adapter 和打包配置改造。
+1. Mac 端从 `https://github.com/yinsheng508-byte/scene-image-tool.git` clone。
+2. 切到 `platform/macos-bootstrap`，先跑开发启动和共享 smoke。
+3. 开始 macOS 平台 adapter 和打包配置改造。
+4. 字体二进制、Windows LibreOffice runtime 和 redist 走后续 artifact / provisioning 任务，不回填到普通 Git。
 5. 业务改动拆分审查留在 GitHub 后续 PR 中进行，避免污染当前迁移仓库历史。

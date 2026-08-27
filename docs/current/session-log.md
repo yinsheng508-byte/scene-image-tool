@@ -104,3 +104,10 @@
 - 修改文件：生成外部导出目录 `D:\deptask\scene-image-tool-github-public`；回写当前上下文、任务表、看板、GitHub 同步规划和公开同步执行手册。
 - 验证：导出仓库已 `git init -b main` 并提交公开基线；已创建 `platform/macos-bootstrap`；共跟踪 144 个文件；无 95 MiB+ 文件；无实际敏感文件路径；`code/desktop/vendor/` 仅跟踪 `README.md` 和 `redist/vc_redist.x64.exe.sha256`；`npm ci`、`font:probe`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 均通过。
 - 风险：`npm ci` 报告 21 个依赖漏洞，后续需要独立依赖治理；真实 GitHub push 仍缺 public 远端 URL 或 `gh` 登录。
+
+## 2026-08-27
+
+- 阶段：GitHub public 首次上线和 Mac 基线发布。
+- 修改文件：更新 `.gitignore`、`code/desktop/fonts/README.md`、`docs/architecture/resources.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/tasks.md`、`docs/current/_dashboard.md`、`docs/current/github-sync-macos-plan.md`、`docs/current/github-public-sync-runbook.md`、`docs/current/mac-development-runbook.md`、`docs/current/acceptance.md` 和本日志。
+- 验证：已安装并登录 GitHub CLI；已创建 public 仓库 `https://github.com/yinsheng508-byte/scene-image-tool`；普通 Git HTTPS push 在当前 Windows 环境多次出现 HTTP 408 / TLS EOF，最终通过 GitHub REST Git Database API 写入 public 首次线上基线；远端 `main` 和 `platform/macos-bootstrap` 均指向 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`；远端 HEAD 不含 `.bootstrap`、字体二进制、`code/desktop/vendor/libreoffice/` 和 `code/desktop/vendor/redist/vc_redist.x64.exe`；全新 clone 到 `D:\deptask\scene-image-tool-clone-verify-20260827-163358` 成功，tracked 文件数 117；公开 clone 的 `npm ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 通过。
+- 风险：public 首次线上基线不包含字体二进制、Windows LibreOffice runtime 和 VC redist exe；严格字体探针、Windows full build 和 runtime 检查需要本地资源或后续 artifact / provisioning 支撑；`npm ci` 仍报告 21 个依赖漏洞，后续单独治理。

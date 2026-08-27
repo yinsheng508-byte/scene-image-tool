@@ -4,11 +4,18 @@
 
 ## 当前阶段
 
-Standard-Development：GitHub 公开同步进入执行阶段；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。
+Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。下一阶段进入 macOS adapter / 打包前置开发。
 
 ## 当前最高优先级任务
 
-当前目标：准备公开同步 GitHub 并作为 Windows / macOS 并行开发基线；当前结论是不能直接 push 当前迁移历史，只能生成 GitHub-ready 干净导出仓库并推送到 public 远端。
+当前目标：以 GitHub public 干净基线作为 Windows / macOS 并行开发起点。当前迁移仓库历史仍不能公开推送；已通过 GitHub-ready 干净导出仓库上线 public 远端。
+
+GitHub public 远端：
+
+- 仓库：`https://github.com/yinsheng508-byte/scene-image-tool`
+- 默认分支：`main`
+- macOS 基线分支：`platform/macos-bootstrap`
+- 当前远端提交：`e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`
 
 迁移进度：
 
@@ -24,10 +31,10 @@ Standard-Development：GitHub 公开同步进入执行阶段；采用 GitHub-rea
 - 迁移后规范检查：已完成。
 - 迁移后本地构建垃圾清理：已完成。
 - GitHub 同步与 macOS 准备审计：已完成，用户已确认 public 干净导出路线。
-- GitHub 公开同步执行手册：已新增；本地干净仓库已生成并提交，真实 push 等待远端 URL。
+- GitHub 公开同步执行手册：已完成；public 远端已上线并完成 clone 验收。
 - Windows / macOS 并行开发方案：已完成。
 - macOS 开发落地指令：已新增。
-- 当前后续任务：用户提供 public 空仓库 URL，或安装并登录 `gh` 后，从 `D:\deptask\scene-image-tool-github-public` 推送 `main` 和已创建的 `platform/macos-bootstrap`。
+- 当前后续任务：在 Mac 上 clone `https://github.com/yinsheng508-byte/scene-image-tool.git`，切到 `platform/macos-bootstrap`，按 `docs/current/mac-development-runbook.md` 开始 macOS adapter / runtime 探测 / 打包配置任务。
 
 ## 上次停在哪里
 
@@ -40,7 +47,8 @@ Standard-Development：GitHub 公开同步进入执行阶段；采用 GitHub-rea
 - 当前迁移基线提交：`e538575 chore: align post-migration docs and font enum smoke`。
 - 当前清理后提交：`13ac1b3 chore: remove local build clutter`。
 - 迁移分支：`codex/project-structure-template-migration`。
-- 当前没有 Git remote。
+- 当前迁移仓库本身没有 Git remote；public GitHub 远端由干净导出仓库上线：`https://github.com/yinsheng508-byte/scene-image-tool`。
+- GitHub CLI `gh` 已安装并登录到 `yinsheng508-byte`，不要在文档或输出中泄露 token。
 - `git-lfs/3.7.0` 已安装，`git filter-repo` 当前不可用。
 - Git 对象体量：loose 约 1.07 GiB，pack 约 1.71 GiB。
 - 当前 HEAD 存在 100 MiB+ 文件：`code/desktop/vendor/libreoffice/program/mergedlo.dll` 约 140.85 MiB。
@@ -48,8 +56,8 @@ Standard-Development：GitHub 公开同步进入执行阶段；采用 GitHub-rea
 - 历史中出现过 `API_key.md` 和 `.claude/settings.local.json`，GitHub 同步前应按密钥泄露处理。
 - 已新增 `.gitattributes`，用于 GitHub / macOS 协作时固定文本和二进制策略。
 - 已新增 `docs/current/github-sync-macos-plan.md`，记录 GitHub-ready 同步路线和 macOS 分阶段改造方案。
-- 已新增 `docs/current/github-public-sync-runbook.md`，记录 public clean export 和推送命令。
-- 已新增 `docs/current/mac-development-runbook.md`，记录 Mac 首次环境、clone、启动、smoke 和每日开发命令。
+- 已更新 `docs/current/github-public-sync-runbook.md`，记录 public clean export、GitHub REST API 上线过程和远端验收结果。
+- 已更新 `docs/current/mac-development-runbook.md`，记录真实 GitHub 地址、Mac 首次环境、clone、启动、smoke 和每日开发命令。
 - 已新增 `docs/current/win-mac-parallel-development.md`，记录 Windows / macOS 并行开发分支模型、平台 adapter、CI、GitHub Project 看板和发布策略。
 - GitHub Actions 官方支持 workflow matrix 在多个 OS 上运行 job，hosted runners 支持 Windows 和 macOS，`actions/setup-node` 支持 npm cache；并行开发方案已按这些能力设计 CI 草案。
 - 当前可运行应用目录为 `code/desktop/`。
@@ -57,15 +65,20 @@ Standard-Development：GitHub 公开同步进入执行阶段；采用 GitHub-rea
 - `code/desktop/vendor/`、`code/desktop/fonts/` 已造成明显仓库体量压力。
 - `.gitignore` 已明确排除 GitHub-ready 公开仓库不应携带的 `code/desktop/vendor/libreoffice/` 和 `code/desktop/vendor/redist/vc_redist.x64.exe`。
 - `code/desktop/vendor/README.md` 已记录 runtime 外部化策略。
-- `D:\deptask\scene-image-tool-github-public` 已生成 GitHub-ready 干净仓库，分支为 `main`，共跟踪 144 个文件。
-- `D:\deptask\scene-image-tool-github-public` 已创建本地分支 `platform/macos-bootstrap`，当前仍停在 `main`。
+- `D:\deptask\scene-image-tool-github-public` 已生成 GitHub-ready 干净仓库，分支为 `main`，共跟踪 144 个文件；该目录包含本地字体资源，用于 Windows 本地验证，不作为最终 public 首次线上基线。
+- `D:\deptask\scene-image-tool-github-public-split` 已生成 public 首次线上基线，共跟踪 117 个文件，只保留 `code/desktop/fonts/README.md`，不提交字体二进制。
+- `D:\deptask\scene-image-tool-github-public-split` 的 `main` 和 `platform/macos-bootstrap` 已上线到 public GitHub。
+- 远端 `main` 和 `platform/macos-bootstrap` 均指向 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`。
+- 本轮普通 `git push` 因当前 Windows 网络 / TLS 问题多次失败，最终通过 GitHub REST Git Database API 写入远端；后续正常开发仍走普通 Git clone / branch / PR。
 - 干净导出仓库仅包含一个新的公开基线历史，不包含当前迁移仓库 `.git` 历史。
-- 干净导出仓库已确认不存在 95 MiB+ 文件，最大单文件为字体约 12.71 MiB。
+- public 首次线上基线已确认不存在 95 MiB+ 文件；字体二进制不进入 public 首次线上基线。
 - 干净导出仓库已确认不包含实际 `API_key.md`、`.claude/settings.local.json`、`.env*` 文件路径。
 - 干净导出仓库中 `code/desktop/vendor/` 仅跟踪 `README.md` 和 `redist/vc_redist.x64.exe.sha256`。
 - 干净导出仓库已执行 `npm --prefix code/desktop ci`、`font:probe`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 并通过。
 - 干净导出仓库的 `npm ci` 报告 21 个依赖漏洞，需后续依赖治理任务处理。
-- 干净导出仓库中验证生成的 `code/desktop/dist/` 和 `code/desktop/node_modules/` 均为 ignored，不进入 Git；本轮删除 ignored `dist/` 被工具安全策略拦截，未继续强删。
+- 干净导出仓库和 public split 仓库中验证生成的 `code/desktop/dist/` 和 `code/desktop/node_modules/` 均为 ignored，不进入 Git。
+- 已从 GitHub clone 验收 `platform/macos-bootstrap` 到 `D:\deptask\scene-image-tool-clone-verify-20260827-163358`，tracked 文件数 117。
+- 公开 clone 中 `npm --prefix code/desktop ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 已通过；`npm ci` 仍报告 21 个依赖漏洞，后续独立治理。
 - Phase 1 新增的根入口、`docs/current`、`docs/architecture`、`docs/workflows`、`docs/templates` 文件均已存在。
 - `.migration-backups/`、根 ZIP 备份、`desktop - 副本/` 已物理删除；`node_modules/` 保留并被忽略。
 - `desktop/dist2`、`desktop/_tmp`、`desktop/test_*.png` 已从 Git 索引清空，旧 `desktop/` 目录已不存在。
@@ -104,7 +117,6 @@ Standard-Development：GitHub 公开同步进入执行阶段；采用 GitHub-rea
 - 页签级业务交互人工冒烟结果。
 - 迁移前已有 `code/desktop` 业务改动的完整业务意图。
 - 本地样例已清理后，PPT smoke 需要外部样例路径或新增脱敏 fixture 才能复跑。
-- GitHub 仓库名、归属账号和真实远端 URL。
 - 当前迁移前业务改动是全部纳入 GitHub 基线，还是拆分后逐步合并。
 - Windows / macOS 并行开发的实际人员分工、GitHub Project 是否启用、CI 是否先走 required + optional 分层。
 
@@ -124,6 +136,7 @@ Standard-Development：GitHub 公开同步进入执行阶段；采用 GitHub-rea
 
 - 本地 Windows 工作区。
 - 当前 Git 工作区迁移前已有大量未提交改动。
+- GitHub public 远端已上线，Mac 端可从 `https://github.com/yinsheng508-byte/scene-image-tool.git` clone。
 - 不在生产部署流程中。
 
 ## 已知风险、阻塞、验收标准
@@ -132,7 +145,7 @@ Standard-Development：GitHub 公开同步进入执行阶段；采用 GitHub-rea
 
 - 当前工作区不干净，本轮检查必须只 stage / 提交本轮明确修复文件。
 - Git 历史已经包含大文件，历史瘦身需要后续独立任务。
-- 当前仓库不能直接 push 到 GitHub：当前 HEAD 和历史均存在 100 MiB+ blob。
+- 当前迁移仓库仍不能直接 push 到 GitHub：当前 HEAD 和历史均存在 100 MiB+ blob；只能使用干净导出仓库或后续独立历史瘦身结果。
 - 历史中出现过敏感路径，不能公开当前迁移历史；只允许公开 GitHub-ready 干净导出仓库。
 - CRLF 提示已出现，当前迁移不处理换行符规范。
 - 迁移前已有 `code/desktop` 业务改动仍未提交；本轮不应把无关业务改动混入治理修复。

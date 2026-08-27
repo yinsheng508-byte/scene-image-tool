@@ -3,6 +3,8 @@
 > 日期：2026-08-26
 > 目标：从公开 GitHub 仓库 clone 后，在 Mac 上先跑通开发启动和共享 smoke，再进入 macOS adapter / 打包任务。
 > 当前限制：现有打包配置仍偏 Windows，`dist:mac:dir` 尚未实现；public 首次线上基线不包含字体二进制；Mac 第一阶段先运行开发模式，不执行 Windows full build。
+> GitHub 仓库：`https://github.com/yinsheng508-byte/scene-image-tool`
+> macOS 基线分支：`platform/macos-bootstrap`
 
 ## 1. Mac 首次环境准备
 
@@ -68,14 +70,12 @@ npm -v
 
 ## 2. Clone 和首次启动
 
-将 `<OWNER>/<REPO>` 替换为公开仓库真实路径：
-
 ```bash
 mkdir -p ~/dev
 cd ~/dev
-git clone https://github.com/<OWNER>/<REPO>.git
-cd <REPO>
-git switch -c platform/macos-bootstrap
+git clone https://github.com/yinsheng508-byte/scene-image-tool.git
+cd scene-image-tool
+git switch --track origin/platform/macos-bootstrap
 npm --prefix code/desktop ci
 cd code/desktop
 npm exec electron .
@@ -84,7 +84,7 @@ npm exec electron .
 开发模式能打开主界面后，回到仓库根目录先执行不依赖 bundled 字体的共享 smoke：
 
 ```bash
-cd ~/dev/<REPO>
+cd ~/dev/scene-image-tool
 npm --prefix code/desktop run puzzle:shadow:smoke
 npm --prefix code/desktop run puzzle:text:smoke
 ```
@@ -111,8 +111,8 @@ npm --prefix code/desktop run check:lo-runtime
 开始新任务：
 
 ```bash
-cd ~/dev/<REPO>
-git switch main
+cd ~/dev/scene-image-tool
+git switch platform/macos-bootstrap
 git pull --ff-only
 git switch -c platform/macos-<task-name>
 npm --prefix code/desktop ci

@@ -1,9 +1,11 @@
 # GitHub 公开同步执行手册
 
-> 日期：2026-08-26
+> 日期：2026-08-27
 > 当前决策：公开 GitHub 仓库可以做，但只允许公开 GitHub-ready 干净导出仓库，不公开当前迁移仓库的 `.git` 历史。
+> GitHub 仓库：`https://github.com/yinsheng508-byte/scene-image-tool`
 > 本地导出目录：`D:\deptask\scene-image-tool-github-public`
-> 本地状态：已生成并提交，等待 public 远端 URL 或 `gh` 登录后推送。
+> 实际上线目录：`D:\deptask\scene-image-tool-github-public-split`
+> 线上状态：public 仓库已创建并完成 `main` / `platform/macos-bootstrap` 基线写入。
 
 ## 1. 当前不能直接推送的原因
 
@@ -28,7 +30,7 @@
 2. 从当前工作树导出 GitHub-ready 目录，包含当前代码、文档和被引用的未跟踪业务文件。
 3. 导出时排除 `.git/`、`node_modules/`、构建产物、本地备份、密钥、样例和 Windows runtime dump。
 4. 在导出目录重新 `git init -b main`，生成公开仓库首个干净提交。
-5. 用户在 GitHub 创建 public 空仓库后，把导出目录 push 到该远端。
+5. 创建 public GitHub 仓库，把公开基线写入 `main`，再创建 `platform/macos-bootstrap` 作为 Mac 开发起点。
 
 ## 3. 导出排除清单
 
@@ -51,9 +53,18 @@
 
 公开首次线上基线不保留字体二进制。原因是字体约 244 MiB，会显著放大首次 push / clone 成本，且字体授权和分发边界需要独立确认。后续通过 GitHub Releases、artifact store 或 provisioning script 恢复。
 
-## 4. Windows 侧推送命令
+## 4. Windows 侧执行结果
 
-如果已经手动在 GitHub 创建 public 空仓库，例如 `https://github.com/yinsheng508-byte/scene-image-tool.git`，执行：
+本轮已完成：
+
+- 安装并登录 GitHub CLI。
+- 创建 public 仓库：`https://github.com/yinsheng508-byte/scene-image-tool`。
+- 由于当前 Windows 环境普通 Git HTTPS push 多次出现 HTTP 408 / TLS EOF，未继续依赖 `git push`。
+- 改用 GitHub REST Git Database API：先创建临时 `.bootstrap`，再上传 Git archive 导出的真实 Git blob，最终创建完整 tree / commit / ref。
+- 远端 `main` 和 `platform/macos-bootstrap` 均指向提交 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`。
+- 最终远端 HEAD 不包含临时 `.bootstrap`。
+
+普通网络环境下的等价手工命令如下，仅作为后续参考：
 
 ```powershell
 cd D:\deptask\scene-image-tool-github-public
@@ -64,7 +75,7 @@ git push -u origin platform/macos-bootstrap
 git switch main
 ```
 
-如果使用 GitHub CLI，先安装并登录：
+如果使用 GitHub CLI 新建仓库，等价命令如下：
 
 ```powershell
 winget install --id GitHub.cli
@@ -76,17 +87,18 @@ git push -u origin platform/macos-bootstrap
 git switch main
 ```
 
-当前机器尚未安装 `gh`，因此本轮不会自动创建 public repo。
-
 ## 5. 本地导出结果
 
 本轮已完成：
 
 - 导出目录：`D:\deptask\scene-image-tool-github-public`。
-- 分支：`main`。
-- 本地 Mac 开发分支：`platform/macos-bootstrap` 已创建。
+- 实际 public split 目录：`D:\deptask\scene-image-tool-github-public-split`。
+- 远端 URL：`https://github.com/yinsheng508-byte/scene-image-tool`。
+- 分支：`main` 和 `platform/macos-bootstrap`。
 - 新 Git 历史：只包含公开基线，不包含当前迁移仓库 `.git` 历史。
-- 跟踪文件：144 个。
+- 本地带字体导出仓库跟踪文件：144 个。
+- public 首次线上基线跟踪文件：117 个。
+- 远端 commit：`e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`。
 - 大文件扫描：源码线上基线无 95 MiB+ 文件；字体二进制不进入 public 首次基线。
 - 敏感路径扫描：无实际 `API_key.md`、`.claude/settings.local.json`、`.env*` 文件。
 - runtime 扫描：无 `code/desktop/vendor/libreoffice/`，无 `code/desktop/vendor/redist/vc_redist.x64.exe`。
@@ -95,17 +107,27 @@ git switch main
 
 ## 6. 推送后验收
 
-首次 push 后，用一个全新目录做 clone 验收：
+首次 push 后，用一个全新目录做 clone 验收。本轮已在 Windows 本机执行并通过：
 
 ```powershell
-git clone https://github.com/yinsheng508-byte/scene-image-tool.git D:\deptask\scene-image-tool-clone-check
-cd D:\deptask\scene-image-tool-clone-check
+git clone --depth 1 --branch platform/macos-bootstrap https://github.com/yinsheng508-byte/scene-image-tool.git D:\deptask\scene-image-tool-clone-verify-20260827-163358
+cd D:\deptask\scene-image-tool-clone-verify-20260827-163358
 git status --short --branch
-Get-ChildItem -Recurse -File | Sort-Object Length -Descending | Select-Object -First 20 FullName,Length
 npm --prefix code/desktop ci
 npm --prefix code/desktop run puzzle:shadow:smoke
 npm --prefix code/desktop run puzzle:text:smoke
 ```
+
+本轮已完成的远端验收：
+
+- `main` 和 `platform/macos-bootstrap` 指向同一提交 `e20a52d`。
+- clone `platform/macos-bootstrap` 成功。
+- clone 后 Git 跟踪文件数为 117。
+- 远端 HEAD 不存在 `.bootstrap`。
+- 远端 HEAD 不存在 `code/desktop/fonts/*.otf` 或 `code/desktop/fonts/*.ttf`。
+- 远端 HEAD 不存在 `code/desktop/vendor/libreoffice/`。
+- 远端 HEAD 不存在 `code/desktop/vendor/redist/vc_redist.x64.exe`。
+- `README.md` 和 `code/desktop/fonts/README.md` 均存在。
 
 验收标准：
 
@@ -126,9 +148,11 @@ npm --prefix code/desktop run puzzle:text:smoke
 - Releases：Windows runtime、Windows 安装包、macOS dmg / zip 都走 Release 或外部 artifact，不提交到普通 Git。
 - Secrets：不要把 API key 写入仓库；历史出现过的 key 需要轮换。
 
-## 8. 当前阻塞
+## 8. 当前后续
 
-本地干净仓库可以生成并提交；真正推送到公开 GitHub 还需要以下二选一：
+GitHub public 首次上线已完成。后续不要再推当前迁移仓库历史，按以下路线继续：
 
-- 用户提供已创建的 public 空仓库 URL。
-- 用户在当前 Windows 环境安装并登录 `gh`，再执行第 4 节命令。
+- Mac 端从 `https://github.com/yinsheng508-byte/scene-image-tool.git` clone。
+- Mac 端切到 `platform/macos-bootstrap`。
+- 第一阶段只跑开发启动、`puzzle:shadow:smoke`、`puzzle:text:smoke`。
+- 字体二进制和 Windows runtime 走后续 artifact / provisioning 任务，不回填到普通 Git。
