@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>流量蜂虚拟笔记工具</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./wechat-login.css" />
+    <link rel="stylesheet" href="./compose.css" />
+    <link rel="stylesheet" href="./puzzle.css" />
+    <link rel="stylesheet" href="./vendor/pickr-monolith.min.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <div class="tool-pane">
+        <div class="tab-bar">
+          <button class="tab-button active" data-tab="export">
+            <span class="tab-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            </span>
+            <span class="tab-text">文档一键导出</span>
+          </button>
+          <button class="tab-button" data-tab="compose">
+            <span class="tab-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+            </span>
+            <span class="tab-text">场景化图片排版</span>
+          </button>
+          <button class="tab-button" data-tab="puzzle">
+            <span class="tab-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+            </span>
+            <span class="tab-text">百变拼图排版</span>
+          </button>
+          <button class="tab-button" data-tab="upload">
+            <span class="tab-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            </span>
+            <span class="tab-text">飞书一键上传</span>
+          </button>
+          <button class="tab-button" data-tab="xhs">
+            <span class="tab-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+            </span>
+            <span class="tab-text">小红书商品下载</span>
+          </button>
+          <button class="tab-button" data-tab="settings">
+            <span class="tab-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </span>
+            <span class="tab-text">设置</span>
+          </button>
+        </div>
+        <div class="tab-container">
+          <section class="tab-content" data-tab="compose">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-desc">上传背景图与叠图，定位后导出高清合成图。</span>
+              </div>
+              <div class="card-body compose-body">
+                <div id="composeRoot" class="compose-root">
+                  <div class="container">
+                    <div class="controls">
+                      <div class="input-group">
+                        <label for="bgInput" class="btn">1. 上传底图 (场景图)</label>
+                        <input type="file" id="bgInput" accept="image/*" />
+                      </div>
+                      <div class="input-group">
+                        <label for="pptInput" class="btn">2. 上传叠图图片（可多选）</label>
+                        <input type="file" id="pptInput" accept="image/*" multiple />
+                      </div>
+                      <div class="input-group" style="display: flex; align-items: center; gap: 12px;">
+                        <button id="selectSaveFolderBtn" class="btn" style="white-space: nowrap;">3. 选择文件保存位置</button>
+                        <span id="saveFolderPath" style="flex: 1; font-size: 13px; color: #666; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;" title="未设置">未设置</span>
+                      </div>
+                    </div>
+                    <div class="main-area">
+                      <div class="left-column">
+                        <div class="canvas-wrapper">
+                          <canvas id="editorCanvas"></canvas>
+                          <div class="instruction-overlay" id="instruction">请先上传底图，然后拖动四个角点定位屏幕区域</div>
+                        </div>
+                        <div class="info-panel">
+                          <div class="info-item">
+                            <div class="info-icon">
+                              <svg class="icon-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            </div>
+                            <div>
+                              <h4>使用说明</h4>
+                              <p><strong>画布缩放：</strong>按住 <code>Ctrl</code> 键 + 滚动鼠标滚轮，可放大或缩小画布以便精准定位。</p>
+                              <p><strong>下载尺寸：</strong>系统会自动生成<strong>高清合成图</strong>（通常为 2K~4K 分辨率），并智能压缩至 10MB 以内，确保画质清晰且易于传输。</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="sidebar">
+                        <h3>设置</h3>
+                        <div class="setting-item">
+                          <label>不透明度: <span id="opacityVal">100%</span></label>
+                          <input type="range" id="opacity" min="0" max="100" value="100" />
+                        </div>
+                        <div class="setting-item">
+                          <label>混合模式:</label>
+                          <select id="blendMode">
+                            <option value="normal" selected>正常 (Normal)</option>
+                            <option value="multiply">正片叠底 (Multiply)</option>
+                            <option value="screen">滤色 (Screen)</option>
+                            <option value="overlay">叠加 (Overlay)</option>
+                            <option value="soft-light">柔光 (Soft Light)</option>
+                          </select>
+                        </div>
+                        <div class="setting-item">
+                          <label>边角微调:</label>
+                          <button id="resetPoints" class="reset-btn">重置四个角</button>
+                        </div>
+                        <h3>预览 & 导出</h3>
+                        <div class="preview-list" id="previewList"></div>
+                        <div class="actions">
+                          <button id="downloadAllBtn" class="action-btn primary" disabled>导出全部</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="tab-content" data-tab="puzzle">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-desc">定义模板坑位，批量填充图片并导出成品图。</span>
+              </div>
+              <div class="card-body puzzle-body">
+                <div class="puzzle-layout">
+                  <aside class="puzzle-sidebar">
+                    <div class="puzzle-panel">
+                      <div class="puzzle-panel-title">画布操作</div>
+                      <button id="puzzleUploadBgBtn" type="button" class="btn-secondary" style="width:100%; margin-bottom:8px;">上传背景图</button>
+                      
+                      <label class="puzzle-inline" style="margin-bottom:8px;">
+                        <input id="puzzleTransparentToggle" type="checkbox" />
+                        <span>透明背景</span>
+                      </label>
+                      
+                      <div class="puzzle-color-row">
+                        <label class="puzzle-inline">
+                          <input id="puzzleColorToggle" type="checkbox" />
+                          <span>纯色背景</span>
+                        </label>
+                        <div id="puzzleBgColorPicker" class="pickr-trigger" data-color="#ffffff" title="选择背景颜色"></div>
+                      </div>
+
+                      <div class="puzzle-row" style="margin-top:12px;">
+                        <label for="puzzleCanvasW">宽</label>
+                        <input id="puzzleCanvasW" type="number" min="1" value="1242" />
+                        <label for="puzzleCanvasH">高</label>
+                        <input id="puzzleCanvasH" type="number" min="1" value="1656" />
+                      </div>
+                    </div>
+                    <div class="puzzle-panel">
+                      <div class="puzzle-panel-title">坑位操作</div>
+                      <div class="button-grid">
+                        <button id="puzzleAddSlotBtn" type="button">添加坑位</button>
+                        <button id="puzzleAddImageSlotBtn" type="button">添加图片坑位</button>
+                      </div>
+                      <button id="puzzleClearSlotsBtn" type="button" style="width:100%; margin-top:8px;">清空坑位</button>
+                    </div>
+                    <div class="puzzle-panel">
+                      <div class="puzzle-panel-title">元素操作</div>
+                      <div class="button-grid">
+                        <button id="puzzleAddTextBtn" type="button">添加文字</button>
+                        <button id="puzzleClearTextBtn" type="button">清空文字</button>
+                        <button id="puzzleAddImageElementBtn" type="button">添加图片</button>
+                        <button id="puzzleClearImageElementBtn" type="button">清空图片</button>
+                      </div>
+                    </div>
+                    <div class="puzzle-panel">
+                      <div class="puzzle-panel-title">文件操作</div>
+                      <div class="button-grid" style="grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button id="puzzleImportImagesBtn" type="button" class="btn-secondary" style="padding: 8px 4px; font-size: 12px;">上传图片</button>
+                        <button id="puzzleAssignFoldersBtn" type="button" class="btn-secondary" style="padding: 8px 4px; font-size: 12px; display: none;">选择文件夹</button>
+                        <button id="puzzleSelectOutputBtn" type="button" class="btn-secondary" style="padding: 8px 4px; font-size: 12px;">输出目录</button>
+                      </div>
+                      <div id="puzzleOutputPath" class="puzzle-path-box" title="未设置">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                        <span class="puzzle-path-text">未设置</span>
+                      </div>
+                    </div>
+                    <div class="puzzle-panel">
+                      <div class="puzzle-panel-title">生成规则</div>
+                      <div class="puzzle-generation-options">
+                        <label class="puzzle-radio-item">
+                          <input type="radio" name="puzzleGeneration" value="single" checked />
+                          <span class="puzzle-radio-text">单一文件夹循环</span>
+                        </label>
+                        <div id="puzzleSingleCoverOptionWrap" class="puzzle-single-cover-option" style="display:none;">
+                          <label id="puzzleSingleCoverOptionItem" class="puzzle-checkbox-item">
+                            <input id="puzzleSingleCoverOption" type="checkbox" />
+                            <span>拼图1作为封面（仅生成1张）</span>
+                          </label>
+                        </div>
+                        <label class="puzzle-radio-item">
+                          <input type="radio" name="puzzleGeneration" value="multi-folder" />
+                          <span class="puzzle-radio-text">多文件夹模式</span>
+                        </label>
+                      </div>
+                      <div class="puzzle-row" style="margin-top:12px; justify-content: space-between;">
+                        <label for="puzzleScaleSelect">导出倍率</label>
+                        <select id="puzzleScaleSelect" style="width: 100px;">
+                          <option value="1">1x (原图)</option>
+                          <option value="1.5">1.5x</option>
+                          <option value="2">2x (高清)</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="puzzle-panel">
+                      <div class="puzzle-panel-title">操作</div>
+                      <div class="puzzle-actions">
+                        <button id="puzzlePreviewBtn" type="button">预览</button>
+                        <button id="puzzleGenerateBtn" type="button" class="is-primary">开始生成</button>
+                      </div>
+                      <div id="puzzleStatus" class="puzzle-status">待命</div>
+                    </div>
+                    <!-- 坑位属性面板 - 选中坑位时显示 -->
+                    <div class="puzzle-panel puzzle-sidebar-properties" id="puzzleProperties" style="display:none">
+                      <div class="puzzle-panel-title">坑位属性</div>
+                      <div class="puzzle-prop-row">
+                        <label for="puzzleSlotW">W</label>
+                        <input id="puzzleSlotW" type="number" min="1" />
+                        <label for="puzzleSlotH">H</label>
+                        <input id="puzzleSlotH" type="number" min="1" />
+                      </div>
+                      <div class="puzzle-prop-row">
+                        <label class="puzzle-inline">
+                          <input id="puzzleSlotLockAspect" type="checkbox" />
+                          <span>锁定比例</span>
+                        </label>
+                        <label class="puzzle-inline">
+                          <input id="puzzleSlotShadow" type="checkbox" />
+                          <span>阴影</span>
+                        </label>
+                      </div>
+                      <div class="puzzle-prop-row puzzle-slot-style-row">
+                        <label for="puzzleSlotRadius">圆角</label>
+                        <input id="puzzleSlotRadius" type="number" min="0" max="100" />
+                        <label for="puzzleSlotBorderWidth">边框</label>
+                        <input id="puzzleSlotBorderWidth" type="number" min="0" max="20" />
+                        <div id="puzzleSlotBorderColorPicker" class="pickr-trigger" data-color="#ffffff" title="边框颜色"></div>
+                      </div>
+                      <div class="puzzle-prop-row puzzle-crop-row">
+                        <button id="puzzleCropBtn" type="button">裁剪设置</button>
+                      </div>
+                      <div class="puzzle-prop-row puzzle-crop-status" id="puzzleCropStatus" style="display:none">
+                        <span id="puzzleCropSummary">1.0x, 0%, 0%</span>
+                        <button id="puzzleCropClearBtn" type="button" class="btn-secondary">清除</button>
+                      </div>
+                      <div class="puzzle-prop-row">
+                        <button id="puzzleCopySlotBtn" type="button">复制</button>
+                        <button id="puzzleDeleteSlotBtn" type="button">删除</button>
+                      </div>
+                      <div class="puzzle-prop-row puzzle-align-row" id="puzzleAlignRow">
+                        <button id="puzzleAlignLeftBtn" type="button">左对齐</button>
+                        <button id="puzzleAlignRightBtn" type="button">右对齐</button>
+                        <button id="puzzleAlignTopBtn" type="button">上对齐</button>
+                        <button id="puzzleAlignBottomBtn" type="button">下对齐</button>
+                        <button id="puzzleAlignHCenterBtn" type="button">水平居中</button>
+                        <button id="puzzleAlignVCenterBtn" type="button">垂直居中</button>
+                        <button id="puzzleDistributeHBtn" type="button">水平等距</button>
+                        <button id="puzzleDistributeVBtn" type="button">垂直等距</button>
+                        <button id="puzzleScaleDownBtn" type="button">缩小</button>
+                        <button id="puzzleScaleUpBtn" type="button">放大</button>
+                      </div>
+                    </div>
+                    <!-- 文字属性面板 - 选中文字时显示 -->
+                    <div class="puzzle-panel puzzle-sidebar-properties puzzle-text-panel" id="puzzleTextPanel" style="display:none">
+                      <div class="puzzle-panel-title">文字属性</div>
+                      <div class="puzzle-prop-row puzzle-text-row">
+                        <div class="puzzle-text-group">
+                          <label for="puzzleTextFont">字体</label>
+                          <select id="puzzleTextFont" class="puzzle-text-select"></select>
+                        </div>
+                        <div class="puzzle-text-group">
+                          <label for="puzzleTextWeight">字重</label>
+                          <select id="puzzleTextWeight" class="puzzle-text-select"></select>
+                        </div>
+                        <div class="puzzle-text-group">
+                          <label for="puzzleTextSize">字号</label>
+                          <input id="puzzleTextSize" type="number" min="8" max="200" value="32" />
+                        </div>
+                      </div>
+                      <div class="puzzle-prop-row puzzle-text-row">
+                        <div class="puzzle-text-group puzzle-text-style">
+                          <label>样式</label>
+                          <div class="puzzle-text-button-group">
+                            <button id="puzzleTextBoldBtn" type="button" title="加粗">
+                              <span class="puzzle-text-style-bold">B</span>
+                            </button>
+                            <button id="puzzleTextItalicBtn" type="button" title="斜体">
+                              <span class="puzzle-text-style-italic">I</span>
+                            </button>
+                          </div>
+                        </div>
+                        <div class="puzzle-text-group">
+                          <label for="puzzleTextColor">颜色</label>
+                          <div id="puzzleTextColorPicker" class="pickr-trigger" data-color="#000000" title="文字颜色"></div>
+                        </div>
+                        <div class="puzzle-text-group puzzle-text-align">
+                          <label>对齐</label>
+                          <div class="puzzle-text-button-group">
+                            <button id="puzzleTextAlignLeft" type="button" class="active" title="左对齐">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <line x1="4" y1="6" x2="20" y2="6"></line>
+                                <line x1="4" y1="12" x2="16" y2="12"></line>
+                                <line x1="4" y1="18" x2="12" y2="18"></line>
+                              </svg>
+                            </button>
+                            <button id="puzzleTextAlignCenter" type="button" title="居中">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <line x1="6" y1="6" x2="18" y2="6"></line>
+                                <line x1="4" y1="12" x2="20" y2="12"></line>
+                                <line x1="7" y1="18" x2="17" y2="18"></line>
+                              </svg>
+                            </button>
+                            <button id="puzzleTextAlignRight" type="button" title="右对齐">
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                <line x1="8" y1="6" x2="20" y2="6"></line>
+                                <line x1="4" y1="12" x2="20" y2="12"></line>
+                                <line x1="12" y1="18" x2="20" y2="18"></line>
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="puzzle-prop-row puzzle-text-row">
+                        <div class="puzzle-text-group">
+                          <label for="puzzleTextLetterSpacing">字间距</label>
+                          <div class="puzzle-text-input-inline">
+                            <input id="puzzleTextLetterSpacing" type="number" min="-10" max="50" value="0" />
+                            <span>px</span>
+                          </div>
+                        </div>
+                        <div class="puzzle-text-group">
+                          <label for="puzzleTextLineHeight">行间距</label>
+                          <div class="puzzle-text-input-inline">
+                            <input id="puzzleTextLineHeight" type="number" min="1" max="3" step="0.1" value="1.4" />
+                            <span>倍</span>
+                          </div>
+                        </div>
+                        <div class="puzzle-text-group puzzle-text-scale">
+                          <label>缩放</label>
+                          <div class="puzzle-text-button-group">
+                            <button id="puzzleTextScaleDownBtn" type="button">−</button>
+                            <button id="puzzleTextScaleUpBtn" type="button">+</button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="puzzle-text-divider"></div>
+                      <div class="puzzle-prop-row puzzle-text-row">
+                        <div class="puzzle-text-group">
+                          <label for="puzzleTextStrokeColorPicker">描边色</label>
+                          <div id="puzzleTextStrokeColorPicker" class="pickr-trigger" data-color="#000000" title="描边颜色"></div>
+                        </div>
+                        <div class="puzzle-text-group">
+                          <label for="puzzleTextStrokeWidth">描边粗细</label>
+                          <div class="puzzle-text-input-inline">
+                            <input id="puzzleTextStrokeWidth" type="number" min="0" max="20" value="0" />
+                            <span>px</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="puzzle-text-divider"></div>
+                      <div class="puzzle-prop-row puzzle-text-row puzzle-text-row-nowrap">
+                        <div class="puzzle-text-group puzzle-text-group-color">
+                          <label for="puzzleTextShadowColorPicker">阴影色</label>
+                          <div id="puzzleTextShadowColorPicker" class="pickr-trigger" data-color="#000000" title="阴影颜色"></div>
+                        </div>
+                        <div class="puzzle-text-group">
+                          <label for="puzzleTextShadowBlur">模糊 px</label>
+                          <input id="puzzleTextShadowBlur" type="number" min="0" max="20" value="0" />
+                        </div>
+                        <div class="puzzle-text-group">
+                          <label for="puzzleTextShadowOffsetX">X px</label>
+                          <input id="puzzleTextShadowOffsetX" type="number" min="-20" max="20" value="0" />
+                        </div>
+                        <div class="puzzle-text-group">
+                          <label for="puzzleTextShadowOffsetY">Y px</label>
+                          <input id="puzzleTextShadowOffsetY" type="number" min="-20" max="20" value="0" />
+                        </div>
+                      </div>
+                      <div class="puzzle-prop-row puzzle-text-actions">
+                        <button id="puzzleCopyTextBtn" type="button" class="puzzle-text-action-btn">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          </svg>
+                          复制
+                        </button>
+                        <button id="puzzleDeleteTextBtn" type="button" class="puzzle-text-action-btn puzzle-text-action-danger">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          </svg>
+                          删除
+                        </button>
+                      </div>
+                    </div>
+                  </aside>
+                  <div class="puzzle-main">
+                    <div class="puzzle-tabs">
+                      <div id="puzzleTabBar" class="puzzle-tab-list"></div>
+                      <div class="puzzle-tab-actions">
+                        <button id="puzzleAddTabBtn" type="button">+ 新建</button>
+                        <button id="puzzleSaveTemplateBtn" type="button">保存模板</button>
+                        <button id="puzzleDeleteTemplateBtn" type="button">删除模板</button>
+                        <select id="puzzleTemplateSelect"></select>
+                        <div class="puzzle-template-menu-wrap" id="puzzleTemplateMenuWrap">
+                          <button
+                            id="puzzleTemplateMenuBtn"
+                            type="button"
+                            class="puzzle-template-menu-btn"
+                            title="更多模板操作"
+                            aria-label="更多模板操作"
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                              <circle cx="12" cy="5" r="2.1"></circle>
+                              <circle cx="12" cy="12" r="2.1"></circle>
+                              <circle cx="12" cy="19" r="2.1"></circle>
+                            </svg>
+                          </button>
+                          <div id="puzzleTemplateDropdown" class="puzzle-template-dropdown" role="menu" aria-hidden="true">
+                            <button id="puzzleRenameTemplateItem" type="button" class="puzzle-template-dropdown-item" role="menuitem">重命名</button>
+                            <button id="puzzleDuplicateTemplateItem" type="button" class="puzzle-template-dropdown-item" role="menuitem">复制模板</button>
+                            <button id="puzzleMigrateTemplateLibraryItem" type="button" class="puzzle-template-dropdown-item" role="menuitem">迁移模板库</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="puzzle-stage" id="puzzleStage">
+                      <div class="puzzle-stage-scroll" id="puzzleStageScroll">
+                        <div class="puzzle-stage-content" id="puzzleStageContent">
+                          <div class="puzzle-canvas-wrapper" id="puzzleCanvasWrapper">
+                            <canvas id="puzzleCanvas"></canvas>
+                            <div class="puzzle-empty" id="puzzleEmptyHint">请先上传背景图或开启透明背景</div>
+                            <div class="puzzle-preview-mask" id="puzzlePreviewMask">预览模式，编辑已锁定</div>
+                          </div>
+                          <svg class="puzzle-stage-selection-overlay" id="puzzleStageSelectionOverlay" aria-hidden="true">
+                            <path class="puzzle-stage-selection-path" id="puzzleStageSelectionPath"></path>
+                          </svg>
+                        </div>
+                      </div>
+                      <div class="puzzle-preview-bar" id="puzzlePreviewBar">
+                        <button id="puzzlePrevBtn" type="button">◀</button>
+                        <span id="puzzlePreviewIndex">预览 0/0</span>
+                        <button id="puzzleNextBtn" type="button">▶</button>
+                        <button id="puzzleExitPreviewBtn" type="button">返回编辑</button>
+                      </div>
+                      <div class="puzzle-preview-zoom" id="puzzlePreviewZoom">
+                        <button id="puzzleZoomOutBtn" type="button">-</button>
+                        <span id="puzzleZoomLabel">100%</span>
+                        <button id="puzzleZoomInBtn" type="button">+</button>
+                        <button id="puzzleZoomFitBtn" type="button">适配</button>
+                        <button id="puzzleZoomPixelBtn" type="button">1:1</button>
+                      </div>
+                      <div class="puzzle-preview-meta" id="puzzlePreviewMeta">
+                        <span id="puzzlePreviewScaleMeta"></span>
+                      </div>
+                      <div class="puzzle-slot-menu" id="puzzleSlotMenu">
+                        <button id="puzzleSlotCopyBtn" type="button">复制坑位</button>
+                        <button id="puzzleSlotDeleteBtn" type="button">删除坑位</button>
+                        <button id="puzzleSlotBringToFrontBtn" type="button">移至顶层</button>
+                        <button id="puzzleSlotSendToBackBtn" type="button">移至底层</button>
+                      </div>
+                    </div>
+                    <div class="puzzle-image-list">
+                      <div class="puzzle-image-header">
+                        <div class="puzzle-image-header-left">
+                          图片列表 (<span id="puzzleImageCount">0</span>) · 预计生成
+                          <span id="puzzleEstimateCount">0</span> 张
+                        </div>
+                        <button id="puzzleClearImagesBtn" type="button" class="btn-secondary puzzle-clear-images">清空全部</button>
+                      </div>
+                      <div id="puzzleImageList" class="puzzle-image-items"></div>
+                    </div>
+                    <div class="puzzle-modal-backdrop" id="puzzleTemplateModal">
+                      <div class="puzzle-modal">
+                        <div class="puzzle-modal-title" id="puzzleTemplateModalTitle">保存模板</div>
+                        <div class="puzzle-modal-body">
+                          <label for="puzzleTemplateNameInput">模板名称</label>
+                          <input id="puzzleTemplateNameInput" type="text" placeholder="请输入模板名称" />
+                        </div>
+                        <div class="puzzle-modal-actions">
+                          <button id="puzzleTemplateCancelBtn" type="button">取消</button>
+                          <button id="puzzleTemplateConfirmBtn" type="button" class="is-primary">保存</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="puzzle-modal-backdrop" id="puzzleTemplateLibraryModal">
+                      <div class="puzzle-modal puzzle-template-library-modal">
+                        <div class="puzzle-modal-title">迁移模板库</div>
+                        <div class="puzzle-modal-body">
+                          <ul class="puzzle-template-library-list">
+                            <li>将打开当前电脑的模板库本地文件夹。</li>
+                            <li>模板库需完整迁移，建议直接复制整个 <strong>PPT-Stitcher</strong> 文件夹。</li>
+                            <li>确认内容完整后再迁移，避免模板参数或图片丢失。</li>
+                          </ul>
+                        </div>
+                        <div class="puzzle-modal-actions">
+                          <button id="puzzleTemplateLibraryCancelBtn" type="button">取消</button>
+                          <button id="puzzleTemplateLibraryOpenBtn" type="button" class="is-primary">打开模板文件夹</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="puzzle-modal-backdrop" id="puzzleFolderModal">
+                      <div class="puzzle-modal puzzle-folder-modal" style="width:520px;">
+                        <div class="puzzle-modal-title">选择文件夹</div>
+                        <div class="puzzle-modal-body puzzle-folder-modal-body">
+                          <div id="puzzleFolderSubModeSwitch" class="puzzle-folder-submode-switch">
+                            <button id="puzzleFolderSubModeBatchBtn" type="button" class="puzzle-folder-submode-btn is-active">子文件夹模式</button>
+                            <button id="puzzleFolderSubModePerPuzzleBtn" type="button" class="puzzle-folder-submode-btn">逐个指定拼图</button>
+                          </div>
+                          <div id="puzzleFolderSubModeHint" class="puzzle-folder-submode-hint"></div>
+                          <div id="puzzleFolderList"></div>
+                        </div>
+                        <div class="puzzle-modal-actions puzzle-folder-actions">
+                          <div class="puzzle-folder-options">
+                            <label id="puzzleFolderSubdirOption" class="puzzle-folder-subdir">
+                              <input id="puzzleFolderSubdirToggle" type="checkbox" checked />
+                              <span id="puzzleFolderSubdirLabel">支持输出到子文件夹中</span>
+                            </label>
+                            <label id="puzzleFolderShareCycleOption" class="puzzle-folder-subdir">
+                              <input id="puzzleFolderShareCycleToggle" type="checkbox" checked />
+                              <span>支持多张拼图共享循环同一文件夹</span>
+                            </label>
+                          </div>
+                          <div class="puzzle-folder-actions-right">
+                            <button id="puzzleFolderCancelBtn" type="button">取消</button>
+                            <button id="puzzleFolderConfirmBtn" type="button" class="is-primary">确认</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="puzzle-modal-backdrop" id="puzzleConfirmModal">
+                      <div class="puzzle-modal" style="width:360px;">
+                        <div class="puzzle-modal-title" id="puzzleConfirmModalTitle">确认操作</div>
+                        <div class="puzzle-modal-body">
+                          <p id="puzzleConfirmModalMessage" style="font-size:14px; color:#475569; line-height:1.6; margin:0;"></p>
+                        </div>
+                        <div class="puzzle-modal-actions">
+                          <button id="puzzleConfirmModalCancelBtn" type="button">取消</button>
+                          <button id="puzzleConfirmModalConfirmBtn" type="button" class="is-primary">确定</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="puzzle-crop-backdrop" id="puzzleCropModal">
+                      <div class="puzzle-crop-modal">
+                        <div class="puzzle-crop-header">
+                          <div class="puzzle-crop-title">裁剪设置</div>
+                          <div class="puzzle-crop-header-actions">
+                            <button id="puzzleCropCancelBtn" type="button">取消</button>
+                            <button id="puzzleCropConfirmBtn" type="button" class="is-primary">确定</button>
+                          </div>
+                        </div>
+                        <div class="puzzle-crop-body">
+                          <div class="puzzle-crop-canvas-wrap">
+                            <canvas id="puzzleCropCanvas"></canvas>
+                            <div class="puzzle-crop-empty" id="puzzleCropEmpty">
+                              <svg class="puzzle-crop-empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                              </svg>
+                              <button id="puzzleCropUploadBtn" type="button">点击上传示例图片</button>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="puzzle-crop-footer">
+                          <div class="puzzle-crop-info">
+                          <div class="puzzle-crop-values">
+                            <span class="crop-value-item" data-field="scale">
+                              <span class="crop-value-label">缩放</span>
+                              <span class="crop-value-display" id="puzzleCropScaleDisplay">
+                                <span class="crop-value-num" id="puzzleCropScaleLabel">1.00</span>
+                                <span class="crop-value-unit">x</span>
+                              </span>
+                              <span class="crop-value-edit">
+                                <input id="puzzleCropScaleInput" class="crop-value-input" type="text" inputmode="decimal" />
+                                <span class="crop-value-unit">x</span>
+                              </span>
+                            </span>
+                            <span class="crop-value-item" data-field="offsetX">
+                              <span class="crop-value-label">水平</span>
+                              <span class="crop-value-display" id="puzzleCropOffsetXDisplay">
+                                <span class="crop-value-num" id="puzzleCropOffsetXLabel">0.00</span>
+                                <span class="crop-value-unit">%</span>
+                              </span>
+                              <span class="crop-value-edit">
+                                <input id="puzzleCropOffsetXInput" class="crop-value-input" type="text" inputmode="decimal" />
+                                <span class="crop-value-unit">%</span>
+                              </span>
+                            </span>
+                            <span class="crop-value-item" data-field="offsetY">
+                              <span class="crop-value-label">垂直</span>
+                              <span class="crop-value-display" id="puzzleCropOffsetYDisplay">
+                                <span class="crop-value-num" id="puzzleCropOffsetYLabel">0.00</span>
+                                <span class="crop-value-unit">%</span>
+                              </span>
+                              <span class="crop-value-edit">
+                                <input id="puzzleCropOffsetYInput" class="crop-value-input" type="text" inputmode="decimal" />
+                                <span class="crop-value-unit">%</span>
+                              </span>
+                            </span>
+                          </div>
+                            <span class="puzzle-crop-hint" id="puzzleCropHint"></span>
+                          </div>
+                          <div class="puzzle-crop-actions">
+                            <button id="puzzleCropReplaceBtn" type="button" class="btn-secondary">更换图片</button>
+                            <button id="puzzleCropResetBtn" type="button">重置</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="tab-content active" data-tab="export">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-desc">选择文件后将自动扫描并导出 PNG，默认使用内置 LibreOffice；如本机安装 Microsoft Office，可切换高保真导出。</span>
+              </div>
+              <div class="card-body">
+                <div class="panel-title">文档导出</div>
+                <div class="export-layout">
+                  <div class="panel-block">
+                    <div class="panel-subtitle">文件选择</div>
+                    <div class="panel-row button-grid">
+                      <button id="selectFilesBtn" type="button">选择文件</button>
+                      <button id="selectFolderBtn" type="button">选择文件夹</button>
+                      <button id="selectOutputBtn" class="is-wide" type="button">选择图片输出目录</button>
+                    </div>
+                    <div class="panel-row stats">
+                      <div>文件数：<span id="filesCount">0</span></div>
+                      <div>文件夹：<span id="foldersCount">0</span></div>
+                      <div>输出目录：<span id="outputStatus">未设置</span></div>
+                    </div>
+                    <div class="panel-row actions">
+                      <span class="hint-text">选择文件或文件夹后自动扫描</span>
+                      <button id="clearSelectionBtn" type="button">清空选择</button>
+                    </div>
+                  </div>
+                  <div class="panel-block">
+                    <div class="panel-subtitle">导出设置</div>
+                    <div class="panel-row">
+                      <label class="field-label" for="exportEngineSelect">导出引擎</label>
+                      <select id="exportEngineSelect">
+                        <option value="libreoffice" selected>LibreOffice（默认，免安装）</option>
+                        <option value="office">Office（本机高保真）</option>
+                      </select>
+                    </div>
+                    <div class="panel-row">
+                      <label class="field-label" for="scaleSelect">清晰度倍率</label>
+                      <select id="scaleSelect">
+                        <option value="1" selected>1x（默认）</option>
+                        <option value="1.5">1.5x</option>
+                        <option value="2">2x</option>
+                        <option value="3">3x</option>
+                      </select>
+                    </div>
+                    <div class="panel-row export-options-row">
+                      <div class="export-option-group">
+                        <label class="field-label" for="pageLimitInput">导出前几页</label>
+                        <input id="pageLimitInput" type="number" min="1" placeholder="留空=全部" />
+                      </div>
+                      <div class="export-option-group checkbox-group">
+                        <input id="useSubfolderCheckbox" type="checkbox" />
+                        <label class="checkbox-label" for="useSubfolderCheckbox">输出到子文件夹</label>
+                      </div>
+                    </div>
+                    <div class="panel-row">
+                      <button id="convertBtn" type="button">开始导出</button>
+                      <button id="cancelConvertBtn" type="button">取消</button>
+                      <span id="convertStatus" class="status-text is-hidden">待命</span>
+                    </div>
+                    <!-- 进度条 -->
+                    <div class="progress-wrapper" id="convertProgressWrapper" style="display: none;">
+                      <div class="progress-header">
+                        <span class="progress-label">导出进度</span>
+                        <span class="progress-percent" id="convertProgressPercent">0%</span>
+                      </div>
+                      <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" id="convertProgressBar" style="width: 0%"></div>
+                      </div>
+                      <div class="progress-detail">
+                        <span id="convertProgressText">准备中...</span>
+                        <span id="convertProgress" class="progress-counter">0/0</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="scanResultsSection" class="scan-results-section is-hidden">
+                  <div class="results-header">
+                    <span>扫描结果共 <span id="scanCount">0</span> 个文件</span>
+                  </div>
+                  <div id="scanList" class="scan-list"></div>
+                </div>
+                <!-- 空状态 -->
+                <div class="empty-state" id="exportEmptyState" style="display: none;">
+                  <div class="empty-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#e5e7eb" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                  </div>
+                  <div class="empty-title">还未选择文件</div>
+                  <div class="empty-desc">
+                    点击「选择文件」或「选择文件夹」开始<br>
+                    支持格式: Word, PowerPoint, PDF
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="tab-content" data-tab="upload">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-desc">配置多个图片文件夹，一键上传至飞书多维表格附件字段。</span>
+              </div>
+              <div class="card-body">
+                <div class="panel-row">
+                  <label class="field-label" for="feishuToken">授权码</label>
+                  <div class="input-with-action">
+                    <input id="feishuToken" type="password" placeholder="PersonalBaseToken" autocomplete="off" />
+                    <button id="toggleFeishuToken" class="input-action" type="button" aria-label="显示授权码">显示</button>
+                  </div>
+                  <span class="field-error-text" id="feishuTokenError">
+                    <svg class="icon-svg" style="width:14px;height:14px;color:var(--color-error);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    <span>此项不能为空</span>
+                  </span>
+                </div>
+                <div class="panel-row">
+                  <label class="field-label" for="feishuLink">表格链接</label>
+                  <input id="feishuLink" type="text" placeholder="多维表格链接" />
+                  <span class="field-error-text" id="feishuLinkError">
+                    <svg class="icon-svg" style="width:14px;height:14px;color:var(--color-error);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    <span>请输入有效的URL</span>
+                  </span>
+                </div>
+                <div class="panel-row">
+                  <label class="field-label" for="feishuField">飞书附件字段</label>
+                  <input id="feishuField" type="text" value="内容页图片" />
+                  <span class="field-error-text" id="feishuFieldError">
+                    <svg class="icon-svg" style="width:14px;height:14px;color:var(--color-error);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                    <span>此项不能为空</span>
+                  </span>
+                </div>
+                <div class="panel-row">
+                  <label class="field-label" for="startRow">表格起始行</label>
+                  <input id="startRow" type="number" min="1" value="2" />
+                  <span id="uploadModuleEndRowGroup" class="upload-row-inline">
+                    <label class="field-label" for="endRow">表格结束行</label>
+                    <input id="endRow" type="number" min="1" value="2" />
+                  </span>
+                  <span id="noteRowRange" class="upload-note-range" style="display: none;">写入范围：待扫描</span>
+                </div>
+                <div class="upload-mode-tabs" role="tablist" aria-label="上传模式">
+                  <button id="uploadModeModuleTab" class="upload-mode-tab active" type="button" data-upload-mode="module" role="tab" aria-selected="true">
+                    分模块上传
+                  </button>
+                  <button id="uploadModeNoteTab" class="upload-mode-tab" type="button" data-upload-mode="note-folder" role="tab" aria-selected="false">
+                    按笔记上传
+                  </button>
+                </div>
+                <div id="uploadModulePanel" class="upload-mode-panel">
+                  <div class="panel-row">
+                    <div class="panel-title">图片文件夹配置</div>
+                    <span class="folder-config-hint">可多次添加文件夹；每行按配置数量合并写入；顺序模式按文件名排序并循环。</span>
+                    <button id="addFolderConfigBtn" type="button" class="folder-config-add">+ 添加文件夹</button>
+                  </div>
+                  <div id="folderConfigList" class="folder-config-list">
+                    <div id="folderConfigEmpty" class="folder-config-empty">
+                      点击「+ 添加文件夹」配置上传目录
+                    </div>
+                  </div>
+                </div>
+                <div id="uploadNotePanel" class="upload-mode-panel" style="display: none;">
+                  <div class="panel-row note-entry-toolbar">
+                    <div class="note-entry-toolbar-copy">
+                      <div class="panel-title">笔记入口文件夹</div>
+                      <span class="folder-config-hint">选择一个父文件夹会替换入口；添加多个子文件夹会追加入口。入口顺序决定飞书行号。</span>
+                    </div>
+                    <div class="note-entry-toolbar-actions">
+                      <button id="selectNoteParentBtn" type="button" class="folder-config-add">选择父文件夹</button>
+                      <button id="addNoteEntryBtn" type="button" class="folder-config-add">添加多个子文件夹</button>
+                      <button id="rescanNoteBtn" type="button" class="folder-config-add">重新扫描</button>
+                    </div>
+                  </div>
+                  <div id="noteEntryList" class="note-entry-list">
+                    <div id="noteEntryEmpty" class="folder-config-empty">
+                      未选择入口文件夹。请选择一个父文件夹，或添加多个子文件夹。
+                    </div>
+                  </div>
+                  <div id="noteScanSummary" class="note-scan-summary">
+                    选择入口后将自动扫描最下层子文件夹作为笔记。
+                  </div>
+                  <div class="note-list-header">
+                    <div class="panel-title">笔记列表</div>
+                    <span class="folder-config-hint">仅从待上传列表删除，不会删除本地文件夹。</span>
+                  </div>
+                  <div id="noteGroupList" class="note-group-list">
+                    <div id="noteGroupEmpty" class="folder-config-empty">
+                      暂无可上传笔记
+                    </div>
+                  </div>
+                  <div id="noteSkippedSection" class="note-skipped-section" style="display: none;">
+                    <div class="note-list-header">
+                      <div class="panel-title">跳过项</div>
+                    </div>
+                    <div id="noteSkippedList" class="note-skipped-list"></div>
+                  </div>
+                </div>
+                <div class="panel-row">
+                  <button id="uploadBtn" type="button">开始一键上传</button>
+                  <button id="cancelUploadBtn" type="button">取消</button>
+                  <span id="uploadStatus" class="status-text">待命</span>
+                </div>
+                <!-- 进度条 -->
+                <div class="progress-wrapper" id="uploadProgressWrapper" style="display: none;">
+                  <div class="progress-header">
+                    <span class="progress-label">上传进度</span>
+                    <span class="progress-percent" id="uploadProgressPercent">0%</span>
+                  </div>
+                  <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="uploadProgressBar" style="width: 0%"></div>
+                  </div>
+                  <div class="progress-detail">
+                    <span id="uploadProgressText">准备中...</span>
+                    <span id="uploadProgress" class="progress-counter">0/0</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="tab-content" data-tab="xhs">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-desc">输入商品链接，自动抓取主图与详情图并保存到文件夹。</span>
+              </div>
+              <div class="card-body xhs-body">
+                <div class="xhs-layout">
+                  <div class="xhs-panel">
+                    <div class="panel-title">商品链接（每行一个）</div>
+                    <textarea id="xhsLinks" class="xhs-links" rows="8" placeholder="https://www.xiaohongshu.com/goods-detail/..."></textarea>
+
+                    <div class="panel-row xhs-row">
+                      <button id="xhsSelectOutputBtn" type="button">选择输出目录</button>
+                      <span id="xhsOutputPath" class="status-text" title="未设置">未设置</span>
+                    </div>
+
+                    <div class="panel-row xhs-row">
+                      <button id="xhsStartBtn" type="button">开始下载</button>
+                      <button id="xhsStopBtn" type="button">停止</button>
+                      <span id="xhsStatus" class="status-text">待命</span>
+                    </div>
+
+                    <div class="panel-title">任务列表</div>
+                    <div id="xhsTaskList" class="xhs-task-list"></div>
+                  </div>
+
+                  <div class="xhs-webview">
+                    <div class="xhs-webview-header">
+                      <span>内置浏览器</span>
+                      <span id="xhsWebviewStatus" class="status-text">待机</span>
+                    </div>
+                    <webview id="xhsWebview" class="xhs-webview-frame" src="about:blank" partition="persist:xhs"></webview>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section class="tab-content" data-tab="settings">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-desc">授权管理与版本更新。</span>
+              </div>
+              <div class="card-body settings-body">
+                <div class="settings-grid">
+                  <div class="settings-card">
+                    <div class="panel-title">授权管理</div>
+                    <div class="panel-row">
+                      <label class="field-label" for="licenseKeyInput">授权密钥</label>
+                      <div class="input-with-action">
+                        <input id="licenseKeyInput" type="password" placeholder="LLF-XXXX-XXXX-XXXX" autocomplete="off" />
+                        <button id="toggleLicenseKey" class="input-action" type="button" aria-label="显示授权密钥">显示</button>
+                      </div>
+                    </div>
+                    <div class="panel-row">
+                      <button id="verifyLicenseBtn" type="button">验证</button>
+                      <button id="clearLicenseBtn" type="button" class="btn-secondary">清除</button>
+                      <span class="status-text" id="licenseStatusText">未激活</span>
+                      <span class="status-dot" id="licenseStatusDot"></span>
+                    </div>
+                    <div class="panel-row license-meta">
+                      <span id="licenseExpireText"></span>
+                      <span>上次验证：<span id="licenseLastVerify">-</span></span>
+                      <span>下次检查：<span id="licenseNextCheck">-</span></span>
+                    </div>
+                  </div>
+                  <div class="settings-card">
+                    <div class="panel-title">基础信息</div>
+                    <div class="panel-row">
+                      <span>当前版本：<span id="currentVersionText">-</span></span>
+                      <button id="checkUpdateBtn" type="button" class="btn-secondary">检查更新</button>
+                      <button id="tutorialBtn" type="button" class="btn-secondary">获取使用教程</button>
+                    </div>
+                    <div class="panel-row" style="margin-top:10px;">
+                      <button id="communityBtn" type="button" class="btn-secondary" style="flex:1;">获取模板库及交流群</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span class="card-desc">查看操作过程、错误与提示。</span>
+              </div>
+              <div class="card-body logs-body">
+                <div class="log-panel">
+                  <div class="log-header">
+                    <span>运行日志</span>
+                    <div class="log-actions">
+                      <select id="logLevelFilter" class="log-filter">
+                        <option value="all">全部</option>
+                        <option value="4">仅错误</option>
+                        <option value="2">仅警告</option>
+                        <option value="1">仅信息</option>
+                      </select>
+                      <button id="exportErrorsBtn" type="button">导出日志</button>
+                      <button id="clearLogBtn" type="button">清空</button>
+                    </div>
+                  </div>
+                  <div id="logBody" class="log-body"></div>
+                </div>
+                <div class="contact-panel">
+                  <div class="contact-title">
+                    <svg class="icon-svg" style="width:16px;height:16px;vertical-align:text-bottom;margin-right:4px;" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    联系开发者
+                  </div>
+                  <div class="contact-desc">如果有问题或建议，请联系开发者：<strong>尹星河（teaxh613）</strong></div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+    <!-- 微信登录弹窗 -->
+    <div id="wechatLoginModal" class="modal-backdrop">
+      <div class="modal wechat-login-modal">
+        <div class="modal-header">
+          <h2>微信扫码登录</h2>
+        </div>
+        <div class="modal-body">
+          <div class="wechat-login-qr">
+            <img src="../assets/wechat-qrcode.jpg" alt="公众号二维码" />
+            <div class="wechat-login-qr-text">公众号：尹星河</div>
+          </div>
+          <div class="wechat-login-steps">
+            <p>1. 扫描二维码关注公众号</p>
+            <p>2. 发送<span class="wechat-highlight">「登录」</span>获取验证码</p>
+            <p>3. 输入验证码后点击登录</p>
+          </div>
+          <div class="panel-row wechat-login-input">
+            <label class="field-label" for="wechatLoginCode">验证码</label>
+            <input id="wechatLoginCode" type="text" placeholder="请输入6位数字验证码" maxlength="6" autocomplete="off" />
+            <span id="wechatLoginError" class="field-error-text"></span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="wechatLoginRetry" type="button" class="btn-secondary">重试检查</button>
+          <button id="wechatLoginSubmit" type="button">登录并进入</button>
+        </div>
+      </div>
+    </div>
+    <!-- LibreOffice 运行时引导弹窗 -->
+    <div id="libreofficeModal" class="modal-backdrop">
+      <div class="modal libreoffice-modal">
+        <button id="libreofficeModalClose" class="modal-close" type="button" aria-label="关闭">×</button>
+        <div class="modal-header">
+          <h2>LibreOffice 运行时未就绪</h2>
+        </div>
+        <div class="modal-body">
+          <p id="libreofficeModalMessage" class="libreoffice-modal-message">
+            当前导出被阻止：未通过 LibreOffice 运行时预检。
+          </p>
+          <div class="update-version libreoffice-check-row">
+            <span>环境检查 <strong>未通过</strong></span>
+            <span class="update-arrow">→</span>
+            <span>预检得分 <strong id="libreofficeModalScore">0/100</strong></span>
+          </div>
+          <div class="update-log libreoffice-guide-log">
+            <div class="update-log-title">建议处理</div>
+            <div id="libreofficeModalSuggestions" class="libreoffice-modal-suggestions"></div>
+          </div>
+          <div class="update-log libreoffice-guide-log">
+            <div class="update-log-title">诊断信息</div>
+            <pre id="libreofficeModalDiagnostics" class="libreoffice-modal-diagnostics"></pre>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="libreofficeDownloadBtn" type="button" class="btn-secondary">下载 LibreOffice</button>
+          <button id="libreofficeCopyDiagBtn" type="button" class="btn-secondary">复制诊断信息</button>
+          <button id="libreofficeRecheckBtn" type="button">重新检测</button>
+          <button id="libreofficeCancelBtn" type="button" class="btn-secondary">稍后再说</button>
+        </div>
+      </div>
+    </div>
+    <!-- Office 高保真导出说明弹窗 -->
+    <div id="officeEngineModal" class="modal-backdrop">
+      <div class="modal office-engine-modal">
+        <button id="officeEngineModalClose" class="modal-close" type="button" aria-label="关闭">×</button>
+        <div class="modal-header">
+          <h2>Office 高保真导出</h2>
+        </div>
+        <div class="modal-body">
+          <p id="officeEngineModalMessage" class="libreoffice-modal-message">
+            该模式会调用本机 Microsoft Office 转 PDF，排版更接近 Office 打开效果，但需要本机已安装并可正常启动 Word / PowerPoint。
+          </p>
+          <div class="office-engine-apps" id="officeEngineApps"></div>
+          <div class="update-log libreoffice-guide-log">
+            <div class="update-log-title">建议处理</div>
+            <div id="officeEngineSuggestions" class="libreoffice-modal-suggestions"></div>
+          </div>
+          <div class="update-log libreoffice-guide-log">
+            <div class="update-log-title">诊断信息</div>
+            <pre id="officeEngineDiagnostics" class="libreoffice-modal-diagnostics"></pre>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="officeEngineCopyDiagBtn" type="button" class="btn-secondary">复制诊断</button>
+          <button id="officeEngineRecheckBtn" type="button" class="btn-secondary">重新检测</button>
+          <button id="officeEngineBackBtn" type="button" class="btn-secondary">切回 LibreOffice</button>
+          <button id="officeEngineContinueBtn" type="button">继续使用 Office</button>
+        </div>
+      </div>
+    </div>
+    <!-- 授权弹窗 -->
+    <div id="licenseModal" class="modal-backdrop">
+      <div class="modal license-modal">
+        <button id="licenseModalClose" class="modal-close" type="button" aria-label="关闭">×</button>
+        <div class="modal-header">
+          <h2>🔐 请激活授权</h2>
+        </div>
+        <div class="modal-body">
+          <div class="license-qr">
+            <img src="../assets/wechat-qrcode.jpg" alt="微信二维码" />
+            <div class="license-qr-text">扫码关注公众号，获取授权密钥</div>
+          </div>
+          <div class="panel-row">
+            <label class="field-label" for="licenseModalKey">授权密钥</label>
+            <input id="licenseModalKey" type="text" placeholder="LLF-XXXX-XXXX-XXXX" autocomplete="off" />
+            <span id="licenseModalError" class="field-error-text"></span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="licenseModalCancel" type="button" class="btn-secondary">取消</button>
+          <button id="licenseModalVerify" type="button">验证并激活</button>
+        </div>
+      </div>
+    </div>
+    <!-- 更新弹窗 -->
+    <div id="updateModal" class="modal-backdrop">
+      <div class="modal update-modal">
+        <button id="updateCloseBtn" class="modal-close" title="关闭">&times;</button>
+        <div class="modal-header">
+          <h2>
+            <span class="update-icon">🔔</span>
+            发现新版本
+            <span id="forceUpdateBadge" class="force-badge">必须更新</span>
+          </h2>
+        </div>
+        <div class="modal-body">
+          <div class="update-version">
+            <span>当前版本 <strong id="updateCurrentVersion">-</strong></span>
+            <span class="update-arrow">→</span>
+            <span>最新版本 <strong id="updateLatestVersion">-</strong></span>
+          </div>
+          <div id="minVersionTip" class="min-version-tip">
+            <span class="tip-icon">⚠️</span>
+            <span class="tip-text">
+              当前版本低于最低支持版本 <strong id="minVersionText">-</strong>，必须更新才能继续使用
+            </span>
+          </div>
+          <div class="update-log">
+            <div class="update-log-title">📝 更新内容</div>
+            <pre id="updateLogText"></pre>
+          </div>
+          <div id="downloadUrlFallback" class="download-url-fallback">
+            <p class="fallback-tip">无法自动打开下载链接，请手动复制：</p>
+            <div class="url-copy-box">
+              <input type="text" id="downloadUrlText" readonly />
+              <button id="copyUrlBtn" class="copy-btn" type="button">复制</button>
+            </div>
+          </div>
+          <label id="updateSkipContainer" class="update-skip">
+            <input id="updateSkipCheckbox" type="checkbox" />
+            不再提示此版本
+          </label>
+        </div>
+        <div class="modal-footer">
+          <button id="updateLaterBtn" type="button" class="btn-secondary">稍后提醒</button>
+          <button id="updateNowBtn" type="button">立即更新</button>
+        </div>
+      </div>
+    </div>
+    <!-- 社群弹窗 -->
+    <div id="communityModal" class="modal-backdrop">
+      <div class="modal">
+        <button id="communityModalClose" class="modal-close" type="button" aria-label="关闭">×</button>
+        <div class="modal-header">
+          <h2>添加开发者微信</h2>
+        </div>
+        <div class="modal-body">
+          <div class="license-qr">
+            <img src="../assets/developer-wechat.png" alt="开发者微信二维码" style="width:100%;height:auto;" />
+            <div class="license-qr-text">扫码添加开发者微信</div>
+          </div>
+          <p class="community-tip">添加后即可领取完整使用教程、全套模板库及操作工作流，还可加入交流群，随时反馈问题与建议。</p>
+        </div>
+      </div>
+    </div>
+    <!-- 全局Toast通知容器 -->
+    <div id="globalToast" class="toast-container">
+      <div class="toast-content">
+        <span class="toast-icon"></span>
+        <span class="toast-message"></span>
+      </div>
+      <div class="toast-actions"></div>
+    </div>
+    <script src="./vendor/jszip.min.js"></script>
+    <script src="./vendor/filesaver.min.js"></script>
+    <script src="./vendor/pickr.min.js"></script>
+    <script src="./compose.js"></script>
+    <script src="./license/ui.js"></script>
+    <script src="./license/index.js"></script>
+    <script src="./renderer.js"></script>
+    <script src="./wechat-login.js"></script>
+    <script type="module" src="./puzzle/index.js"></script>
+  </body>
+</html>

@@ -1,0 +1,70 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# Electron / desktop build outputs
+dist/
+dist2/
+out/
+release/
+**/dist/
+**/dist2/
+**/out/
+**/release/
+*.exe
+*.blockmap
+*.msi
+
+# GitHub-ready public repository excludes platform runtime dumps.
+/code/desktop/vendor/libreoffice/
+/code/desktop/vendor/redist/vc_redist.x64.exe
+/code/desktop/fonts/*
+!/code/desktop/fonts/README.md
+
+# temporary outputs
+_tmp/
+_test_output/
+**/_tmp/
+**/_test_output/
+*.log
+stdout
+*.tmp
+*.bak
+
+# migration snapshots
+.migration-backups/
+migration-*-before.txt
+migration-*-before.patch
+
+# local-only artifacts moved out of the repository index
+/local-artifacts/
+/API_key.md
+/.claude/settings.local.json
+/__showlines.js
+/__tmp.js
+
+# archives and local backups
+*.zip
+*.7z
+*.rar
+desktop - 副本/
+* - 副本/
+
+# local sample documents
+*.docx
+*.pptx
+*.ppt
+*.doc
+!code/desktop/test-fixtures/**
+
+# environment and local secrets
+.env
+.env.*
+*.local
+*.local.*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

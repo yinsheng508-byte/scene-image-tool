@@ -1,0 +1,24 @@
+{
+  "summary": {
+    "total": 1,
+    "pass": 1,
+    "fail": 0
+  },
+  "cases": [
+    {
+      "filePath": "d:\\deptask\\场景化图片工具\\专题八　主观题突破2　限制条件同分异构体的书写【淘宝店：红太阳资料库】.pptx",
+      "ok": true,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 9861,
+      "openMode": "open",
+      "repaired": false,
+      "retries": 0,
+      "fallbackReason": "",
+      "envWarning": "",
+      "errorCode": "",
+      "error": "{\"rawError\":\"\",\"errorCode\":\"\",\"envWarning\":\"\",\"repaired\":false,\"ok\":true,\"fallbackReason\":\"\",\"retries\":0,\"message\":\"PPT 转 PDF 完成\",\"durationMs\":9861,\"error\":\"\",\"openMode\":\"open\"}",
+      "outputSize": 3206268
+    }
+  ]
+}

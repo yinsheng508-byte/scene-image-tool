@@ -1,0 +1,116 @@
+{
+  "name": "scene-image-tool-desktop",
+  "version": "1.6.0",
+  "description": "Desktop wrapper for the 流量蜂虚拟笔记工具",
+  "author": "yinxinhe",
+  "main": "main.js",
+  "scripts": {
+    "check:lo-runtime": "node scripts/check-lo-runtime.js",
+    "dist": "electron-builder",
+    "dist:full": "npm run check:lo-runtime && electron-builder",
+    "dist:full:checked": "npm run check:lo-runtime && electron-builder && node scripts/font-probe-test.js --mode=packaged --strict",
+    "dist:checked": "electron-builder && node scripts/font-probe-test.js --mode=packaged --strict",
+    "dist:trial": "electron-builder -c.productName=流量蜂虚拟笔记工具体验版 -c.extraMetadata.appEdition=trial",
+    "dist:dev": "electron-builder --dir -c.asar=false -c.directories.output=dist",
+    "font:probe": "node scripts/font-probe-test.js --mode=dev",
+    "font:probe:packaged": "node scripts/font-probe-test.js --mode=packaged --strict",
+    "font:enum:smoke": "node scripts/font-enum-regression.js",
+    "perf:baseline": "node scripts/export-baseline-report.js",
+    "ppt:smoke": "node scripts/ppt-export-smoke.js",
+    "puzzle:shadow:smoke": "node scripts/puzzle-shadow-regression.js",
+    "puzzle:text:smoke": "node scripts/puzzle-text-style-regression.js",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "@hyzyla/pdfium": "^2.1.9",
+    "@simonwep/pickr": "^1.9.1",
+    "archiver": "^6.0.2",
+    "font-list": "^2.0.2",
+    "sharp": "^0.33.4",
+    "skia-canvas": "^3.0.8"
+  },
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.scene.image.tool",
+    "productName": "流量蜂虚拟笔记工具",
+    "icon": "assets/app-icon.png",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**",
+      "assets/**",
+      "fonts/**",
+      "shared/**",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "fonts/**",
+      "node_modules/skia-canvas/**"
+    ],
+    "extraResources": [
+      {
+        "from": "vendor/libreoffice",
+        "to": "libreoffice",
+        "filter": [
+          "program/**",
+          "share/**",
+          "presets/**",
+          "Fonts/**",
+          "System/**",
+          "System64/**",
+          "LICENSE*",
+          "NOTICE*",
+          "license.txt",
+          "README.md",
+          "update-settings.ini"
+        ]
+      },
+      {
+        "from": "scripts",
+        "to": "scripts",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "vendor/redist",
+        "to": "redist",
+        "filter": [
+          "vc_redist.x64.exe",
+          "vc_redist.x64.exe.sha256"
+        ]
+      }
+    ],
+    "win": {
+      "icon": "assets/app-icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "include": "build/installer.nsh"
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "summary": {
+    "total": 1,
+    "pass": 1,
+    "fail": 0
+  },
+  "cases": [
+    {
+      "filePath": "d:\\deptask\\场景化图片工具\\专题八~1.PPT",
+      "ok": true,
+      "exitCode": 0,
+      "timedOut": false,
+      "durationMs": 10154,
+      "openMode": "open2007",
+      "repaired": true,
+      "retries": 0,
+      "fallbackReason": "",
+      "envWarning": "",
+      "errorCode": "",
+      "error": "{\"openMode\":\"open2007\",\"repaired\":true,\"error\":\"\",\"ok\":true,\"rawError\":\"\",\"envWarning\":\"\",\"errorCode\":\"\",\"fallbackReason\":\"\",\"durationMs\":10154,\"message\":\"PPT 转 PDF 完成\",\"retries\":0}",
+      "outputSize": 3206268
+    }
+  ]
+}

@@ -1,0 +1,531 @@
+
+.compose-root {
+    --primary-color: #F87171; /* Red 400 - 与全局主题一致 */
+    --primary-hover: #EF4444; /* Red 500 */
+    --bg-color: #f3f4f6; /* Gray 100 */
+    --panel-bg: #ffffff;
+    --text-color: #111827; /* Gray 900 */
+    --text-muted: #6b7280; /* Gray 500 */
+    --border-color: #e5e7eb; /* Gray 200 */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+}
+
+.compose-root {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 40px 20px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+.compose-root .container {
+    width: 95%;
+    max-width: 1280px; /* Default for laptops */
+    margin: 0 auto;
+}
+
+.compose-root h1 {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--text-color);
+    letter-spacing: -0.025em;
+}
+
+/* Controls Section */
+.compose-root .controls {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.compose-root .input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.compose-root input[type="file"] {
+    display: none;
+}
+
+.compose-root .btn {
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    padding: 12px 24px;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    color: var(--text-color);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.compose-root .btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+/* Main Layout */
+.compose-root .main-area {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 30px;
+    align-items: start;
+}
+
+/* 2K & Large Screens (>= 1921px) */
+@media (min-width: 1921px) {
+    .compose-root .container {
+        max-width: 1800px;
+    }
+    .compose-root .main-area {
+        grid-template-columns: 1fr 360px;
+        gap: 40px;
+    }
+    .compose-root .canvas-wrapper {
+        min-height: 700px;
+        padding: 60px;
+    }
+    /* canvas max-height removed for zooming */
+    .compose-root h1 {
+        font-size: 3rem;
+        margin-bottom: 50px;
+    }
+}
+
+/* 1080p Standard Desktop (1441px - 1920px) */
+@media (min-width: 1441px) and (max-width: 1920px) {
+    .compose-root .container {
+        max-width: 1600px;
+    }
+    .compose-root .main-area {
+        gap: 30px;
+    }
+    .compose-root .canvas-wrapper {
+        min-height: 600px;
+    }
+    /* canvas max-height removed for zooming */
+}
+
+/* Small Laptops (1025px - 1440px) */
+@media (min-width: 1025px) and (max-width: 1440px) {
+    .compose-root {
+        padding: 20px;
+    }
+    .compose-root h1 {
+        font-size: 1.75rem;
+        margin-bottom: 25px;
+    }
+    .compose-root .controls {
+        margin-bottom: 25px;
+    }
+    .compose-root .main-area {
+        grid-template-columns: 1fr 280px;
+        gap: 20px;
+    }
+    .compose-root .canvas-wrapper {
+        min-height: 400px;
+        padding: 20px;
+    }
+    /* canvas max-height removed for zooming */
+    .compose-root .sidebar {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .compose-root .main-area {
+        grid-template-columns: 1fr;
+    }
+
+    .compose-root .sidebar {
+        max-height: none;
+        overflow-y: visible;
+    }
+}
+
+.compose-root .left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    min-width: 0; /* Fix flex/grid overflow issues */
+}
+
+.compose-root .info-panel {
+    background: var(--panel-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 24px;
+    color: var(--text-color);
+}
+
+.compose-root .info-panel h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.compose-root .info-panel p {
+    margin: 0 0 16px 0;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.compose-root .info-panel p:last-child {
+    margin-bottom: 0;
+}
+
+.compose-root .info-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.compose-root .info-item:last-child {
+    margin-bottom: 0;
+}
+
+.compose-root .info-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.compose-root .canvas-wrapper {
+    background: var(--panel-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    padding: 40px;
+    position: relative;
+    min-height: 500px;
+    display: grid; /* Use grid for better centering with overflow */
+    place-items: center;
+    overflow: auto; /* Enable scrolling */
+    user-select: none;
+    background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.compose-root canvas {
+    /* Remove max constraints to allow zooming */
+    /* max-width: 100%; */
+    /* max-height: 80vh; */
+    display: none; /* Hidden by default */
+    transition: width 0.1s ease-out, height 0.1s ease-out; /* Smooth zoom for both dimensions */
+}
+
+.compose-root .instruction-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+/* Sidebar Styles */
+.compose-root .sidebar {
+    background: var(--panel-bg);
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    position: sticky;
+    top: 20px;
+}
+
+.compose-root .sidebar h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.compose-root .setting-item {
+    margin-bottom: 20px;
+}
+
+.compose-root .setting-item label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.setting-item select,
+.compose-root .setting-item input[type="range"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    background-color: var(--bg-color); /* Light Gray */
+    font-size: 0.95rem;
+    color: var(--text-color);
+    transition: all 0.2s;
+}
+
+.setting-item select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 14px;
+    padding-right: 36px;
+}
+
+.setting-item select:hover {
+    background-color: #fff;
+    box-shadow: var(--shadow-sm);
+}
+
+.compose-root .setting-item select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.compose-root .reset-btn {
+    width: 100%;
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: white;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.compose-root .reset-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+}
+
+.compose-root .reset-btn:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Custom Range Slider */
+.compose-root input[type=range] {
+    -webkit-appearance: none;
+    background: transparent;
+    width: 100%;
+}
+
+.compose-root input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    cursor: pointer;
+    margin-top: -7px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    border: 2px solid #fff;
+    transition: transform 0.1s;
+}
+
+.compose-root input[type=range]::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+.compose-root input[type=range]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    cursor: pointer;
+    background: #e5e7eb;
+    border-radius: 2px;
+}
+
+/* Preview List */
+.compose-root .preview-list {
+    margin: 15px 0;
+    max-height: 240px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: #f9fafb;
+}
+
+.compose-root .preview-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Ensure delete button goes to right */
+    padding: 10px;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.compose-root .preview-item:last-child {
+    border-bottom: none;
+}
+
+.compose-root .preview-item:hover {
+    background-color: #f3f4f6;
+}
+
+.compose-root .preview-item.active {
+    background-color: #eef2ff;
+    border-left: 3px solid var(--primary-color);
+}
+
+.compose-root .delete-btn-right {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-left: 8px;
+    opacity: 0; /* Hidden by default */
+}
+
+.compose-root .preview-item:hover .delete-btn-right {
+    opacity: 1; /* Show on hover */
+}
+
+.compose-root .delete-btn-right:hover {
+    background: #fee2e2;
+    border-color: #fecaca;
+}
+
+.compose-root .preview-item img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.compose-root .preview-item span {
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+/* Action Buttons */
+.compose-root .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.compose-root .action-btn {
+    padding: 12px;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background-color: white;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.compose-root .action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #f3f4f6;
+}
+
+.compose-root .action-btn.primary {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+}
+
+.compose-root .action-btn.primary:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);
+    transform: translateY(-1px);
+}
+
+.compose-root .action-btn:not(.primary):hover:not(:disabled) {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* Scrollbar Styling */
+.compose-root ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.compose-root ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.compose-root ::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+.compose-root ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+    
+
+.compose-root {
+    padding: 0;
+    background: transparent;
+    font-family: "Source Han Sans SC", "Noto Sans SC", "PingFang SC", "Microsoft YaHei UI", sans-serif;
+}
+
+.compose-root .container {
+    width: 100%;
+    max-width: none;
+}

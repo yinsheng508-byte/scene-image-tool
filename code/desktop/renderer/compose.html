@@ -1,0 +1,73 @@
+<div id="composeRoot" class="compose-root">
+<div class="container">
+        <div class="controls">
+            <div class="input-group">
+                <label for="bgInput" class="btn">1. 上传底图 (场景图)</label>
+                <input type="file" id="bgInput" accept="image/*">
+            </div>
+
+            <div class="input-group">
+                <label for="pptInput" class="btn">2. 上传叠图图片（可多选）</label>
+                <input type="file" id="pptInput" accept="image/*" multiple>
+            </div>
+        </div>
+
+        <div class="main-area">
+            <div class="left-column">
+                <div class="canvas-wrapper">
+                    <canvas id="editorCanvas"></canvas>
+                    <div class="instruction-overlay" id="instruction">请先上传底图，然后拖动四个角点定位屏幕区域</div>
+                </div>
+
+                <div class="info-panel">
+                    <div class="info-item">
+                        <div class="info-icon">i</div>
+                        <div>
+                            <h4>使用说明</h4>
+                            <p><strong>画布缩放：</strong>按住 <code>Ctrl</code> 键 + 滚动鼠标滚轮，可放大或缩小画布以便精准定位。</p>
+                            <p><strong>下载尺寸：</strong>系统会自动生成<strong>高清合成图</strong>（通常为 2K~4K 分辨率），并智能压缩至 10MB 以内，确保画质清晰且易于传输。</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">@</div>
+                        <div>
+                            <h4>联系开发者</h4>
+                            <p>如果有问题或建议，请联系开发者：<strong>尹星河（teaxh613）</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <h3>设置</h3>
+                <div class="setting-item">
+                    <label>不透明度: <span id="opacityVal">100%</span></label>
+                    <input type="range" id="opacity" min="0" max="100" value="100">
+                </div>
+                <div class="setting-item">
+                    <label>混合模式:</label>
+                    <select id="blendMode">
+                        <option value="normal" selected>正常 (Normal)</option>
+                        <option value="multiply">正片叠底 (Multiply)</option>
+                        <option value="screen">滤色 (Screen)</option>
+                        <option value="overlay">叠加 (Overlay)</option>
+                        <option value="soft-light">柔光 (Soft Light)</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>边角微调:</label>
+                    <button id="resetPoints" class="reset-btn">重置四个角</button>
+                </div>
+
+                <h3>预览 & 导出</h3>
+                <div class="preview-list" id="previewList">
+                    <!-- 预览列表 -->
+                </div>
+
+                <div class="actions">
+                    <button id="downloadAllBtn" class="action-btn primary" disabled>打包下载全部</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
