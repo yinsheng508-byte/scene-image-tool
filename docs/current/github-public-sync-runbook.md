@@ -61,7 +61,7 @@
 - 创建 public 仓库：`https://github.com/yinsheng508-byte/scene-image-tool`。
 - 由于当前 Windows 环境普通 Git HTTPS push 多次出现 HTTP 408 / TLS EOF，未继续依赖 `git push`。
 - 改用 GitHub REST Git Database API：先创建临时 `.bootstrap`，再上传 Git archive 导出的真实 Git blob，最终创建完整 tree / commit / ref。
-- 远端 `main` 和 `platform/macos-bootstrap` 均指向提交 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`。
+- 源码基线提交为 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`；文档状态回写后，远端 `main` 和 `platform/macos-bootstrap` 保持同步，当前 HEAD 以 GitHub refs 为准。
 - 最终远端 HEAD 不包含临时 `.bootstrap`。
 
 普通网络环境下的等价手工命令如下，仅作为后续参考：
@@ -98,7 +98,8 @@ git switch main
 - 新 Git 历史：只包含公开基线，不包含当前迁移仓库 `.git` 历史。
 - 本地带字体导出仓库跟踪文件：144 个。
 - public 首次线上基线跟踪文件：117 个。
-- 远端 commit：`e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`。
+- 源码基线 commit：`e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`。
+- 当前远端 HEAD commit：以 GitHub refs 为准，文档内不固化动态 HEAD。
 - 大文件扫描：源码线上基线无 95 MiB+ 文件；字体二进制不进入 public 首次基线。
 - 敏感路径扫描：无实际 `API_key.md`、`.claude/settings.local.json`、`.env*` 文件。
 - runtime 扫描：无 `code/desktop/vendor/libreoffice/`，无 `code/desktop/vendor/redist/vc_redist.x64.exe`。
@@ -120,7 +121,7 @@ npm --prefix code/desktop run puzzle:text:smoke
 
 本轮已完成的远端验收：
 
-- `main` 和 `platform/macos-bootstrap` 指向同一提交 `e20a52d`。
+- `main` 和 `platform/macos-bootstrap` 指向同一提交。
 - clone `platform/macos-bootstrap` 成功。
 - clone 后 Git 跟踪文件数为 117。
 - 远端 HEAD 不存在 `.bootstrap`。

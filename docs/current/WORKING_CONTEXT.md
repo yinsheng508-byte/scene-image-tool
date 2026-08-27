@@ -15,7 +15,7 @@ GitHub public 远端：
 - 仓库：`https://github.com/yinsheng508-byte/scene-image-tool`
 - 默认分支：`main`
 - macOS 基线分支：`platform/macos-bootstrap`
-- 当前远端提交：`e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`
+- 远端提交：`main` 和 `platform/macos-bootstrap` 保持同步，当前 HEAD 以 GitHub refs 为准
 
 迁移进度：
 
@@ -68,7 +68,7 @@ GitHub public 远端：
 - `D:\deptask\scene-image-tool-github-public` 已生成 GitHub-ready 干净仓库，分支为 `main`，共跟踪 144 个文件；该目录包含本地字体资源，用于 Windows 本地验证，不作为最终 public 首次线上基线。
 - `D:\deptask\scene-image-tool-github-public-split` 已生成 public 首次线上基线，共跟踪 117 个文件，只保留 `code/desktop/fonts/README.md`，不提交字体二进制。
 - `D:\deptask\scene-image-tool-github-public-split` 的 `main` 和 `platform/macos-bootstrap` 已上线到 public GitHub。
-- 远端 `main` 和 `platform/macos-bootstrap` 均指向 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`。
+- 远端 `main` 和 `platform/macos-bootstrap` 保持同步，当前 HEAD 以 GitHub refs 为准。
 - 本轮普通 `git push` 因当前 Windows 网络 / TLS 问题多次失败，最终通过 GitHub REST Git Database API 写入远端；后续正常开发仍走普通 Git clone / branch / PR。
 - 干净导出仓库仅包含一个新的公开基线历史，不包含当前迁移仓库 `.git` 历史。
 - public 首次线上基线已确认不存在 95 MiB+ 文件；字体二进制不进入 public 首次线上基线。

@@ -203,7 +203,7 @@ D:\deptask\scene-image-tool-github-public-split
 
 - `D:\deptask\scene-image-tool-github-public` 已初始化为 `main` 分支。
 - `D:\deptask\scene-image-tool-github-public-split` 已作为 public 首次线上基线。
-- public 远端 `main` 和 `platform/macos-bootstrap` 均指向 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`。
+- public 源码基线提交为 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`；文档状态回写后，远端 `main` 和 `platform/macos-bootstrap` 保持同步，当前 HEAD 以 GitHub refs 为准。
 - public 首次线上基线跟踪 117 个文件，不包含当前迁移仓库历史。
 - public 首次线上基线无 95 MiB+ 文件。
 - 未跟踪敏感文件路径。

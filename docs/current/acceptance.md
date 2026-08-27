@@ -20,7 +20,7 @@
 | 验收项 | 命令 / 方法 | 结果 | 备注 |
 |---|---|---|---|
 | public 仓库 | GitHub CLI / GitHub API | 通过 | `https://github.com/yinsheng508-byte/scene-image-tool`，visibility=`PUBLIC` |
-| 远端分支 | GitHub ref API | 通过 | `main` 和 `platform/macos-bootstrap` 均指向 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b` |
+| 远端分支 | GitHub ref API | 通过 | `main` 和 `platform/macos-bootstrap` 保持同步，当前 HEAD 以 GitHub refs 为准 |
 | 远端禁止清单 | GitHub tree API | 通过 | 无 `.bootstrap`、字体二进制、`code/desktop/vendor/libreoffice/`、`code/desktop/vendor/redist/vc_redist.x64.exe` |
 | clone 验收 | `git clone --depth 1 --branch platform/macos-bootstrap` | 通过 | clone 目录 `D:\deptask\scene-image-tool-clone-verify-20260827-163358`，tracked 文件数 117 |
 | 公开 clone 依赖安装 | `npm --prefix code/desktop ci` | 通过，有告警 | 375 packages installed；仍有 21 个 npm audit 漏洞，后续独立治理 |

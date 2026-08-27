@@ -15,7 +15,7 @@
 | Phase 8：验证、收口和验收 | 已完成 | `docs/current/acceptance.md` | 测试、验收文档 | 自动化验收通过，人工页签冒烟建议已记录 |
 | 迁移后规范检查 | 已完成 | `docs/current/session-log.md` | 活动文档、测试脚本 | 已修正过期事实和 noisy smoke 脚本，自动检查通过 |
 | 迁移后本地构建垃圾清理 | 已完成 | `docs/current/root-structure.md` | 本地备份、构建产物、无引用探针 | 已物理删除约 21.6GB 忽略文件和旧产物；已从源码删除 3 个无引用历史探针/图片；保留运行必需的 `fonts/`、`vendor/`、`node_modules/` |
-| GitHub 公开同步执行 | 已上线 | `https://github.com/yinsheng508-byte/scene-image-tool` | 干净导出仓库、公开远端、Mac clone 验收 | public 仓库已创建；`main` 和 `platform/macos-bootstrap` 指向提交 `e20a52d`；clone 验收 117 个 tracked 文件通过；不含字体二进制、Windows LibreOffice runtime、VC redist exe 和 `.bootstrap` |
+| GitHub 公开同步执行 | 已上线 | `https://github.com/yinsheng508-byte/scene-image-tool` | 干净导出仓库、公开远端、Mac clone 验收 | public 仓库已创建；`main` 和 `platform/macos-bootstrap` 保持同步；clone 验收 117 个 tracked 文件通过；不含字体二进制、Windows LibreOffice runtime、VC redist exe 和 `.bootstrap` |
 | GitHub 同步与 macOS 准备 | 已上线，进入 macOS 开发前置 | `docs/current/github-sync-macos-plan.md` | GitHub 远端、历史大文件、资源外部化、macOS adapter | 已完成公开干净导出仓库上线；后续从 `platform/macos-bootstrap` 开始 macOS adapter 和打包配置开发 |
 | Windows / macOS 并行开发方案 | 已完成 | `docs/current/win-mac-parallel-development.md` | 分支模型、平台 adapter、CI、GitHub Project、发布节奏 | 已写明共享核心 + 平台适配层 + 平台构建配置路线，供 GitHub 同步后两端并行开发 |
 | macOS 开发落地指令 | 已完成 | `docs/current/mac-development-runbook.md` | Mac 环境、clone、启动、smoke、首批任务 | 已给出 Xcode CLT、Homebrew、Git LFS、Node 22、LibreOffice、Electron 开发启动和每日开发命令 |
