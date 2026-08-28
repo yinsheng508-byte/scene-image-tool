@@ -208,4 +208,4 @@
 - 阶段：MAC-08 Mac PDF / 拼图 / 图片能力验收矩阵。
 - 修改文件：新增 `code/desktop/scripts/render-fixture-smoke.js` 和 `docs/current/macos-render-qa-matrix.md`；更新 `code/desktop/package.json`、`docs/INDEX.md`、`docs/architecture/capabilities.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`、`docs/current/acceptance.md` 和本日志。
 - 验证：`node --check code/desktop/scripts/render-fixture-smoke.js` 和 package JSON parse 通过；`npm --prefix code/desktop run render:fixture:smoke` 通过，Skia Canvas PNG 800x500、Sharp resize PNG 400x250、PDFium PDF 渲染 PNG 960x540 均非空；已视觉检查 Skia 和 PDFium 输出；Electron remote debugging Compose DOM smoke 通过，给 `#bgInput` / `#pptInput` 注入临时 PNG，经 preload `saveImageFile()` 导出 `skia-source_output.png`，尺寸 1600x1000、非空、视觉检查正常；`puzzle:shadow:smoke` 和 `puzzle:text:smoke` 复跑通过。
-- 风险：本阶段不改业务渲染算法；Compose 只覆盖单图 DOM 注入路径，系统文件选择器、多图批量、大图压力和 Windows 实机渲染仍需后续人工或 optional 自动化。
+- 风险：本阶段不改业务渲染算法；Compose 只覆盖单图 DOM 注入路径，系统文件选择器、多图批量、大图压力和 Windows 实机渲染仍需后续人工或 optional 自动化。PR #10 已合并到 `platform/macos-bootstrap`，Desktop CI 已通过：Windows job 40s，macOS job 25s。
