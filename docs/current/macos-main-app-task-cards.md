@@ -507,6 +507,7 @@ Risks and rollback：
 Priority：P1
 Platform：Infra
 Branch：`infra/github-desktop-ci`
+Status：已完成，待 PR Actions 验证。
 
 Objective：
 
@@ -561,7 +562,7 @@ Remote QA：
 Deliverables：
 
 - `desktop-ci.yml`。
-- PR checks 截图或链接。
+- PR checks 链接。
 
 Risks and rollback：
 

@@ -195,3 +195,10 @@
 - 修改文件：更新 `code/desktop/package.json`；新增 `code/desktop/assets/app-icon.icns`；回写 `docs/architecture/resources.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`、`docs/current/acceptance.md`、`docs/current/github-sync-macos-plan.md`、`docs/current/win-mac-parallel-development.md`、`docs/current/mac-development-runbook.md` 和本日志。
 - 验证：Context7 已核对 electron-builder macOS `dir` target、platform-specific `extraResources` 和 unsigned signing 口径；`node` JSON parse 检查 `code/desktop/package.json` 通过；`npm --prefix code/desktop run dist:mac:dir` 成功生成 `code/desktop/dist/mac-arm64/流量蜂虚拟笔记工具.app`；app bundle 直接启动并保持运行 10 秒，启动日志命中 `source=system_app`、LibreOffice `26.8.0.3`；包内容检查确认 Resources 下无 `libreoffice`、`redist`、`scripts`、`*.ps1`、`soffice.exe`、`vc_redist*`，`app.asar` 包含 `platform/**`，`dist/` 为 ignored。
 - 风险：本阶段只生成 unsigned 开发目录包，不做 dmg/zip、签名、公证或自动更新；Windows build 配置从顶层 `extraResources` 移到 `win.extraResources`，需后续 Windows 实机打包复测。PR #8 已合并到 `platform/macos-bootstrap`。
+
+## 2026-08-28
+
+- 阶段：MAC-07 GitHub Actions 基础 CI matrix。
+- 修改文件：新增 `.github/workflows/desktop-ci.yml`；更新 `docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`、`docs/current/win-mac-parallel-development.md`、`docs/current/acceptance.md` 和本日志。
+- 验证：Context7 已核对 GitHub Actions matrix 和 `actions/setup-node` npm cache / `cache-dependency-path` 口径；workflow 只配置 `windows-latest` / `macos-latest`、Node 22、`npm --prefix code/desktop ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 和 `git diff --check`，未调用 LibreOffice、字体探针、打包或发布脚本。
+- 风险：本地只能检查 YAML 和 smoke；真实 Windows/macOS runner 结果需 PR Actions 回传后确认。
