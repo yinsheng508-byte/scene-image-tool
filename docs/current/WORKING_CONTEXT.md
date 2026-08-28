@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke 和 Darwin LibreOffice runtime 探测已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3、PR #4 和 PR #5 已合并到 `platform/macos-bootstrap`；MAC-04 macOS 导出预检 UI 文案和交互已在 `platform/macos-export-preflight-ui` 完成，待 PR 合并。
+Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke 和 Darwin LibreOffice runtime 探测已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3、PR #4、PR #5 和 PR #6 已合并到 `platform/macos-bootstrap`；MAC-04 macOS 导出预检 UI 文案和交互已完成，下一阶段进入 MAC-05 macOS LibreOffice 导出 smoke 和脱敏 fixture。
 
 ## 当前最高优先级任务
 
@@ -36,7 +36,7 @@ GitHub public 远端：
 - macOS 开发落地指令：已新增。
 - macOS 主应用开发改造规划：已新增 `docs/current/macos-main-app-development-requirements.md` 和 `docs/current/macos-main-app-task-cards.md`。
 - macOS 代码全面审查与文档校准：已完成，已把当前真实风险回写到需求、任务卡、资源、能力、闸口和并行开发文档。
-- 当前后续任务：先合并 `platform/macos-export-preflight-ui` 的 MAC-04 导出预检 UI；随后进入 MAC-05 macOS LibreOffice 导出 smoke 和脱敏 fixture，或并行执行 MAC-07 基础 CI；打包在资源配置平台化后再做 MAC-06。
+- 当前后续任务：从 `platform/macos-bootstrap` 新建 `test/macos-libreoffice-fixtures`，按 MAC-05 建立 macOS LibreOffice 导出 smoke 和脱敏 fixture；基础 CI 可按 MAC-07 并行落地，打包在资源配置平台化后再做 MAC-06。
 
 ## 上次停在哪里
 
@@ -105,6 +105,7 @@ GitHub public 远端：
 - 2026-08-28 MAC-03 已新增 `code/desktop/platform/common/health-report.js`；`runLibreOfficeHealthCheck()` 和 `runMicrosoftOfficeHealthCheck()` 返回旧字段兼容 + 新 `platform/engine/capability/capabilities/errorCode/message` 字段；非 Windows Office COM health 直接返回 `PLATFORM_UNSUPPORTED`；已新增 `capability:getAll` IPC 和 preload `getCapabilities`。
 - 2026-08-28 PR #5 `feature/shared-capability-status` 已合并到 `platform/macos-bootstrap`。
 - 2026-08-28 MAC-04 已更新导出页描述和导出引擎 option 文案；`openLibreOfficeModal()` 读取 macOS `platform/errorCode/actions`，缺失时提示 Homebrew cask / `LIBREOFFICE_PATH`；`openOfficeEngineModal()` 在 macOS Office COM unsupported 时禁用继续按钮并提示切回 LibreOffice；诊断文本和导出日志已包含 `platform/errorCode`。
+- 2026-08-28 PR #6 `platform/macos-export-preflight-ui` 已合并到 `platform/macos-bootstrap`。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-development-requirements.md`，把 Mac 主应用能力范围、platform adapter 目标、导出链路、UI capability、打包、CI、IPC hardening、资源治理和 M0-M11 阶段路线写成当前规划。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-task-cards.md`，拆出 MAC-00 至 MAC-13 任务卡；每张卡包含 Objective、Context、Scope、Out of scope、Steps、Acceptance、Validation、Deliverables 和 Risks。
 - `npm --prefix code/desktop run font:probe` 已通过。
@@ -165,7 +166,7 @@ GitHub public 远端：
 ## 当前环境状态
 
 - 当前执行环境为 macOS 工作区：`~/dev/scene-image-tool`。
-- 当前 Git 分支：`platform/macos-export-preflight-ui`，基于已包含 PR #1/#2/#3/#4/#5 的 `platform/macos-bootstrap`。
+- 当前 Git 分支：`platform/macos-bootstrap`，已包含 PR #1/#2/#3/#4/#5/#6。
 - GitHub public 远端已上线，Mac 端已完成首次 clone 和基础启动验证。
 - 不在生产部署流程中。
 
