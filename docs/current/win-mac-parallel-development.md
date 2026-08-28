@@ -276,10 +276,8 @@ jobs:
         include:
           - os: windows-latest
             platform: win32
-            build: npm --prefix code/desktop run dist:dev
           - os: macos-latest
             platform: darwin
-            build: npm --prefix code/desktop run dist:mac:dir
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -291,12 +289,13 @@ jobs:
       - run: npm --prefix code/desktop ci
       - run: npm --prefix code/desktop run puzzle:shadow:smoke
       - run: npm --prefix code/desktop run puzzle:text:smoke
-      - run: ${{ matrix.build }}
+      - run: git diff --check
 ```
 
 注意：
 
 - `dist:mac:dir` 当前尚未实现，Phase M1 再新增。
+- 第一版 required CI 不运行 `dist:dev`、`dist:mac:dir`、`font:probe`、`check:lo-runtime`。
 - LibreOffice smoke 不应在第一版 CI 中作为必需检查，除非 runner 上已明确安装 runtime。
 - macOS 签名和 notarization 不进入第一阶段 CI。
 
@@ -308,7 +307,7 @@ jobs:
 |---|---|---|---|
 | `lint-syntax` | Windows + macOS | 必需 | JS 语法、文档检查 |
 | `renderer-smoke` | Windows + macOS | 必需 | 拼图、文本、字体基础 smoke |
-| `package-dir` | Windows + macOS | 必需 | `dist:win:dir` / `dist:mac:dir` |
+| `package-dir` | Windows + macOS | 可选，等平台构建配置稳定后再升 required | `dist:win:dir` / `dist:mac:dir` |
 | `office-windows` | Windows | 可选或 nightly | Office COM / PowerShell smoke |
 | `libreoffice-export` | Windows + macOS | 可选或 nightly | 外部 runtime 准备好后跑 |
 | `release-build` | Windows + macOS | tag 才跑 | NSIS / portable / dmg / zip |
@@ -420,6 +419,7 @@ code/desktop/resources/runtime-manifest.json
 任务：
 
 - 新增 macOS runtime detection。
+- 修正 Office COM 在 macOS 的 unsupported 早退，不能触发 PowerShell。
 - 新增 `dist:mac:dir`。
 - 准备 `.icns`。
 - PDF、拼图、图片导出先跑通。
@@ -465,11 +465,12 @@ code/desktop/resources/runtime-manifest.json
 
 执行顺序：
 
-1. 进入 G1：审查当前迁移前业务改动，确认 `selection-controller.js` 所属功能并提交。
-2. 进入 G2：制定 runtime 外部化 manifest，不再把 Windows LibreOffice 作为 GitHub-ready 当前树内容。
-3. 创建 GitHub-ready clean repo，并首次推送 public `main`。
-4. 建立 GitHub Project 看板和首批任务卡。
-5. 从 `main` 切 `platform/macos-bootstrap`，开始 macOS adapter 和打包配置。
+1. 先合并 `platform/macos-runtime-detection` / PR #1，让 Darwin LibreOffice runtime 探测进入 `platform/macos-bootstrap`。
+2. 合并或重建 Mac 主应用规划文档 PR，确保任务卡与最新代码审查结论一致。
+3. 按 `MAC-01` 建立 platform adapter 总壳，不在 UI 层堆平台分支。
+4. 按 `MAC-03` 先修正 macOS Office COM unsupported 早退，避免触发 PowerShell。
+5. 按 `MAC-07` 增加基础 CI，只跑 `npm ci` 和 puzzle smoke。
+6. 等平台构建资源拆分后，再按 `MAC-06` 启用 `dist:mac:dir` unsigned app bundle。
 
 ## 12. 禁止事项
 

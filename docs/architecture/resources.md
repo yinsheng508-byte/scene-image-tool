@@ -9,7 +9,7 @@
 | `code/desktop/assets/` | 应用图标、二维码等运行资源 | 保持跟踪 | `package.json`、渲染界面和打包配置直接引用 | 新增资源前确认是否真用于应用 |
 | `code/desktop/fonts/` | 字体运行资源，29 个文件，约 244 MiB | 当前迁移仓库暂时保留；GitHub public 首次线上基线只保留 `README.md`，不提交字体二进制 | 字体会显著放大首次 push / clone 成本，且需要单独确认授权和分发边界 | 后续改为 GitHub Release / artifact / provisioning script |
 | `code/desktop/fonts/README.md` | 字体外部化策略说明 | 保持跟踪 | public 仓库需要解释为什么没有内置字体二进制 | 随字体 artifact 策略更新 |
-| `code/desktop/vendor/libreoffice/` | 内置 LibreOffice 运行时，14069 个跟踪文件，约 740 MiB | 当前迁移仓库暂时保留；GitHub-ready 公开仓库排除 | `package.json extraResources` 和运行时探测仍依赖本地 Windows runtime；公开仓库不能携带 100 MiB+ DLL | 后续改为 Release artifact / 外部下载 / 本机安装探测 |
+| `code/desktop/vendor/libreoffice/` | 内置 LibreOffice 运行时，14069 个跟踪文件，约 740 MiB；public clone 中不存在 | 当前迁移仓库暂时保留；GitHub-ready 公开仓库排除 | 当前 `package.json build.extraResources` 仍引用该路径；macOS 打包前必须平台化配置，否则会读取不存在的 Windows runtime | 后续改为 Release artifact / 外部下载 / 本机安装探测 |
 | `code/desktop/vendor/redist/` | VC Redistributable 安装资源，2 个跟踪文件 | 公开仓库只保留 `.sha256` 和说明，不保留 `vc_redist.x64.exe` | exe 属于 Windows-only runtime artifact，不应进入 Mac 开发基线 | 后续改为 Release artifact 或安装脚本 |
 | `code/desktop/vendor/README.md` | runtime 外部化策略说明 | 保持跟踪 | 公开仓库需要说明为什么没有内置 runtime | 随 runtime manifest 更新 |
 | macOS 系统 LibreOffice | 通过 `code/desktop/platform/darwin/libreoffice-runtime.js` 探测 `/Applications/LibreOffice.app/Contents/MacOS/soffice`、`/opt/homebrew/bin/soffice`、`/usr/local/bin/soffice` 和 `LIBREOFFICE_PATH` | 不跟踪二进制 | macOS 开发基线依赖系统安装，不携带 runtime dump | 后续与统一 platform adapter / runtime manifest 对齐 |
@@ -28,3 +28,5 @@
 - 当前没有内置 PPT smoke fixture；`ppt:smoke` 需要显式传入外部或临时样例路径。
 - GitHub 同步前必须处理 `code/desktop/vendor/libreoffice/program/mergedlo.dll` 这类 100 MiB+ 文件；macOS 开发基线不应携带 Windows LibreOffice runtime。
 - 大资源历史瘦身属于独立任务，不能混入普通功能开发或结构迁移。
+- `npm --prefix code/desktop run check:lo-runtime` 当前只检查 Windows embedded LibreOffice runtime，不作为 macOS 系统 LibreOffice 探测命令；macOS 使用 `platform/darwin/libreoffice-runtime.js` 和后续 `check:runtime:mac`。
+- 在 `dist:mac:dir` 实现前，不要把通用 `dist` / `dist:dev` 作为 macOS 验收命令，避免 electron-builder 按顶层 `extraResources` 读取缺失资源。

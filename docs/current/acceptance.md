@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-项目结构迁移已完成，Phase 8 自动化验收通过；迁移后本地构建垃圾清理和清理后自动验证已通过；GitHub public 首次上线、clone 验收和本地/远端覆盖校验已通过；页签级业务交互仍建议做人工冒烟。
+项目结构迁移已完成，Phase 8 自动化验收通过；迁移后本地构建垃圾清理和清理后自动验证已通过；GitHub public 首次上线、clone 验收和本地/远端覆盖校验已通过；macOS 首次 clone、`npm ci`、Electron 开发启动、Darwin LibreOffice runtime 探测和基础 puzzle smoke 已通过；页签级业务交互仍建议做人工冒烟。
 
 ## 最终验收范围
 
@@ -14,6 +14,18 @@
 - Git 跟踪文件清单不包含明确构建产物。
 
 ## 验收记录
+
+### 2026-08-28 macOS Bootstrap
+
+| 验收项 | 命令 / 方法 | 结果 | 备注 |
+|---|---|---|---|
+| Mac 环境 | Xcode CLT、Homebrew、git、git-lfs、node@22、LibreOffice | 通过 | Node `v22.23.2`、npm `10.9.8`、git-lfs `3.7.1`、LibreOffice `26.8.0.3` |
+| 公开 clone 依赖安装 | `npm --prefix code/desktop ci` | 通过，有告警 | 仍报告既有 21 个 npm audit 漏洞 |
+| Electron 开发启动 | `cd code/desktop && npm exec electron .` | 通过 | 主界面可打开；runtime detection PR 后启动自检命中 `source=system_app` |
+| macOS LibreOffice runtime 探测 | 直接调用 Darwin adapter + Electron 启动自检 | 通过 | 命中 `/Applications/LibreOffice.app/Contents/MacOS/soffice`，版本 `26.8.0.3`；缺失和 embedded mode 均返回结构化错误 |
+| 拼图阴影回归 | `npm --prefix code/desktop run puzzle:shadow:smoke` | 通过 | 不依赖 bundled fonts |
+| 拼图文字回归 | `npm --prefix code/desktop run puzzle:text:smoke` | 通过 | 不依赖 bundled fonts |
+| 第一阶段禁跑命令 | 未执行 | 符合约束 | 未运行 `font:probe`、`check:lo-runtime`、`dist`、`dist:full`、`dist:dev` |
 
 ### 2026-08-28 GitHub 覆盖校验
 
@@ -80,6 +92,7 @@
 - 迁移前已有 `code/desktop` 业务改动仍保留在工作区，未纳入本次结构迁移提交。
 - `code/desktop/fonts/` 和 `code/desktop/vendor/libreoffice/` 仍保留在当前 Git 索引，历史瘦身需后续独立任务。
 - GitHub public 首次线上基线不包含字体二进制和 Windows LibreOffice runtime；严格字体探针和 Windows full build 需在本地资源或 artifact provisioning 完成后执行。
+- `check:lo-runtime` 当前是 Windows embedded runtime 检查，不作为 macOS 系统 LibreOffice 验收命令。
 - `dist:dev` 产物因 `asar=false` 不适用于严格 packaged 字体探针；正式 `dist:checked` 已验证 packaged 探针通过。
 - 页签级业务交互未使用自动化工具点击验证；当前项目未引入 Playwright / Electron 自动化依赖。
 - `local-artifacts/` 已删除，当前没有内置 PPT smoke fixture；需要常规复跑时应新增脱敏的 `code/desktop/test-fixtures/`。
