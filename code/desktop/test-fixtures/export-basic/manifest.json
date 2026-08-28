@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "cases": [
+    {
+      "id": "basic-docx",
+      "type": "docx",
+      "title": "Scene Image Tool macOS DOCX Smoke",
+      "body": [
+        "This synthetic document validates LibreOffice DOCX conversion on macOS.",
+        "No customer data, fonts, secrets, or local sample files are included."
+      ]
+    },
+    {
+      "id": "basic-pptx",
+      "type": "pptx",
+      "title": "Scene Image Tool macOS PPTX Smoke",
+      "body": [
+        "LibreOffice should convert this generated slide to PDF.",
+        "The smoke then renders page one to PNG with the desktop PDF stack."
+      ]
+    }
+  ]
+}

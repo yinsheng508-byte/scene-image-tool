@@ -12,3 +12,4 @@
 | macos-process-adapter | platform | Merged | MAC-02 Done | `platform/process-adapter` | PR #4 已合并；跨平台进程终止 adapter 已进入 `platform/macos-bootstrap` |
 | shared-capability-status | platform | Merged | MAC-03 Done | `feature/shared-capability-status` | PR #5 已合并；统一 health report、Office COM 非 Windows unsupported 早退和 `capability:getAll` IPC 已进入基线 |
 | macos-export-preflight-ui | renderer | Merged | MAC-04 Done | `platform/macos-export-preflight-ui` | PR #6 已合并；macOS 导出预检文案和 Office unsupported 交互已进入基线 |
+| macos-export-smoke | test | In Review | MAC-05 Done | `platform/macos-export-smoke` | 已新增生成式 DOCX/PPTX fixture smoke；待 PR 合并到 `platform/macos-bootstrap` |

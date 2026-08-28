@@ -23,6 +23,8 @@
 | 公开 clone 依赖安装 | `npm --prefix code/desktop ci` | 通过，有告警 | 仍报告既有 21 个 npm audit 漏洞 |
 | Electron 开发启动 | `cd code/desktop && npm exec electron .` | 通过 | 主界面可打开；runtime detection PR 后启动自检命中 `source=system_app` |
 | macOS LibreOffice runtime 探测 | 直接调用 Darwin adapter + Electron 启动自检 | 通过 | 命中 `/Applications/LibreOffice.app/Contents/MacOS/soffice`，版本 `26.8.0.3`；缺失和 embedded mode 均返回结构化错误 |
+| macOS LibreOffice 导出 fixture smoke | `npm --prefix code/desktop run export:fixture:smoke` | 通过 | 生成式 DOCX/PPTX fixture 2/2 通过；均完成 LibreOffice PDF 转换和 PDF 首页 PNG 渲染 |
+| macOS LibreOffice 缺失模拟 | `npm --prefix code/desktop run export:fixture:smoke -- --runtime-mode embedded --output _test_output/export-fixture-smoke-missing` | 通过 | 返回 SKIP，`ok=false`、`skipped=true`、`errorCode=PLATFORM_UNSUPPORTED`，不误报 pass |
 | 拼图阴影回归 | `npm --prefix code/desktop run puzzle:shadow:smoke` | 通过 | 不依赖 bundled fonts |
 | 拼图文字回归 | `npm --prefix code/desktop run puzzle:text:smoke` | 通过 | 不依赖 bundled fonts |
 | 第一阶段禁跑命令 | 未执行 | 符合约束 | 未运行 `font:probe`、`check:lo-runtime`、`dist`、`dist:full`、`dist:dev` |
@@ -95,4 +97,4 @@
 - `check:lo-runtime` 当前是 Windows embedded runtime 检查，不作为 macOS 系统 LibreOffice 验收命令。
 - `dist:dev` 产物因 `asar=false` 不适用于严格 packaged 字体探针；正式 `dist:checked` 已验证 packaged 探针通过。
 - 页签级业务交互未使用自动化工具点击验证；当前项目未引入 Playwright / Electron 自动化依赖。
-- `local-artifacts/` 已删除，当前没有内置 PPT smoke fixture；需要常规复跑时应新增脱敏的 `code/desktop/test-fixtures/`。
+- `local-artifacts/` 已删除；当前已有生成式 `export:fixture:smoke` 覆盖基础 DOCX/PPTX 导出，旧 `ppt:smoke` 仍需要外部样例路径。
