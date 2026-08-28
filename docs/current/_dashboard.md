@@ -13,3 +13,4 @@
 | shared-capability-status | platform | Merged | MAC-03 Done | `feature/shared-capability-status` | PR #5 已合并；统一 health report、Office COM 非 Windows unsupported 早退和 `capability:getAll` IPC 已进入基线 |
 | macos-export-preflight-ui | renderer | Merged | MAC-04 Done | `platform/macos-export-preflight-ui` | PR #6 已合并；macOS 导出预检文案和 Office unsupported 交互已进入基线 |
 | macos-export-smoke | test | Merged | MAC-05 Done | `platform/macos-export-smoke` | PR #7 已合并；生成式 DOCX/PPTX LibreOffice fixture smoke 已进入 `platform/macos-bootstrap` |
+| macos-package-dir | packaging | In Review | MAC-06 Done | `platform/macos-package-dir` | 已新增 unsigned macOS app bundle 配置；待 PR 合并到 `platform/macos-bootstrap` |

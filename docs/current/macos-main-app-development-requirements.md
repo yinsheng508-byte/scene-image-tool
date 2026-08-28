@@ -2,7 +2,7 @@
 
 > 日期：2026-08-28
 > 模式：深度分析，落地需求文档和任务卡文档
-> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7 已合并；下一阶段进入 MAC-06。
+> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7 已合并；MAC-06 已在 `platform/macos-package-dir` 完成，待 PR 合并。
 > 目标：把现有 Windows Electron 工具稳妥落地到 macOS，形成可持续主应用开发架构，而不是复制一套 Mac 分叉。
 
 ## 1. 结论
@@ -48,14 +48,14 @@
 - MAC-03 已新增 `capability:getAll` IPC 和 preload `getCapabilities`，供后续平台能力 UI 消费。
 - `office:healthCheck` / `export:healthCheck` 的 UI 语义已开始按 capability-aware 方式改造；MAC-04 已覆盖导出引擎文案、LibreOffice 弹窗、Office COM unsupported 弹窗和诊断日志，完整平台能力设置区仍待 MAC-09。
 - `runMicrosoftOfficeHealthCheck()` 在非 Windows 平台已早退为 `PLATFORM_UNSUPPORTED`；macOS 选择 Office engine 不应进入 PowerShell。
-- `package.json` 顶层 `build.extraResources` 仍引用缺失的 Windows LibreOffice runtime 和 VC redist exe；public Mac clone 在打包前必须先平台化构建资源配置。
+- MAC-06 已把 `package.json` 顶层 `build.extraResources` 平台化：Windows runtime / redist 留在 `build.win.extraResources`，macOS package 不再读取这些 public clone 不存在的资源。
 - `scripts/check-lo-runtime.js` 当前是 Windows embedded LibreOffice 完整性检查，不是 macOS 系统 LibreOffice 探测脚本。
 - `shell:openExternal` / `shell:openPath` 目前只通过 renderer 约束调用意图，主进程还缺 URL scheme 和路径使用边界校验。
 - 飞书上传和小红书下载的取消逻辑主要在队列间检查；当前正在进行的 `fetch` / upload 请求仍缺统一 AbortController 或超时取消模型。
 - macOS 文档导出真实文件 smoke 已建立生成式脱敏 fixture，输出进入 ignored `_test_output`。
-- `dist:mac:dir` 尚未实现。
+- `dist:mac:dir` 已实现并可生成可启动的 macOS arm64 `.app`。
 - `.github/workflows` 尚不存在。
-- macOS `.icns` 图标尚未准备。
+- macOS `.icns` 图标已准备为 `code/desktop/assets/app-icon.icns`。
 - 字体二进制不在 public 仓库，严格字体探针和最终字体分发策略仍待 artifact / provisioning 设计。
 - `npm ci` 仍报告既有 21 个 audit 漏洞，需后续独立治理。
 
@@ -249,12 +249,12 @@ macOS 第一版将 Office COM 标记为不可用：
 
 ## 7. UI 和体验改造
 
-当前导出页文案仍偏 Windows，例如“默认使用内置 LibreOffice”“安装到 C:\\Program Files”。Mac 主应用需要改成 capability-aware：
+导出页已完成第一批 capability-aware 文案调整；后续设置页仍需要补全平台能力诊断区：
 
-1. 导出引擎选项根据 capability 状态展示。
-2. LibreOffice 弹窗根据 `platform` 和 `errorCode` 显示不同动作。
-3. Office 高保真模式在 macOS 不应让用户误以为可以修复 COM。
-4. 日志面板保留诊断细节，但用户主提示用清晰短句。
+1. 导出引擎选项已标注 LibreOffice 跨平台、Office COM 仅 Windows。
+2. LibreOffice 弹窗已根据 `platform` 和 `errorCode` 显示 Homebrew / `LIBREOFFICE_PATH` 动作。
+3. Office 高保真模式在 macOS 已显示 unsupported 并禁用继续按钮。
+4. 日志面板已补充 `platform` / `errorCode` 诊断细节。
 5. 设置页后续可增加“平台能力”诊断区，展示 runtime、字体、PDF、上传、下载状态。
 
 UI 改造仍需遵守 preload / contextBridge 边界：renderer 只能通过 `window.appApi` 获取能力状态。
@@ -271,7 +271,7 @@ UI 改造仍需遵守 preload / contextBridge 边界：renderer 只能通过 `wi
 - 平台配置可以覆盖 common build options。
 - `actions/setup-node` 支持 npm cache 和 `cache-dependency-path`，不会缓存 `node_modules`。
 
-本项目建议先从 `package.json` 内配置过渡到独立配置文件：
+本项目当前先保持 `package.json` 内配置，后续可过渡到独立配置文件：
 
 ```text
 code/desktop/electron-builder.base.yml
@@ -279,16 +279,15 @@ code/desktop/electron-builder.win.yml
 code/desktop/electron-builder.mac.yml
 ```
 
-也可以先保持 `package.json`，但必须把 `extraResources` 平台化，避免 macOS 打包读取不存在的 Windows runtime。
+MAC-06 已完成 `extraResources` 平台化，避免 macOS 打包读取不存在的 Windows runtime。
 
 ### 8.2 macOS packaging 第一版
 
-脚本建议：
+已实现脚本：
 
 ```json
 {
-  "dist:mac:dir": "electron-builder --mac dir --config electron-builder.mac.yml",
-  "dist:mac": "electron-builder --mac dmg zip --config electron-builder.mac.yml"
+  "dist:mac:dir": "electron-builder --mac dir"
 }
 ```
 
@@ -298,8 +297,8 @@ code/desktop/electron-builder.mac.yml
 - `mac.category`: `public.app-category.productivity`
 - `mac.icon`: `assets/app-icon.icns`
 - signing / notarization 后置；开发包明确 unsigned。
-- `extraResources` 只包含跨平台 scripts / assets，不包含 Windows LibreOffice 和 VC redist。
-- 在新增 `dist:mac:dir` 前，先拆分或覆盖当前顶层 `extraResources`；否则 electron-builder 仍会读取 public 仓库中不存在的 `vendor/libreoffice` 和 `vendor/redist/vc_redist.x64.exe`。
+- macOS `extraResources` 当前为空，不包含 scripts、Windows LibreOffice、PowerShell helper 或 VC redist。
+- Windows runtime / redist / packaged scripts 保留在 `win.extraResources`，避免影响现有 Windows 打包配置意图。
 
 ### 8.3 资源策略
 

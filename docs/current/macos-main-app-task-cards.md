@@ -46,7 +46,7 @@ MAC-00
 
 - `runMicrosoftOfficeHealthCheck()` 当前没有非 Windows 早退，macOS 选择 Office engine 仍可能进入 PowerShell 执行链路。
 - `runLibreOfficeHealthCheck()` 和 renderer LibreOffice 弹窗仍存在 Windows 修复文案，macOS 上系统 LibreOffice 不应被描述为 Full 安装包 fallback。
-- `package.json` 顶层 `build.extraResources` 仍引用 public 仓库不存在的 Windows runtime / redist，macOS 打包前必须先平台化配置。
+- MAC-06 已把 `package.json` 顶层 `build.extraResources` 平台化，Windows runtime / redist 留在 `win.extraResources`，macOS 打包不再读取这些资源。
 - `scripts/check-lo-runtime.js` 是 Windows embedded runtime 完整性检查，不应作为 macOS runtime 探测命令。
 - `shell:openExternal` / `shell:openPath`、长任务网络取消需要独立 hardening，不要在新增 Mac UI 时继续扩大 IPC 暴露面。
 
@@ -444,6 +444,7 @@ Risks and rollback：
 Priority：P1
 Platform：macOS / Packaging
 Branch：`platform/macos-package-dir`
+Status：已完成，待合并。
 
 Objective：
 
@@ -499,7 +500,7 @@ Deliverables：
 
 Risks and rollback：
 
-- electron-builder 配置可能影响 Windows；建议平台配置文件独立，Windows build 配置不移动。
+- electron-builder 配置可能影响 Windows；本阶段只把 Windows 资源移动到 `win.extraResources`，Windows 实机打包需后续复测。
 
 ## MAC-07：GitHub Actions 基础 CI matrix
 
