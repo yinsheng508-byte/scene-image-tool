@@ -30,7 +30,7 @@
 | GitHub Actions 基础 CI matrix | PR #9 `Desktop CI` | 通过 | 最新 run：Windows job 57s、macOS job 31s；只运行 `npm ci`、两个 puzzle smoke 和 `git diff --check` |
 | macOS native render fixture smoke | `npm --prefix code/desktop run render:fixture:smoke` | 通过 | Skia Canvas PNG、Sharp resize、PDFium PDF 渲染到 PNG 3/3 通过；PDFium PNG 960x540；PR #10 Desktop CI Windows 40s / macOS 25s |
 | macOS Compose DOM smoke | Electron remote debugging + DOM file input + `window.appApi.saveImageFile()` | 通过 | 生成 `code/desktop/_test_output/compose-dom-smoke/skia-source_output.png`，1600x1000，非空，视觉检查正常 |
-| macOS 平台能力设置页 | Electron remote debugging + `window.appApi.getCapabilities()` | 通过 | 设置页显示 LibreOffice、Office COM、PDF render、font、packaging 5 项；LibreOffice `system_app` 可用，Office COM `PLATFORM_UNSUPPORTED`；刷新按钮可恢复；无横向溢出、无元素重叠、无 Windows 修复词 |
+| macOS 平台能力设置页 | Electron remote debugging + `window.appApi.getCapabilities()` | 通过 | 设置页显示 LibreOffice、Office COM、PDF render、font、packaging 5 项；LibreOffice `system_app` 可用，Office COM `PLATFORM_UNSUPPORTED`；刷新按钮可恢复；无横向溢出、无元素重叠、无 Windows 修复词；PR #11 Desktop CI 通过：Windows 53s、macOS 32s |
 | 拼图阴影回归 | `npm --prefix code/desktop run puzzle:shadow:smoke` | 通过 | 不依赖 bundled fonts |
 | 拼图文字回归 | `npm --prefix code/desktop run puzzle:text:smoke` | 通过 | 不依赖 bundled fonts |
 | 第一阶段禁跑命令 | 未执行 | 符合约束 | 未运行 `font:probe`、`check:lo-runtime`、`dist`、`dist:full`、`dist:dev` |

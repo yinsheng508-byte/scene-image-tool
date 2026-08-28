@@ -632,7 +632,7 @@ Risks and rollback：
 Priority：P2
 Platform：Renderer / Shared
 Branch：`feature/platform-capability-panel`
-Status：已完成实现，待 PR/CI/合并。
+Status：已完成，PR #11 已合并。
 
 Objective：
 

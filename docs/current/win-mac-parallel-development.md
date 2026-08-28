@@ -466,9 +466,9 @@ code/desktop/resources/runtime-manifest.json
 
 执行顺序：
 
-1. PR #1 至 PR #10 已进入 `platform/macos-bootstrap`，覆盖 Darwin runtime、adapter 总壳、进程 adapter、统一 capability/health、Mac 预检 UI、导出 fixture、unsigned app bundle、基础 CI 和渲染 QA。
-2. 当前 `feature/platform-capability-panel` 已实现 MAC-09 设置页能力面板，需提交、开 PR、等待 CI 后合并。
-3. 合并 MAC-09 后进入 MAC-10，优先选择 settings 或 dialogs/files 这类低风险 service 拆分，保持 IPC contract 不变。
+1. PR #1 至 PR #11 已进入 `platform/macos-bootstrap`，覆盖 Darwin runtime、adapter 总壳、进程 adapter、统一 capability/health、Mac 预检 UI、导出 fixture、unsigned app bundle、基础 CI、渲染 QA 和设置页能力面板。
+2. 下一步进入 MAC-10，优先选择 settings 或 dialogs/files 这类低风险 service 拆分，保持 IPC contract 不变。
+3. MAC-10 继续从 `platform/macos-bootstrap` 新建独立分支，每个 PR 只拆一个 service。
 4. 基础 CI 已按 `MAC-07` 增加，只跑 `npm ci` 和 puzzle smoke；LibreOffice 导出、字体探针、打包发布继续留作 optional 或独立任务。
 5. `dist:mac:dir` unsigned app bundle 已按 `MAC-06` 启用，后续再做签名、公证和发布包。
 

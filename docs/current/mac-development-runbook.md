@@ -146,7 +146,8 @@ git push -u origin platform/macos-<task-name>
 5. 已完成：修正 macOS LibreOffice / Office 预检文案。
 6. 已完成：GitHub Actions 基础 matrix 已增加，只跑 `npm ci` 和两个 puzzle smoke。
 7. 已完成：`dist:mac:dir` unsigned app bundle 已可作为 macOS 打包 smoke；签名、公证和 dmg/zip 后置。
-8. 当前：MAC-09 设置页能力面板已在 `feature/platform-capability-panel` 实现，待 PR/CI/合并；合并后进入 MAC-10 主进程 service 层最小拆分。
+8. 已完成：MAC-09 设置页能力面板已通过 PR #11 合并到 `platform/macos-bootstrap`。
+9. 当前：进入 MAC-10 主进程 service 层最小拆分，优先选择 settings 或 dialogs/files 这类低风险 service，保持 IPC contract 不变。
 
 ## 5. Mac 常见问题
 
