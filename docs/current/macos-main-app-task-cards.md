@@ -693,7 +693,8 @@ Risks and rollback：
 
 Priority：P2
 Platform：Shared Architecture
-Branch：`refactor/main-process-services`
+Branch：`refactor/main-process-settings-service`
+Status：已完成，待 PR。
 
 Objective：
 
@@ -748,7 +749,8 @@ git diff --check
 
 Deliverables：
 
-- 一个 service 模块。
+- `code/desktop/services/settings-service.js`。
+- `main.js` settings helper 删除并委派 service 注册原 IPC。
 - 架构文档更新。
 
 Risks and rollback：
