@@ -66,7 +66,7 @@ GitHub public 远端：
 - `.gitignore` 已明确排除 GitHub-ready 公开仓库不应携带的 `code/desktop/vendor/libreoffice/` 和 `code/desktop/vendor/redist/vc_redist.x64.exe`。
 - `code/desktop/vendor/README.md` 已记录 runtime 外部化策略。
 - `D:\deptask\scene-image-tool-github-public` 已生成 GitHub-ready 干净仓库，分支为 `main`，共跟踪 144 个文件；该目录包含本地字体资源，用于 Windows 本地验证，不作为最终 public 首次线上基线。
-- `D:\deptask\scene-image-tool-github-public-split` 已生成 public 首次线上基线，共跟踪 117 个文件，只保留 `code/desktop/fonts/README.md`，不提交字体二进制。
+- `D:\deptask\scene-image-tool-github-public-split` 已生成 public 首次线上基线；2026-08-28 补齐中文归档文档后，public 源码文件数为 157；只保留 `code/desktop/fonts/README.md`，不提交字体二进制。
 - `D:\deptask\scene-image-tool-github-public-split` 的 `main` 和 `platform/macos-bootstrap` 已上线到 public GitHub。
 - 远端 `main` 和 `platform/macos-bootstrap` 保持同步，当前 HEAD 以 GitHub refs 为准。
 - 本轮普通 `git push` 因当前 Windows 网络 / TLS 问题多次失败，最终通过 GitHub REST Git Database API 写入远端；后续正常开发仍走普通 Git clone / branch / PR。
@@ -77,8 +77,9 @@ GitHub public 远端：
 - 干净导出仓库已执行 `npm --prefix code/desktop ci`、`font:probe`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 并通过。
 - 干净导出仓库的 `npm ci` 报告 21 个依赖漏洞，需后续依赖治理任务处理。
 - 干净导出仓库和 public split 仓库中验证生成的 `code/desktop/dist/` 和 `code/desktop/node_modules/` 均为 ignored，不进入 Git。
-- 已从 GitHub clone 验收 `platform/macos-bootstrap` 到 `D:\deptask\scene-image-tool-clone-verify-20260827-163358`，tracked 文件数 117。
+- 已从 GitHub clone 验收 `platform/macos-bootstrap` 到 `D:\deptask\scene-image-tool-clone-verify-20260827-163358`，首次源码基线 tracked 文件数 117；2026-08-28 覆盖校验发现并补齐 40 份中文归档文档后，public 源码文件数为 157。
 - 公开 clone 中 `npm --prefix code/desktop ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 已通过；`npm ci` 仍报告 21 个依赖漏洞，后续独立治理。
+- 2026-08-28 本地工作区与 GitHub public 的 hash 级对比已完成：`code/desktop/` 开发代码缺失 0、内容不一致 0；本地 dirty 的 20 个 public-eligible 开发文件均已存在于 GitHub 且内容一致。
 - Phase 1 新增的根入口、`docs/current`、`docs/architecture`、`docs/workflows`、`docs/templates` 文件均已存在。
 - `.migration-backups/`、根 ZIP 备份、`desktop - 副本/` 已物理删除；`node_modules/` 保留并被忽略。
 - `desktop/dist2`、`desktop/_tmp`、`desktop/test_*.png` 已从 Git 索引清空，旧 `desktop/` 目录已不存在。

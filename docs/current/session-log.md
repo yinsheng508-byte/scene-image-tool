@@ -111,3 +111,10 @@
 - 修改文件：更新 `.gitignore`、`code/desktop/fonts/README.md`、`docs/architecture/resources.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/tasks.md`、`docs/current/_dashboard.md`、`docs/current/github-sync-macos-plan.md`、`docs/current/github-public-sync-runbook.md`、`docs/current/mac-development-runbook.md`、`docs/current/acceptance.md` 和本日志。
 - 验证：已安装并登录 GitHub CLI；已创建 public 仓库 `https://github.com/yinsheng508-byte/scene-image-tool`；普通 Git HTTPS push 在当前 Windows 环境多次出现 HTTP 408 / TLS EOF，最终通过 GitHub REST Git Database API 写入 public 首次线上基线；源码基线提交为 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`；文档状态回写后，远端 `main` 和 `platform/macos-bootstrap` 保持同步，当前 HEAD 以 GitHub refs 为准；远端 HEAD 不含 `.bootstrap`、字体二进制、`code/desktop/vendor/libreoffice/` 和 `code/desktop/vendor/redist/vc_redist.x64.exe`；全新 clone 到 `D:\deptask\scene-image-tool-clone-verify-20260827-163358` 成功，tracked 文件数 117；公开 clone 的 `npm ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 通过。
 - 风险：public 首次线上基线不包含字体二进制、Windows LibreOffice runtime 和 VC redist exe；严格字体探针、Windows full build 和 runtime 检查需要本地资源或后续 artifact / provisioning 支撑；`npm ci` 仍报告 21 个依赖漏洞，后续单独治理。
+
+## 2026-08-28
+
+- 阶段：GitHub public 覆盖校验和中文归档文档补齐。
+- 修改文件：补齐 public split 仓库中缺失的 40 份中文归档文档；更新 `docs/current/WORKING_CONTEXT.md`、`docs/current/tasks.md`、`docs/current/_dashboard.md`、`docs/current/acceptance.md`、`docs/current/github-public-sync-runbook.md`、`docs/current/github-sync-macos-plan.md` 和本日志。
+- 验证：通过 GitHub tree API 和本地 `git hash-object --path` 做 hash 级对比；`code/desktop/` 开发代码缺失 0、内容不一致 0；本地 dirty 的 20 个 public-eligible 开发文件均已上传且内容一致；发现 40 份中文归档文档缺失，缺失项中 `code/` 文件数为 0；高置信密钥扫描未发现真实凭据，命中的 Authorization 字段为占位值或变量名；补齐后 public 源码 blob 数为 157。
+- 风险：public 仓库仍按策略排除字体二进制、Windows LibreOffice runtime 和 VC redist exe；这类资源不应被视为漏传代码。

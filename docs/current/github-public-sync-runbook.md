@@ -97,7 +97,8 @@ git switch main
 - 分支：`main` 和 `platform/macos-bootstrap`。
 - 新 Git 历史：只包含公开基线，不包含当前迁移仓库 `.git` 历史。
 - 本地带字体导出仓库跟踪文件：144 个。
-- public 首次线上基线跟踪文件：117 个。
+- public 首次源码基线跟踪文件：117 个。
+- 2026-08-28 覆盖校验后补齐 40 份中文归档文档，public 源码文件数为 157。
 - 源码基线 commit：`e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`。
 - 当前远端 HEAD commit：以 GitHub refs 为准，文档内不固化动态 HEAD。
 - 大文件扫描：源码线上基线无 95 MiB+ 文件；字体二进制不进入 public 首次基线。
@@ -129,6 +130,15 @@ npm --prefix code/desktop run puzzle:text:smoke
 - 远端 HEAD 不存在 `code/desktop/vendor/libreoffice/`。
 - 远端 HEAD 不存在 `code/desktop/vendor/redist/vc_redist.x64.exe`。
 - `README.md` 和 `code/desktop/fonts/README.md` 均存在。
+
+2026-08-28 覆盖校验补充：
+
+- 本地 public-eligible 文件与远端 blob hash 对比已完成。
+- `code/desktop/` 开发代码缺失 0，内容不一致 0。
+- 本地 dirty 的 20 个 public-eligible 开发文件均已上传且内容一致。
+- 发现 40 份中文归档文档缺失，已补齐到 public 仓库。
+- 补齐前对缺失文档做了高置信密钥扫描，未发现真实凭据；命中的 Authorization 字段为占位值或变量名。
+- 补齐后 public 源码 blob 数为 157。
 
 验收标准：
 

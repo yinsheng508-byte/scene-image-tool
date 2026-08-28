@@ -204,11 +204,12 @@ D:\deptask\scene-image-tool-github-public-split
 - `D:\deptask\scene-image-tool-github-public` 已初始化为 `main` 分支。
 - `D:\deptask\scene-image-tool-github-public-split` 已作为 public 首次线上基线。
 - public 源码基线提交为 `e20a52dd1df9e6f632eee36946f34b7f9a80ee6b`；文档状态回写后，远端 `main` 和 `platform/macos-bootstrap` 保持同步，当前 HEAD 以 GitHub refs 为准。
-- public 首次线上基线跟踪 117 个文件，不包含当前迁移仓库历史。
+- public 首次源码基线跟踪 117 个文件，不包含当前迁移仓库历史；2026-08-28 补齐 40 份中文归档文档后，public 源码文件数为 157。
 - public 首次线上基线无 95 MiB+ 文件。
 - 未跟踪敏感文件路径。
 - public 首次线上基线不包含字体二进制、`code/desktop/vendor/libreoffice/` 和 `code/desktop/vendor/redist/vc_redist.x64.exe`。
 - 公开 clone 后 `npm ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 已通过。
+- 本地 `code/desktop/` 开发代码与 GitHub public hash 级对比缺失 0、内容不一致 0。
 
 ### Phase M0：macOS 技术基线拆分
 

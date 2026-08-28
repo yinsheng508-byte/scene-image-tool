@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-项目结构迁移已完成，Phase 8 自动化验收通过；迁移后本地构建垃圾清理和清理后自动验证已通过；GitHub public 首次上线和 clone 验收已通过；页签级业务交互仍建议做人工冒烟。
+项目结构迁移已完成，Phase 8 自动化验收通过；迁移后本地构建垃圾清理和清理后自动验证已通过；GitHub public 首次上线、clone 验收和本地/远端覆盖校验已通过；页签级业务交互仍建议做人工冒烟。
 
 ## 最终验收范围
 
@@ -14,6 +14,17 @@
 - Git 跟踪文件清单不包含明确构建产物。
 
 ## 验收记录
+
+### 2026-08-28 GitHub 覆盖校验
+
+| 验收项 | 命令 / 方法 | 结果 | 备注 |
+|---|---|---|---|
+| 远端状态 | GitHub API | 通过 | public，默认分支 `main`，`main` 与 `platform/macos-bootstrap` 保持同步 |
+| 本地开发代码覆盖 | 本地 public-eligible 文件与远端 blob hash 对比 | 通过 | `code/desktop/` 缺失 0，内容不一致 0；本地 dirty 的 20 个开发文件均已上传且内容一致 |
+| 文档覆盖 | 同一对比脚本 | 已修正 | 发现 40 份中文归档文档漏传，根因是前次导出时中文路径处理不完整；已补齐到 public 仓库 |
+| 敏感信息扫描 | 高置信密钥 regex 扫描 | 通过 | 漏传文档中未发现高置信真实凭据；命中的 Authorization 字段为占位值或变量名 |
+| 资源排除策略 | GitHub tree API | 通过 | 仍不含字体二进制、Windows LibreOffice runtime、VC redist exe 和 `.bootstrap` |
+| public 文件数 | GitHub tree API | 通过 | 补齐后 public 源码 blob 数为 157 |
 
 ### 2026-08-27 GitHub public 首次上线
 
