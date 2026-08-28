@@ -3839,23 +3839,7 @@ function decodePowerShellBuffer(buffer) {
 }
 
 function killProcessTreeByPid(pid) {
-  if (!pid || Number(pid) <= 0) return;
-  if (process.platform !== "win32") {
-    try {
-      process.kill(Number(pid), "SIGTERM");
-    } catch (error) {
-      // Ignore cleanup errors.
-    }
-    return;
-  }
-  try {
-    const killer = spawn("taskkill", ["/PID", String(pid), "/T", "/F"], { windowsHide: true });
-    killer.on("error", () => {
-      // Ignore taskkill errors and rely on default process exit.
-    });
-  } catch (error) {
-    // Ignore cleanup errors.
-  }
+  currentPlatformAdapter.process.killProcessTreeByPid(pid);
 }
 
 function normalizeProcessName(value) {
@@ -3868,6 +3852,7 @@ function normalizeProcessName(value) {
 function getProcessNameByPid(pid) {
   const numericPid = Number(pid);
   if (!Number.isInteger(numericPid) || numericPid <= 0) return "";
+  if (process.platform !== "win32") return "";
   try {
     const result = spawnSync(getPowerShellExe(), [
       "-NoProfile",
