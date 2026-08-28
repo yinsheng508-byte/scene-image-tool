@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke、Darwin LibreOffice runtime 探测、导出 fixture smoke 已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3、PR #4、PR #5、PR #6 和 PR #7 已合并到 `platform/macos-bootstrap`；MAC-06 macOS unsigned app bundle 已在 `platform/macos-package-dir` 完成，待 PR 合并。
+Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke、Darwin LibreOffice runtime 探测、导出 fixture smoke、unsigned app bundle 已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3、PR #4、PR #5、PR #6、PR #7 和 PR #8 已合并到 `platform/macos-bootstrap`；下一阶段进入 MAC-07 Windows/macOS 基础 CI matrix。
 
 ## 当前最高优先级任务
 
@@ -36,7 +36,7 @@ GitHub public 远端：
 - macOS 开发落地指令：已新增。
 - macOS 主应用开发改造规划：已新增 `docs/current/macos-main-app-development-requirements.md` 和 `docs/current/macos-main-app-task-cards.md`。
 - macOS 代码全面审查与文档校准：已完成，已把当前真实风险回写到需求、任务卡、资源、能力、闸口和并行开发文档。
-- 当前后续任务：提交并合并 `platform/macos-package-dir`；随后按 MAC-07 建立 Windows/macOS 基础 CI matrix。
+- 当前后续任务：从 `platform/macos-bootstrap` 新建 `infra/github-desktop-ci`，按 MAC-07 建立 Windows/macOS 基础 CI matrix。
 
 ## 上次停在哪里
 
@@ -109,6 +109,7 @@ GitHub public 远端：
 - 2026-08-28 PR #6 `platform/macos-export-preflight-ui` 已合并到 `platform/macos-bootstrap`。
 - 2026-08-28 PR #7 `platform/macos-export-smoke` 已合并到 `platform/macos-bootstrap`。
 - 2026-08-28 MAC-06 已新增 `dist:mac:dir`、`assets/app-icon.icns`、`build.mac` dir target 和 `sign: null`；`build.files` 已包含 `platform/**`；Windows-only `vendor/libreoffice`、`vendor/redist` 和 packaged scripts 已下沉到 `build.win.extraResources`，macOS app bundle 不再携带这些资源。
+- 2026-08-28 PR #8 `platform/macos-package-dir` 已合并到 `platform/macos-bootstrap`。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-development-requirements.md`，把 Mac 主应用能力范围、platform adapter 目标、导出链路、UI capability、打包、CI、IPC hardening、资源治理和 M0-M11 阶段路线写成当前规划。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-task-cards.md`，拆出 MAC-00 至 MAC-13 任务卡；每张卡包含 Objective、Context、Scope、Out of scope、Steps、Acceptance、Validation、Deliverables 和 Risks。
 - `npm --prefix code/desktop run font:probe` 已通过。
@@ -169,7 +170,7 @@ GitHub public 远端：
 ## 当前环境状态
 
 - 当前执行环境为 macOS 工作区：`~/dev/scene-image-tool`。
-- 当前 Git 分支：`platform/macos-package-dir`，基于已包含 PR #1/#2/#3/#4/#5/#6/#7 的 `platform/macos-bootstrap`。
+- 当前 Git 分支：`platform/macos-bootstrap`，已包含 PR #1/#2/#3/#4/#5/#6/#7/#8。
 - GitHub public 远端已上线，Mac 端已完成首次 clone 和基础启动验证。
 - 不在生产部署流程中。
 

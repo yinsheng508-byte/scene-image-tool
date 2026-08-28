@@ -444,7 +444,7 @@ Risks and rollback：
 Priority：P1
 Platform：macOS / Packaging
 Branch：`platform/macos-package-dir`
-Status：已完成，待合并。
+Status：已完成，PR #8 已合并。
 
 Objective：
 

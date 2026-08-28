@@ -470,7 +470,7 @@ code/desktop/resources/runtime-manifest.json
 3. 按 `MAC-01` 建立 platform adapter 总壳，不在 UI 层堆平台分支。
 4. 按 `MAC-03` 先修正 macOS Office COM unsupported 早退，避免触发 PowerShell。
 5. 按 `MAC-07` 增加基础 CI，只跑 `npm ci` 和 puzzle smoke。
-6. 等平台构建资源拆分后，再按 `MAC-06` 启用 `dist:mac:dir` unsigned app bundle。
+6. `dist:mac:dir` unsigned app bundle 已按 `MAC-06` 启用，后续再做签名、公证和发布包。
 
 ## 12. 禁止事项
 
