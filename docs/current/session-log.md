@@ -174,3 +174,10 @@
 - 修改文件：新增 `code/desktop/platform/common/health-report.js`；更新 `code/desktop/main.js` 和 `code/desktop/preload.js`；回写 `docs/architecture/map.md`、`docs/architecture/capabilities.md`、`docs/architecture/gates.md`、`docs/architecture/do-not-break.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`。
 - 验证：`node --check code/desktop/main.js`、`node --check code/desktop/preload.js`、`node --check code/desktop/platform/common/health-report.js` 通过；直接调用 common health normalizer 包装 Darwin Office COM capability 时返回 `ok=false`、`blockExport=true`、`errorCode=PLATFORM_UNSUPPORTED`，并保留 actions；`npm exec electron .` 能启动主界面，启动自检命中 `source=system_app`、`version=26.8.0.3`。
 - 风险：本阶段保留旧 renderer 字段，不重做导出页文案；macOS LibreOffice / Office 弹窗的用户文案仍交给 MAC-04，Windows Office health 未在 Windows 实机复测。PR #5 已合并到 `platform/macos-bootstrap`。
+
+## 2026-08-28
+
+- 阶段：MAC-04 Mac 导出预检 UI 文案和交互。
+- 修改文件：更新 `code/desktop/renderer/index.html`、`code/desktop/renderer/renderer.js`；回写 `docs/architecture/components.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`。
+- 验证：`node --check code/desktop/renderer/renderer.js`、`node --check code/desktop/main.js`、`node --check code/desktop/preload.js` 通过；真实 Electron 以 `--remote-debugging-port=9333` 启动，主进程自检命中 `source=system_app`、`version=26.8.0.3`；通过 preload IPC 调用 `exportHealthCheck({ engine: "office" })` 返回 `PLATFORM_UNSUPPORTED` 且 `blockExport=true`；`exportHealthCheck({ engine: "libreoffice" })` 返回 `source=system_app` 且 `blockExport=false`；Office 弹窗继续按钮禁用，LibreOffice 缺失弹窗包含 Homebrew / `LIBREOFFICE_PATH` 动作且不含 Windows 修复词；截图保存为 `/tmp/scene-image-tool-mac-office-modal.png` 和 `/tmp/scene-image-tool-mac-lo-modal.png`。
+- 风险：本阶段不改变导出业务流程，不新增设置页；Windows 用户仍看到原 Office 修复口径，未在 Windows 实机复测。

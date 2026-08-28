@@ -2,7 +2,7 @@
 
 > 日期：2026-08-28
 > 模式：深度分析，落地需求文档和任务卡文档
-> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5 已合并；下一阶段进入 MAC-04。
+> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5 已合并；MAC-04 正在 `platform/macos-export-preflight-ui` 落地。
 > 目标：把现有 Windows Electron 工具稳妥落地到 macOS，形成可持续主应用开发架构，而不是复制一套 Mac 分叉。
 
 ## 1. 结论
@@ -46,7 +46,7 @@
 - `main.js` 仍包含大量 Windows-only 转换、PowerShell、Office COM 和 runtime 探测逻辑；进程终止已先通过 MAC-02 接入 platform process adapter。
 - MAC-03 已新增统一 health report helper；`export:healthCheck` / `office:healthCheck` 会保留旧字段，并新增 `platform/engine/capability/capabilities/errorCode/message`。
 - MAC-03 已新增 `capability:getAll` IPC 和 preload `getCapabilities`，供后续平台能力 UI 消费。
-- `office:healthCheck` / `export:healthCheck` 的 UI 语义仍偏 Windows 文案。
+- `office:healthCheck` / `export:healthCheck` 的 UI 语义已开始按 capability-aware 方式改造；MAC-04 已覆盖导出引擎文案、LibreOffice 弹窗、Office COM unsupported 弹窗和诊断日志，完整平台能力设置区仍待 MAC-09。
 - `runMicrosoftOfficeHealthCheck()` 在非 Windows 平台已早退为 `PLATFORM_UNSUPPORTED`；macOS 选择 Office engine 不应进入 PowerShell。
 - `package.json` 顶层 `build.extraResources` 仍引用缺失的 Windows LibreOffice runtime 和 VC redist exe；public Mac clone 在打包前必须先平台化构建资源配置。
 - `scripts/check-lo-runtime.js` 当前是 Windows embedded LibreOffice 完整性检查，不是 macOS 系统 LibreOffice 探测脚本。

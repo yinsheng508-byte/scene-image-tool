@@ -2118,10 +2118,101 @@ function buildSkippedSuffix(result) {
   return `；跳过 ${result.skippedFiles} 个文件`;
 }
 
-function renderLibreOfficeSuggestions(suggestions) {
+function uniqueTextList(items = []) {
+  const seen = new Set();
+  const out = [];
+  (Array.isArray(items) ? items : [items]).forEach((item) => {
+    const text = String(item || "").trim();
+    if (!text) return;
+    const key = text.toLowerCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(text);
+  });
+  return out;
+}
+
+function getPrimaryCapability(report = {}) {
+  if (report?.capability && typeof report.capability === "object") {
+    return report.capability;
+  }
+  const capabilities = Array.isArray(report?.capabilities) ? report.capabilities : [];
+  if (capabilities.length === 0) return {};
+  const engine = normalizeExportEngine(report?.engine);
+  const expectedCapability = engine === EXPORT_ENGINE_OFFICE ? "office-com" : "libreoffice";
+  return capabilities.find((item) => item?.capability === expectedCapability) || capabilities[0] || {};
+}
+
+function getHealthReportPlatform(report = {}) {
+  const capability = getPrimaryCapability(report);
+  const explicit = String(report?.platform || capability?.platform || report?.runtime?.platform || "").trim().toLowerCase();
+  if (explicit) return explicit;
+  if (typeof navigator !== "undefined") {
+    const platformText = String(navigator.platform || navigator.userAgent || "").toLowerCase();
+    if (platformText.includes("mac")) return "darwin";
+    if (platformText.includes("win")) return "win32";
+  }
+  return "";
+}
+
+function getHealthReportErrorCode(report = {}) {
+  const capability = getPrimaryCapability(report);
+  return String(report?.errorCode || capability?.errorCode || report?.runtime?.errorCode || "").trim();
+}
+
+function isDarwinHealthReport(report = {}) {
+  return getHealthReportPlatform(report) === "darwin";
+}
+
+function isOfficeComUnsupported(report = {}) {
+  const capability = getPrimaryCapability(report);
+  return getHealthReportErrorCode(report) === "PLATFORM_UNSUPPORTED"
+    || (capability?.capability === "office-com" && capability?.ok === false && getHealthReportPlatform(report) !== "win32");
+}
+
+function isWindowsLibreOfficeRepairText(value) {
+  return /C:\\|VC\+\+|Redistributable|Full 安装包|内置运行时不可用|默认安装目录|0xC0000135/i.test(String(value || ""));
+}
+
+function translateCapabilityActionText(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  if (text === "Switch to LibreOffice export") return "切回 LibreOffice 导出。";
+  if (text === "Install LibreOffice for macOS") return "安装 macOS 版 LibreOffice。";
+  if (/^Install LibreOffice for macOS:/i.test(text)) return "使用 Homebrew 安装：brew install --cask libreoffice。";
+  if (/^Set LIBREOFFICE_PATH/i.test(text)) return "如果安装在自定义位置，请设置 LIBREOFFICE_PATH 指向 soffice 可执行文件。";
+  if (/Node 兜底预检/i.test(text)) return "";
+  if (/PowerShell/i.test(text) || /^Runtime:/i.test(text)) return "";
+  return text;
+}
+
+function buildLibreOfficeSuggestionList(report = {}) {
+  const runtime = report?.runtime && typeof report.runtime === "object" ? report.runtime : {};
+  const capability = getPrimaryCapability(report);
+  const rawList = uniqueTextList([
+    ...(Array.isArray(report?.suggestions) ? report.suggestions : []),
+    ...(Array.isArray(report?.actions) ? report.actions : []),
+    ...(Array.isArray(capability?.actions) ? capability.actions : [])
+  ].map((item) => translateCapabilityActionText(item)));
+  if (isDarwinHealthReport(report)) {
+    const filtered = rawList.filter((item) => !isWindowsLibreOfficeRepairText(item));
+    if (!runtime.ok) {
+      return uniqueTextList([
+        "安装 macOS 版 LibreOffice：可使用 Homebrew 命令 brew install --cask libreoffice，或从 LibreOffice 官网下载安装。",
+        "如果 LibreOffice 安装在自定义位置，请设置 LIBREOFFICE_PATH 指向 soffice 可执行文件。",
+        "安装或配置完成后点击“重新检测”。",
+        ...filtered
+      ]);
+    }
+    return filtered;
+  }
+  return rawList;
+}
+
+function renderLibreOfficeSuggestions(report = {}) {
   if (!libreofficeModalSuggestions) return;
   libreofficeModalSuggestions.textContent = "";
-  const list = Array.isArray(suggestions) ? suggestions : [];
+  const list = buildLibreOfficeSuggestionList(report);
   if (list.length === 0) {
     const empty = document.createElement("div");
     empty.className = "libreoffice-suggestion-item";
@@ -2156,12 +2247,16 @@ function getLibreOfficeDownloadUrl(report) {
 
 function buildLibreOfficeDiagnosticText(report = {}) {
   const runtime = report?.runtime && typeof report.runtime === "object" ? report.runtime : {};
+  const capability = getPrimaryCapability(report);
   const checks = Array.isArray(report?.checks) ? report.checks : [];
   const warnings = Array.isArray(report?.warnings) ? report.warnings : [];
   const suggestions = Array.isArray(report?.suggestions) ? report.suggestions : [];
   const actions = Array.isArray(report?.actions) ? report.actions : [];
   const lines = [];
   lines.push(`time=${new Date().toISOString()}`);
+  lines.push(`platform=${getHealthReportPlatform(report) || "unknown"}`);
+  lines.push(`errorCode=${getHealthReportErrorCode(report) || "none"}`);
+  lines.push(`capability=${capability?.capability || "libreoffice"}`);
   lines.push(`score=${Number(report?.score) || 0}/100`);
   lines.push(`block=${report?.blockExport ? "true" : "false"}`);
   lines.push(`runtime.mode=${runtime.mode || "auto"}`);
@@ -2227,25 +2322,40 @@ function openLibreOfficeModal(report = {}) {
   const scoreValue = Number(report?.score) || 0;
   const block = Boolean(report?.blockExport);
   const runtime = report?.runtime && typeof report.runtime === "object" ? report.runtime : {};
+  const capability = getPrimaryCapability(report);
+  const isDarwin = isDarwinHealthReport(report);
+  const errorCode = getHealthReportErrorCode(report);
   const hasDllCrash = Array.isArray(report?.warnings)
     && report.warnings.some((warning) => String(warning || "").includes("exit_3221225781"));
   if (libreofficeModalMessage) {
     if (!runtime.ok) {
-      if (hasDllCrash) {
+      if (isDarwin) {
+        if (errorCode === "PLATFORM_UNSUPPORTED") {
+          libreofficeModalMessage.textContent = capability?.message || "macOS 不使用 Windows 内置 LibreOffice runtime，请安装 macOS LibreOffice 或设置 LIBREOFFICE_PATH。";
+        } else {
+          libreofficeModalMessage.textContent = capability?.message || "未检测到 macOS LibreOffice。请安装 LibreOffice.app，或设置 LIBREOFFICE_PATH 指向 soffice 可执行文件。";
+        }
+      } else if (hasDllCrash) {
         libreofficeModalMessage.textContent = "系统缺少 VC++ 运行时（0xC0000135），LibreOffice 启动失败。请安装 VC++ Redistributable 后重试。";
       } else {
         libreofficeModalMessage.textContent = "未检测到可用 LibreOffice 运行时。请安装系统 LibreOffice 到默认路径 C:\\Program Files\\LibreOffice\\ ，安装完成后重启软件并点击“重新检测”。";
       }
     } else if (block) {
-      libreofficeModalMessage.textContent = "当前导出被阻止：运行时已检测到，但环境检查未通过。建议先修复后重试。";
+      if (isDarwin && runtime.source && runtime.source !== "embedded" && runtime.source !== "local_vendor") {
+        libreofficeModalMessage.textContent = "已检测到 macOS LibreOffice，但环境检查仍有风险。建议查看诊断信息，处理后点击“重新检测”。";
+      } else {
+        libreofficeModalMessage.textContent = "当前导出被阻止：运行时已检测到，但环境检查未通过。建议先修复后重试。";
+      }
     } else {
-      libreofficeModalMessage.textContent = "检测到 LibreOffice 环境风险，建议修复后再导出。";
+      libreofficeModalMessage.textContent = isDarwin
+        ? "检测到 LibreOffice 环境风险，建议确认系统 LibreOffice 状态后再导出。"
+        : "检测到 LibreOffice 环境风险，建议修复后再导出。";
     }
   }
   if (libreofficeModalScore) {
     libreofficeModalScore.textContent = `${scoreValue}/100`;
   }
-  renderLibreOfficeSuggestions(report?.suggestions);
+  renderLibreOfficeSuggestions(report);
   latestLibreOfficeDiagnosticsText = buildLibreOfficeDiagnosticText(report);
   if (libreofficeModalDiagnostics) {
     libreofficeModalDiagnostics.textContent = latestLibreOfficeDiagnosticsText;
@@ -2350,6 +2460,24 @@ function translateOfficeDiagnosticMessage(value) {
 function renderOfficeEngineApps(report = {}, requiredApps = []) {
   if (!officeEngineApps) return;
   officeEngineApps.textContent = "";
+  if (isOfficeComUnsupported(report)) {
+    const row = document.createElement("div");
+    row.className = "office-engine-app-row";
+    const name = document.createElement("div");
+    name.className = "office-engine-app-name";
+    name.textContent = "Microsoft Office COM";
+    const status = document.createElement("div");
+    status.className = "office-engine-app-status fail";
+    status.textContent = "不可用";
+    const detail = document.createElement("div");
+    detail.className = "office-engine-app-detail";
+    detail.textContent = report?.message || getPrimaryCapability(report)?.message || "当前平台不支持 Windows Office COM 高保真导出。";
+    row.appendChild(name);
+    row.appendChild(status);
+    row.appendChild(detail);
+    officeEngineApps.appendChild(row);
+    return;
+  }
   const apps = report?.apps && typeof report.apps === "object" ? report.apps : {};
   const order = ["word", "powerpoint"];
   const requiredLookup = new Set(requiredApps || []);
@@ -2389,7 +2517,17 @@ function renderOfficeSuggestions(report = {}) {
   officeEngineSuggestions.textContent = "";
   const suggestions = Array.isArray(report?.suggestions) ? report.suggestions : [];
   const warnings = Array.isArray(report?.warnings) ? report.warnings : [];
-  const list = [...suggestions, ...warnings].filter(Boolean);
+  const capability = getPrimaryCapability(report);
+  const capabilityActions = Array.isArray(capability?.actions)
+    ? capability.actions.map((item) => translateCapabilityActionText(item)).filter(Boolean)
+    : [];
+  const list = uniqueTextList(isOfficeComUnsupported(report)
+    ? [
+      report?.message || capability?.message || "当前平台不支持 Windows Office COM 高保真导出。",
+      "请切回 LibreOffice 导出；macOS 第一版通过系统 LibreOffice 完成 Word / PPT 转 PDF。",
+      ...capabilityActions
+    ]
+    : [...suggestions, ...warnings]);
   if (list.length === 0) {
     const empty = document.createElement("div");
     empty.className = "libreoffice-suggestion-item";
@@ -2406,6 +2544,7 @@ function renderOfficeSuggestions(report = {}) {
 }
 
 function buildOfficeDiagnosticText(report = {}) {
+  const capability = getPrimaryCapability(report);
   const checks = Array.isArray(report?.checks) ? report.checks : [];
   const warnings = Array.isArray(report?.warnings) ? report.warnings : [];
   const suggestions = Array.isArray(report?.suggestions) ? report.suggestions : [];
@@ -2414,6 +2553,9 @@ function buildOfficeDiagnosticText(report = {}) {
   const lines = [];
   lines.push(`time=${new Date().toISOString()}`);
   lines.push(`engine=office`);
+  lines.push(`platform=${getHealthReportPlatform(report) || "unknown"}`);
+  lines.push(`errorCode=${getHealthReportErrorCode(report) || "none"}`);
+  lines.push(`capability=${capability?.capability || "office-com"}`);
   lines.push(`score=${Number(report?.score) || 0}/100`);
   lines.push(`block=${report?.blockExport ? "true" : "false"}`);
   lines.push(`requiredApps=${requiredApps.join(",") || "none"}`);
@@ -2509,8 +2651,14 @@ function openOfficeEngineModal(report = {}, context = {}) {
     ? context.requiredApps
     : (Array.isArray(report?.requiredApps) ? report.requiredApps : []);
   const block = Boolean(report?.blockExport);
+  const unsupported = isOfficeComUnsupported(report);
+  const disableContinue = (strict && block) || unsupported;
   if (officeEngineModalMessage) {
-    if (strict && block) {
+    if (unsupported && isDarwinHealthReport(report)) {
+      officeEngineModalMessage.textContent = "macOS 版本暂不支持 Windows Office COM 高保真导出。请切回 LibreOffice，使用系统 LibreOffice 完成 Word / PPT 转 PDF。";
+    } else if (unsupported) {
+      officeEngineModalMessage.textContent = report?.message || "当前平台不支持 Office 高保真导出，请切回 LibreOffice。";
+    } else if (strict && block) {
       officeEngineModalMessage.textContent = `Office 高保真导出预检未通过。本批次需要的 ${formatOfficeAppLabelList(requiredApps)} 不可用，请安装或修复 Microsoft Office，或切回 LibreOffice 后重试。`;
     } else {
       officeEngineModalMessage.textContent = "该模式会调用本机 Microsoft Office 转 PDF，排版更接近 Office 打开效果；导出可能更慢，并可能受激活、登录弹窗、受保护视图或插件影响。";
@@ -2526,8 +2674,8 @@ function openOfficeEngineModal(report = {}, context = {}) {
     officeEngineDiagnostics.textContent = latestOfficeDiagnosticsText;
   }
   if (officeEngineContinueBtn) {
-    officeEngineContinueBtn.disabled = strict && block;
-    officeEngineContinueBtn.textContent = strict && block ? "Office 不可用" : "继续使用 Office";
+    officeEngineContinueBtn.disabled = disableContinue;
+    officeEngineContinueBtn.textContent = disableContinue ? "Office 不可用" : "继续使用 Office";
   }
   officeEngineModal.classList.add("show");
 
@@ -2550,7 +2698,7 @@ function openOfficeEngineModal(report = {}, context = {}) {
       resolve("libreoffice");
     };
     const onContinue = () => {
-      if (strict && block) return;
+      if (disableContinue) return;
       cleanup();
       resolve("continue");
     };
@@ -2595,7 +2743,7 @@ async function ensureExportEngineReadyBeforeConvert(engine, items = []) {
       const report = await checkOfficeEngineForModal(requiredApps);
       appendLog({
         level: report.blockExport ? 2 : 1,
-        message: `Office预检：score=${report.score || 0}/100 block=${report.blockExport ? "true" : "false"} required=${requiredApps.join(",")}`
+        message: `Office预检：score=${report.score || 0}/100 block=${report.blockExport ? "true" : "false"} required=${requiredApps.join(",")} platform=${getHealthReportPlatform(report) || "unknown"} errorCode=${getHealthReportErrorCode(report) || "none"}`
       });
       if (!report.blockExport) return true;
       const action = await openOfficeEngineModal(report, { strict: true, requiredApps });
@@ -2820,7 +2968,7 @@ async function handleConvert() {
     const office = result.diagnostics.office;
     appendLog({
       level: office.blockExport ? 3 : 1,
-      message: `Office预检：score=${office.score || 0}/100 block=${office.blockExport ? "true" : "false"} required=${Array.isArray(office.requiredApps) && office.requiredApps.length ? office.requiredApps.join(",") : "none"}`
+      message: `Office预检：score=${office.score || 0}/100 block=${office.blockExport ? "true" : "false"} required=${Array.isArray(office.requiredApps) && office.requiredApps.length ? office.requiredApps.join(",") : "none"} platform=${getHealthReportPlatform(office) || "unknown"} errorCode=${getHealthReportErrorCode(office) || "none"}`
     });
   }
   if (result?.diagnostics?.ppt) {
@@ -2856,7 +3004,7 @@ async function handleConvert() {
       const precheckEngine = precheck.engine === EXPORT_ENGINE_OFFICE ? "Office" : "LibreOffice";
       appendLog({
         level: finalReport.blockExport ? 3 : 1,
-        message: `${precheckEngine}预检：mode=${precheck.mode || "unknown"} score=${finalReport.score || 0}/100 block=${finalReport.blockExport ? "true" : "false"}${precheck.engine === EXPORT_ENGINE_OFFICE ? "" : ` source=${runtime.source || "missing"}`}`
+        message: `${precheckEngine}预检：mode=${precheck.mode || "unknown"} score=${finalReport.score || 0}/100 block=${finalReport.blockExport ? "true" : "false"} platform=${getHealthReportPlatform(finalReport) || "unknown"} errorCode=${getHealthReportErrorCode(finalReport) || "none"}${precheck.engine === EXPORT_ENGINE_OFFICE ? "" : ` source=${runtime.source || "missing"}`}`
       });
     }
   }

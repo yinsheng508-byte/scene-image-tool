@@ -12,8 +12,8 @@
 | 全局自定义下拉 | 主界面 select 美化 | `code/desktop/renderer/renderer.js` | `createGlobalCustomSelect(...)` | 导出引擎、倍率使用 |
 | 授权弹窗 | 授权密钥输入和验证 | `code/desktop/renderer/license/*`、`index.html` | `window.licenseManager` | 涉及授权闸口 |
 | 版本更新弹窗 | 检查和跳转下载 | `code/desktop/renderer/license/*` | `checkUpdate` | 依赖 `licenseAPI.openExternal` |
-| LibreOffice 预检弹窗 | 导出前运行时风险提示 | `code/desktop/renderer/index.html`、`renderer.js` | `openLibreOfficeModal(...)` | 不应绕过预检 |
-| Office 高保真导出弹窗 | Office 模式说明、预检和继续 | `code/desktop/renderer/index.html`、`renderer.js` | `openOfficeEngineModal(...)` | 受 COM 环境影响 |
+| LibreOffice 预检弹窗 | 导出前运行时风险提示 | `code/desktop/renderer/index.html`、`renderer.js` | `openLibreOfficeModal(...)` | 不应绕过预检；macOS 文案读 `platform/errorCode/actions`，不显示 Windows 修复主文案 |
+| Office 高保真导出弹窗 | Office 模式说明、预检和继续 | `code/desktop/renderer/index.html`、`renderer.js` | `openOfficeEngineModal(...)` | 受 COM 环境影响；非 Windows `PLATFORM_UNSUPPORTED` 时禁用继续动作并提示切回 LibreOffice |
 | 拼图自定义下拉 | 拼图模块 select 美化 | `code/desktop/renderer/puzzle/custom-select.js` | `createCustomSelect(...)` | 拼图模块内复用 |
 | 拼图颜色选择器 | 颜色选择和透明度交互 | `code/desktop/renderer/puzzle/color-picker.js` | `createColorPicker(...)` | 已处理 Pickr 兼容细节 |
 | 拼图画布编辑器 | 坑位拖拽、缩放、命中检测 | `code/desktop/renderer/puzzle/canvas-editor.js` | `createCanvasEditor(...)` | 拼图核心交互 |
@@ -30,4 +30,3 @@
 - 新增弹窗前先确认是否能复用现有 modal 结构。
 - 新增按钮、选择器、开关时优先扩展现有样式类。
 - 拼图模块内部组件不要依赖主界面 `renderer.js` 的私有状态。
-

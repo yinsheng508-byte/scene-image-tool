@@ -11,3 +11,4 @@
 | macos-adapter-boundary | platform | Merged | MAC-01 Done | `platform/macos-adapter-boundary` | PR #3 已合并，platform 总入口和 common capability helper 已进入 `platform/macos-bootstrap` |
 | macos-process-adapter | platform | Merged | MAC-02 Done | `platform/process-adapter` | PR #4 已合并；跨平台进程终止 adapter 已进入 `platform/macos-bootstrap` |
 | shared-capability-status | platform | Merged | MAC-03 Done | `feature/shared-capability-status` | PR #5 已合并；统一 health report、Office COM 非 Windows unsupported 早退和 `capability:getAll` IPC 已进入基线 |
+| macos-export-preflight-ui | renderer | In Review | MAC-04 Done | `platform/macos-export-preflight-ui` | 已完成 macOS 导出预检文案和 Office unsupported 交互；真实 Electron DOM/IPC 手工烟测通过 |
