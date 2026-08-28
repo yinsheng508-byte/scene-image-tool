@@ -100,6 +100,10 @@ const officeEngineModalMessage = document.getElementById("officeEngineModalMessa
 const officeEngineApps = document.getElementById("officeEngineApps");
 const officeEngineSuggestions = document.getElementById("officeEngineSuggestions");
 const officeEngineDiagnostics = document.getElementById("officeEngineDiagnostics");
+const platformCapabilityStatus = document.getElementById("platformCapabilityStatus");
+const platformCapabilityRefreshBtn = document.getElementById("platformCapabilityRefreshBtn");
+const platformCapabilitySummary = document.getElementById("platformCapabilitySummary");
+const platformCapabilityList = document.getElementById("platformCapabilityList");
 
 // 全局 Toast
 const toastContainer = document.getElementById('globalToast');
@@ -308,6 +312,8 @@ let convertErrors = [];
 let uploadErrors = [];
 let latestLibreOfficeDiagnosticsText = "";
 let latestOfficeDiagnosticsText = "";
+let platformCapabilitiesLoaded = false;
+let platformCapabilitiesLoading = false;
 const convertProgressTracker = {
   total: 0,
   completed: 0
@@ -411,6 +417,9 @@ function setActiveTab(tabId) {
     }
   });
   writeStorage(storageKeys.activeTab, tabId);
+  if (tabId === "settings") {
+    ensurePlatformCapabilitiesLoaded();
+  }
 }
 
 function readStorage(key) {
@@ -2186,6 +2195,248 @@ function translateCapabilityActionText(value) {
   return text;
 }
 
+const PLATFORM_CAPABILITY_LABELS = {
+  libreoffice: "LibreOffice 导出",
+  "office-com": "Office 高保真导出",
+  "pdf-render": "PDF 渲染",
+  font: "字体渲染",
+  packaging: "打包配置"
+};
+
+const PLATFORM_SOURCE_LABELS = {
+  embedded: "内置运行时",
+  env: "环境变量",
+  homebrew: "Homebrew",
+  local_bundle: "内置资源",
+  local_vendor: "本地 vendor",
+  node_modules: "Node 依赖",
+  path: "PATH",
+  program_files: "Program Files",
+  program_files_x86: "Program Files (x86)",
+  registry: "注册表",
+  system_app: "系统应用",
+  system_fallback: "系统回退"
+};
+
+function formatPlatformLabel(value) {
+  const platform = String(value || "").trim().toLowerCase();
+  if (platform === "darwin") return "macOS";
+  if (platform === "win32") return "Windows";
+  if (platform === "linux") return "Linux";
+  return platform || "unknown";
+}
+
+function formatCapabilityLabel(value) {
+  const key = String(value || "").trim().toLowerCase();
+  return PLATFORM_CAPABILITY_LABELS[key] || value || "未知能力";
+}
+
+function formatCapabilitySource(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  const key = raw.toLowerCase();
+  return PLATFORM_SOURCE_LABELS[key] || raw;
+}
+
+function getCapabilityStatusMeta(capability = {}) {
+  if (capability?.ok) {
+    return { key: "ok", label: "可用" };
+  }
+  if (String(capability?.errorCode || "").trim().toUpperCase() === "PLATFORM_UNSUPPORTED") {
+    return { key: "unsupported", label: "不支持" };
+  }
+  return { key: "fail", label: "异常" };
+}
+
+function renderCapabilityEmpty(message, className = "capability-empty") {
+  if (!platformCapabilityList) return;
+  platformCapabilityList.textContent = "";
+  const empty = document.createElement("div");
+  empty.className = className;
+  empty.textContent = message;
+  platformCapabilityList.appendChild(empty);
+}
+
+function setPlatformCapabilitiesLoading(loading) {
+  platformCapabilitiesLoading = Boolean(loading);
+  if (platformCapabilityRefreshBtn) {
+    platformCapabilityRefreshBtn.disabled = platformCapabilitiesLoading;
+    platformCapabilityRefreshBtn.textContent = platformCapabilitiesLoading ? "检测中" : "刷新";
+  }
+  if (platformCapabilityStatus) {
+    platformCapabilityStatus.textContent = platformCapabilitiesLoading ? "检测中" : platformCapabilityStatus.textContent;
+  }
+}
+
+function appendCapabilityMeta(container, label, value) {
+  const text = String(value || "").trim();
+  if (!text) return;
+  const row = document.createElement("div");
+  row.className = "capability-meta-row";
+
+  const labelEl = document.createElement("span");
+  labelEl.className = "capability-meta-label";
+  labelEl.textContent = `${label}：`;
+
+  const valueEl = document.createElement("span");
+  valueEl.className = "capability-meta-value";
+  valueEl.textContent = text;
+  valueEl.title = text;
+
+  row.appendChild(labelEl);
+  row.appendChild(valueEl);
+  container.appendChild(row);
+}
+
+function renderCapabilityDetailList(container, title, items, className) {
+  const list = uniqueTextList(items)
+    .map((item) => translateCapabilityActionText(item) || String(item || "").trim())
+    .filter(Boolean);
+  if (list.length === 0) return;
+
+  const block = document.createElement("div");
+  block.className = `capability-detail-list ${className || ""}`.trim();
+
+  const titleEl = document.createElement("span");
+  titleEl.className = "capability-detail-title";
+  titleEl.textContent = title;
+  block.appendChild(titleEl);
+
+  list.slice(0, 3).forEach((item) => {
+    const value = document.createElement("span");
+    value.className = "capability-detail-item";
+    value.textContent = item;
+    block.appendChild(value);
+  });
+
+  container.appendChild(block);
+}
+
+function renderPlatformCapabilityItem(capability = {}) {
+  const status = getCapabilityStatusMeta(capability);
+  const item = document.createElement("div");
+  item.className = `capability-item capability-item-${status.key}`;
+
+  const header = document.createElement("div");
+  header.className = "capability-item-header";
+
+  const title = document.createElement("div");
+  title.className = "capability-name";
+  title.textContent = formatCapabilityLabel(capability.capability);
+
+  const badge = document.createElement("span");
+  badge.className = `capability-badge capability-badge-${status.key}`;
+  badge.textContent = status.label;
+
+  header.appendChild(title);
+  header.appendChild(badge);
+  item.appendChild(header);
+
+  const meta = document.createElement("div");
+  meta.className = "capability-meta";
+  appendCapabilityMeta(meta, "平台", formatPlatformLabel(capability.platform));
+  appendCapabilityMeta(meta, "来源", formatCapabilitySource(capability.source));
+  appendCapabilityMeta(meta, "版本", capability.version);
+  appendCapabilityMeta(meta, "路径", capability.path);
+  appendCapabilityMeta(meta, "错误码", capability.errorCode);
+  item.appendChild(meta);
+
+  const message = String(capability.message || "").trim();
+  if (message) {
+    const messageEl = document.createElement("p");
+    messageEl.className = "capability-message";
+    messageEl.textContent = message;
+    item.appendChild(messageEl);
+  }
+
+  renderCapabilityDetailList(item, "提醒", capability.warnings, "capability-warning-list");
+  renderCapabilityDetailList(item, "动作", capability.actions, "capability-action-list");
+
+  return item;
+}
+
+function renderPlatformCapabilities(report = {}) {
+  platformCapabilitiesLoaded = true;
+  const capabilities = Array.isArray(report?.capabilities) ? report.capabilities : [];
+  if (platformCapabilityStatus) {
+    platformCapabilityStatus.textContent = formatPlatformLabel(report?.platform || capabilities[0]?.platform);
+  }
+  if (platformCapabilitySummary) {
+    const okCount = capabilities.filter((item) => item?.ok).length;
+    const unsupportedCount = capabilities.filter((item) =>
+      String(item?.errorCode || "").trim().toUpperCase() === "PLATFORM_UNSUPPORTED"
+    ).length;
+    const failCount = Math.max(0, capabilities.length - okCount - unsupportedCount);
+    platformCapabilitySummary.textContent = capabilities.length
+      ? `共 ${capabilities.length} 项能力：可用 ${okCount} 项，不支持 ${unsupportedCount} 项，异常 ${failCount} 项。`
+      : "未返回平台能力。";
+  }
+  if (!platformCapabilityList) return;
+  platformCapabilityList.textContent = "";
+  if (capabilities.length === 0) {
+    renderCapabilityEmpty("未返回平台能力。");
+    return;
+  }
+  capabilities.forEach((capability) => {
+    platformCapabilityList.appendChild(renderPlatformCapabilityItem(capability));
+  });
+}
+
+function renderPlatformCapabilityError(message) {
+  platformCapabilitiesLoaded = true;
+  if (platformCapabilityStatus) {
+    platformCapabilityStatus.textContent = "检测失败";
+  }
+  if (platformCapabilitySummary) {
+    platformCapabilitySummary.textContent = message;
+  }
+  renderCapabilityEmpty(message, "capability-empty capability-empty-error");
+}
+
+async function loadPlatformCapabilities(options = {}) {
+  if (!platformCapabilityList) return;
+  if (platformCapabilitiesLoading) return;
+  if (!window.appApi?.getCapabilities) {
+    renderPlatformCapabilityError("当前版本未暴露平台能力接口。");
+    return;
+  }
+
+  setPlatformCapabilitiesLoading(true);
+  renderCapabilityEmpty("正在检测平台能力...");
+  try {
+    const response = await window.appApi.getCapabilities({
+      refreshRuntime: Boolean(options.refreshRuntime)
+    });
+    if (response?.ok && response.result) {
+      renderPlatformCapabilities(response.result);
+      if (options.notify) {
+        window.showToast("平台能力已刷新", "success");
+      }
+      appendLog({ level: 1, message: "平台能力诊断已刷新。" });
+      return;
+    }
+    const message = response?.error?.message || response?.error || "平台能力检测返回异常。";
+    renderPlatformCapabilityError(message);
+    if (options.notify) {
+      window.showToast("平台能力检测失败", "error");
+    }
+  } catch (error) {
+    const message = error?.message || String(error);
+    renderPlatformCapabilityError(message);
+    if (options.notify) {
+      window.showToast("平台能力检测失败", "error");
+    }
+  } finally {
+    setPlatformCapabilitiesLoading(false);
+  }
+}
+
+function ensurePlatformCapabilitiesLoaded() {
+  if (!platformCapabilitiesLoaded) {
+    loadPlatformCapabilities().catch(() => null);
+  }
+}
+
 function buildLibreOfficeSuggestionList(report = {}) {
   const runtime = report?.runtime && typeof report.runtime === "object" ? report.runtime : {};
   const capability = getPrimaryCapability(report);
@@ -3299,6 +3550,11 @@ if (xhsStartBtn) {
 }
 if (xhsStopBtn) {
   xhsStopBtn.addEventListener("click", handleXhsStop);
+}
+if (platformCapabilityRefreshBtn) {
+  platformCapabilityRefreshBtn.addEventListener("click", () => {
+    loadPlatformCapabilities({ refreshRuntime: true, notify: true }).catch(() => null);
+  });
 }
 
 // Tab切换逻辑

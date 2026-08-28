@@ -140,12 +140,13 @@ git push -u origin platform/macos-<task-name>
 建议按顺序做，不要一上来改大范围业务逻辑：
 
 1. 已完成：合并 Darwin LibreOffice runtime detection PR，确认启动自检命中系统 LibreOffice。
-2. 建立 `code/desktop/platform/index.js` 和 adapter 总壳。
-3. 修正 macOS Office COM unsupported 早退，不能触发 PowerShell。
-4. 新增统一 capability 返回结构，让 UI 根据能力状态显示可用/不可用。
-5. 修正 macOS LibreOffice / Office 预检文案。
-6. GitHub Actions 基础 matrix 已增加，只跑 `npm ci` 和两个 puzzle smoke。
-7. `dist:mac:dir` unsigned app bundle 已可作为 macOS 打包 smoke；签名、公证和 dmg/zip 后置。
+2. 已完成：建立 `code/desktop/platform/index.js` 和 adapter 总壳。
+3. 已完成：修正 macOS Office COM unsupported 早退，不能触发 PowerShell。
+4. 已完成：新增统一 capability / health 返回结构，并在设置页显示平台能力状态。
+5. 已完成：修正 macOS LibreOffice / Office 预检文案。
+6. 已完成：GitHub Actions 基础 matrix 已增加，只跑 `npm ci` 和两个 puzzle smoke。
+7. 已完成：`dist:mac:dir` unsigned app bundle 已可作为 macOS 打包 smoke；签名、公证和 dmg/zip 后置。
+8. 当前：MAC-09 设置页能力面板已在 `feature/platform-capability-panel` 实现，待 PR/CI/合并；合并后进入 MAC-10 主进程 service 层最小拆分。
 
 ## 5. Mac 常见问题
 

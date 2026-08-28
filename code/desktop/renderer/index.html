@@ -919,6 +919,21 @@
                 </div>
               </div>
             </div>
+            <div class="card platform-capability-card">
+              <div class="card-header capability-card-header">
+                <span class="card-desc">平台能力与本机运行状态。</span>
+                <div class="capability-header-actions">
+                  <span id="platformCapabilityStatus" class="status-text">未检测</span>
+                  <button id="platformCapabilityRefreshBtn" type="button" class="btn-secondary">刷新</button>
+                </div>
+              </div>
+              <div class="card-body capability-body">
+                <div class="capability-summary" id="platformCapabilitySummary">进入设置页后自动检测。</div>
+                <div id="platformCapabilityList" class="capability-list" aria-live="polite">
+                  <div class="capability-empty">等待检测平台能力。</div>
+                </div>
+              </div>
+            </div>
             <div class="card">
               <div class="card-header">
                 <span class="card-desc">查看操作过程、错误与提示。</span>

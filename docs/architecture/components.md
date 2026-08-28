@@ -14,6 +14,7 @@
 | 版本更新弹窗 | 检查和跳转下载 | `code/desktop/renderer/license/*` | `checkUpdate` | 依赖 `licenseAPI.openExternal` |
 | LibreOffice 预检弹窗 | 导出前运行时风险提示 | `code/desktop/renderer/index.html`、`renderer.js` | `openLibreOfficeModal(...)` | 不应绕过预检；macOS 文案读 `platform/errorCode/actions`，不显示 Windows 修复主文案 |
 | Office 高保真导出弹窗 | Office 模式说明、预检和继续 | `code/desktop/renderer/index.html`、`renderer.js` | `openOfficeEngineModal(...)` | 受 COM 环境影响；非 Windows `PLATFORM_UNSUPPORTED` 时禁用继续动作并提示切回 LibreOffice |
+| 平台能力设置页 / 诊断区 | 展示当前平台 runtime、渲染、字体和打包能力 | `code/desktop/renderer/index.html`、`renderer.js`、`styles.css` | `window.appApi.getCapabilities()` | 只消费 `capability:getAll` 返回结构，不在 renderer 判断底层命令；macOS Office COM 显示 unsupported 而非错误 |
 | 拼图自定义下拉 | 拼图模块 select 美化 | `code/desktop/renderer/puzzle/custom-select.js` | `createCustomSelect(...)` | 拼图模块内复用 |
 | 拼图颜色选择器 | 颜色选择和透明度交互 | `code/desktop/renderer/puzzle/color-picker.js` | `createColorPicker(...)` | 已处理 Pickr 兼容细节 |
 | 拼图画布编辑器 | 坑位拖拽、缩放、命中检测 | `code/desktop/renderer/puzzle/canvas-editor.js` | `createCanvasEditor(...)` | 拼图核心交互 |

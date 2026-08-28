@@ -4465,14 +4465,149 @@ function createLibreOfficeRuntimeCapability(runtime = {}) {
   });
 }
 
+function getPackageDependencyVersion(pkg, dependencyName) {
+  if (!pkg || typeof pkg !== "object") return "";
+  const dependencyGroups = [
+    pkg.dependencies,
+    pkg.devDependencies,
+    pkg.optionalDependencies
+  ];
+  for (const group of dependencyGroups) {
+    if (group && typeof group === "object" && group[dependencyName]) {
+      return String(group[dependencyName]);
+    }
+  }
+  return "";
+}
+
+function canResolveNodeDependency(dependencyName) {
+  try {
+    require.resolve(dependencyName);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+function createPdfRenderCapability(pkg = readAppPackageJson()) {
+  const requiredDependencies = ["@hyzyla/pdfium", "sharp"];
+  const missing = requiredDependencies.filter((dependencyName) => !canResolveNodeDependency(dependencyName));
+  const versionText = requiredDependencies
+    .map((dependencyName) => {
+      const version = getPackageDependencyVersion(pkg, dependencyName);
+      return version ? `${dependencyName}@${version}` : dependencyName;
+    })
+    .join(", ");
+  const ok = missing.length === 0;
+
+  return createCapabilityResult({
+    ok,
+    platform: process.platform,
+    capability: "pdf-render",
+    source: "node_modules",
+    version: versionText,
+    warnings: [],
+    errorCode: "PDF_RENDER_DEPENDENCY_MISSING",
+    message: ok
+      ? "PDF 渲染依赖已安装。"
+      : `PDF 渲染依赖缺失：${missing.join(", ")}`,
+    actions: ok ? [] : ["执行 npm --prefix code/desktop ci 后重试。"]
+  });
+}
+
+function countFontBinaryFiles(fontsDir) {
+  const fontExtensions = new Set([".otf", ".ttf", ".ttc", ".woff", ".woff2"]);
+  try {
+    return fs.readdirSync(fontsDir)
+      .filter((fileName) => fontExtensions.has(path.extname(fileName).toLowerCase()))
+      .length;
+  } catch (error) {
+    return -1;
+  }
+}
+
+function createFontCapability(pkg = readAppPackageJson()) {
+  const fontsDir = getFontsDir();
+  const fontFileCount = countFontBinaryFiles(fontsDir);
+  const skiaAvailable = canResolveNodeDependency("skia-canvas");
+  const warnings = [];
+  const actions = [];
+  let source = "system_fallback";
+  let message = "未检测到内置字体二进制，当前使用系统字体回退。";
+
+  if (fontFileCount < 0) {
+    warnings.push("字体目录不可读，当前依赖系统字体回退。");
+    actions.push("确认 code/desktop/fonts/README.md 和外部字体 artifact 策略。");
+  } else if (fontFileCount > 0) {
+    source = "local_bundle";
+    message = `已检测到 ${fontFileCount} 个内置字体文件。`;
+  } else {
+    warnings.push("public 仓库不包含字体二进制，当前依赖系统字体回退。");
+    actions.push("如需品牌字体，按 resources.md 配置外部字体 artifact。");
+  }
+
+  if (!skiaAvailable) {
+    actions.unshift("执行 npm --prefix code/desktop ci 后重试。");
+  }
+
+  return createCapabilityResult({
+    ok: skiaAvailable,
+    platform: process.platform,
+    capability: "font",
+    source,
+    path: fontsDir,
+    version: getPackageDependencyVersion(pkg, "skia-canvas"),
+    warnings,
+    errorCode: "FONT_RENDER_DEPENDENCY_MISSING",
+    message: skiaAvailable ? message : "字体渲染依赖 skia-canvas 缺失。",
+    actions
+  });
+}
+
+function getPackagingScriptName(platform = process.platform) {
+  if (platform === "darwin") return "dist:mac:dir";
+  if (platform === "win32") return "dist";
+  return "";
+}
+
+function createPackagingCapability(pkg = readAppPackageJson()) {
+  const baseCapability = currentPlatformAdapter.packaging.getCapability();
+  const scriptName = getPackagingScriptName(process.platform);
+  const scriptCommand = scriptName && pkg?.scripts && typeof pkg.scripts === "object"
+    ? String(pkg.scripts[scriptName] || "")
+    : "";
+  const ok = Boolean(baseCapability.ok && (!scriptName || scriptCommand));
+  const actions = scriptName && scriptCommand
+    ? [`运行 npm --prefix code/desktop run ${scriptName} 生成本地开发包。`]
+    : baseCapability.actions;
+
+  return createCapabilityResult({
+    ...baseCapability,
+    ok,
+    source: scriptCommand ? `npm-script:${scriptName}` : baseCapability.source,
+    path: "package.json",
+    version: getPackageDependencyVersion(pkg, "electron-builder"),
+    warnings: baseCapability.warnings || [],
+    errorCode: ok ? "" : (baseCapability.errorCode || "PACKAGING_SCRIPT_MISSING"),
+    message: ok
+      ? `${process.platform === "darwin" ? "macOS" : process.platform === "win32" ? "Windows" : process.platform} 打包脚本已配置：${scriptName || "platform default"}。`
+      : (baseCapability.message || "当前平台打包脚本未配置。"),
+    actions
+  });
+}
+
 function getCapabilityStatus(options = {}) {
+  const pkg = readAppPackageJson();
   const libreOfficeRuntime = resolveLibreOfficeRuntime({
     runtimeMode: options.runtimeMode,
     refresh: options.refreshRuntime
   });
   const libreoffice = createLibreOfficeRuntimeCapability(libreOfficeRuntime);
   const officeCom = currentPlatformAdapter.office.getCapability();
-  const capabilities = [libreoffice, officeCom];
+  const pdfRender = createPdfRenderCapability(pkg);
+  const font = createFontCapability(pkg);
+  const packaging = createPackagingCapability(pkg);
+  const capabilities = [libreoffice, officeCom, pdfRender, font, packaging];
   return {
     ok: capabilities.some((capability) => capability.ok),
     platform: process.platform,
