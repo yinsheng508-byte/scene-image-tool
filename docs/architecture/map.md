@@ -13,7 +13,7 @@
 | 场景化图片排版 | 底图、叠图、四角定位、批量导出 | `code/desktop/renderer/compose.html`、`compose.js`、`compose.css` | Canvas、FileSaver、JSZip | 旧工具页集成进主界面 |
 | 百变拼图编辑器 | 模板、坑位、文字、图片元素、裁剪、多文件夹、预览、生成 | `code/desktop/renderer/puzzle/*` | Canvas、shared render spec、字体加载、Pickr | 当前 `puzzle/index.js` 过大 |
 | 共享渲染规范 | 字体映射、文字布局、拼图渲染规则 | `code/desktop/shared/*` | ESM | 主进程和渲染进程共享 |
-| 平台适配层 | 平台专属 runtime、进程和打包能力逐步隔离 | `code/desktop/platform/*` | Node `fs/path/child_process` | 当前已新增 platform 总入口、common capability helper 和 Darwin LibreOffice runtime 探测，后续继续拆 win32 adapter |
+| 平台适配层 | 平台专属 runtime、进程和打包能力逐步隔离 | `code/desktop/platform/*` | Node `fs/path/child_process` | 当前已新增 platform 总入口、common capability helper、Darwin LibreOffice runtime 探测和跨平台进程终止 adapter，后续继续拆 Office / 打包 adapter |
 | 文档转换脚本 | Office / LibreOffice 检测和转换 | `code/desktop/scripts/*` | PowerShell、Microsoft Office COM、LibreOffice | Windows 兼容重点 |
 | 应用资源 | 图标、二维码、字体、运行时 | `code/desktop/assets/`、`code/desktop/fonts/`、`code/desktop/vendor/` | electron-builder extraResources | 资源策略见 `docs/architecture/resources.md` |
 
@@ -43,8 +43,12 @@ code/
       index.js
       common/
         capability-result.js
+        process-utils.js
       darwin/
         libreoffice-runtime.js
+        process-tree.js
+      win32/
+        process-tree.js
     assets/
     fonts/
     vendor/
@@ -56,3 +60,4 @@ code/
 - 文件系统、shell、clipboard、Office/LibreOffice、网络上传下载等能力留在主进程。
 - 拼图预览和导出必须共享 `code/desktop/shared/puzzle-render-spec.mjs` 和 `text-layout.mjs`，避免预览/导出不一致。
 - 授权、微信登录、导出预检、飞书上传、取消任务走统一闸口，不在 UI 中直接绕过。
+- 导出取消的进程终止能力从 `platform/index.js` 进入对应平台 adapter；macOS 不调用 `taskkill`，Windows 继续由 win32 adapter 保留 `taskkill /T /F` 语义。

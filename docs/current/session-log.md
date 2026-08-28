@@ -160,3 +160,10 @@
 - 修改文件：新增 `code/desktop/platform/index.js`、`code/desktop/platform/common/capability-result.js`；更新 `code/desktop/main.js`，让 macOS LibreOffice runtime resolve 通过 `currentPlatformAdapter.runtime.resolveLibreOffice()`；回写 `docs/architecture/map.md`、`docs/architecture/capabilities.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-task-cards.md`。
 - 验证：`node --check code/desktop/main.js`、`node --check code/desktop/platform/index.js`、`node --check code/desktop/platform/common/capability-result.js` 通过；直接调用 `createPlatformAdapter("darwin")` 可返回 `source=system_app`、`version=26.8.0.3`；`createPlatformAdapter("win32").runtime.resolveLibreOffice()` 返回 `null`，保持 Windows legacy path；`puzzle:shadow:smoke`、`puzzle:text:smoke` 和 `git diff --check` 均通过。
 - 风险：MAC-01 只建立 adapter 入口和 helper，不迁移 PowerShell、Office COM、进程终止或打包配置；Windows 行为需要后续在对应 PR 中继续保护。PR #3 已合并到 `platform/macos-bootstrap`。
+
+## 2026-08-28
+
+- 阶段：MAC-02 跨平台进程终止 adapter。
+- 修改文件：新增 `code/desktop/platform/common/process-utils.js`、`code/desktop/platform/darwin/process-tree.js`、`code/desktop/platform/win32/process-tree.js`；更新 `code/desktop/platform/index.js` 和 `code/desktop/main.js`；回写 `docs/architecture/map.md`、`docs/architecture/capabilities.md`、`docs/architecture/do-not-break.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-task-cards.md`。
+- 验证：`node --check code/desktop/main.js`、`node --check code/desktop/platform/index.js`、`node --check code/desktop/platform/common/process-utils.js`、`node --check code/desktop/platform/darwin/process-tree.js`、`node --check code/desktop/platform/win32/process-tree.js` 通过；直接调用 `createPlatformAdapter("darwin").process.killProcessTreeByPid(-1)` 和 `createPlatformAdapter("win32").process.killProcessTreeByPid(-1)` 均返回 invalid pid 短路；`puzzle:shadow:smoke`、`puzzle:text:smoke` 通过。
+- 风险：macOS 当前先使用 `process.kill(pid, "SIGTERM")`，尚未实现 process group 级联终止；Windows `taskkill /T /F` 逻辑已隔离到 win32 adapter，但本机未执行 Windows 环境实机取消验证。

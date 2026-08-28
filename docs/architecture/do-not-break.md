@@ -10,6 +10,7 @@
 | `code/desktop/preload.js` | 所有能力通过 `contextBridge` 暴露 | 主进程能力需要集中白名单 | UI 直接访问 Electron 会破坏边界 |
 | `shell:openExternal` / `shell:openPath` | renderer 只能请求，主进程必须校验 URL scheme 和路径来源 | preload 暴露的是能力入口，不是信任边界 | renderer 注入会扩大到任意外链或本地路径打开 |
 | `code/desktop/main.js` Office / LibreOffice 转换链路 | 存在 safe copy、超时、fallback、进程终止和错误码 | 兼容 Windows、非 ASCII 路径、Office COM 卡顿 | 导出失败、卡死或无法取消 |
+| `code/desktop/platform/*/process-tree.js` 和 `platform/common/process-utils.js` | 导出取消通过 platform process adapter 终止活跃进程 | macOS 和 Windows 的进程树终止语义不同，不能在 UI 或转换逻辑里散落平台判断 | macOS 误调 `taskkill`、Windows 丢失 `/T /F`，导致取消失败或残留 Office / LO 进程 |
 | `code/desktop/scripts/*.ps1` | PowerShell 输出 JSON 和错误码 | 主进程依赖结构化输出解析 | 错误提示和重试策略失效 |
 | `code/desktop/shared/font-config.mjs`、`text-layout.mjs` | 字体映射和文字布局被主进程/渲染进程共享 | 保证拼图预览和导出一致 | 字体回退、文字位置不一致 |
 | `code/desktop/main.js` 字体探针 | 不只看 `registerFont()` 成功 | 注册成功不代表真实可渲染 | 导出字体悄悄回退 |
@@ -24,6 +25,7 @@
 |---|---|---|
 | 授权和版本检查走 `license:*` IPC | 统一设备、密钥、版本状态 | `code/desktop/main.js`、`renderer/license/*` |
 | 文档导出必须支持取消 | 用户可能批量处理大文件 | `convert:documents`、`convert:cancel` |
+| 导出取消必须走 platform process adapter | 终止方式与平台强相关，且后续需要扩展 process group | `code/desktop/main.js`、`code/desktop/platform/*/process-tree.js` |
 | 飞书上传必须支持取消 | 上传可能耗时且有失败重试 | `feishu:uploadImages`、`feishu:cancel` |
 | 小红书下载必须支持取消 | 网络图片下载可能长时间阻塞 | `xhs:download`、`xhs:cancel` |
 | 拼图导出不能超过像素上限 | 防止内存爆掉 | `puzzle:generate`、`puzzle:renderExportPreview` |
