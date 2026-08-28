@@ -243,4 +243,18 @@
 - 阶段：MAC-13 IPC shell 边界和长任务取消 hardening。
 - 修改文件：新增 `code/desktop/services/shell-service.js` 和 `code/desktop/services/request-control.js`；更新 `code/desktop/main.js`、`code/desktop/preload.js`、`code/desktop/renderer/renderer.js`、`code/desktop/renderer/compose.js`、`code/desktop/renderer/puzzle/index.js`、`code/desktop/package.json`、`docs/architecture/map.md`、`docs/architecture/capabilities.md`、`docs/architecture/gates.md`、`docs/architecture/do-not-break.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`、`docs/current/acceptance.md` 和本日志。
 - 验证：`node --check` 已覆盖 `main.js`、`preload.js`、`renderer/renderer.js`、`renderer/compose.js`、`renderer/puzzle/index.js`、`services/shell-service.js` 和 `services/request-control.js`；shell service smoke 覆盖 `https:` 放行、`http:` 返回 `URL_SCHEME_BLOCKED`、未登记目录返回 `PATH_NOT_ALLOWED`、已登记目录打开和 `openPath` URL 返回 `OPEN_PATH_URL_BLOCKED`；request-control body smoke 覆盖 response body 读取期 timeout 和 cancel 后 tracker 清空；Electron dev 以 `--remote-debugging-port=9361` 启动 10 秒通过，启动自检命中 `/Applications/LibreOffice.app/Contents/MacOS/soffice`、版本 `26.8.0.3`；`puzzle:shadow:smoke` 和 `puzzle:text:smoke` 通过；`dist:mac:dir` 通过，app bundle 启动后可看到主/渲染/GPU 进程，`app.asar` 包含 `services/request-control.js`、`services/settings-service.js`、`services/shell-service.js`，Resources 下未发现 Windows LibreOffice runtime、VC redist 或 PowerShell 脚本。
-- 风险：本阶段不改变 Feishu/XHS 业务 API、排序和上传规则；真实飞书账号上传取消、真实小红书页面下载取消和 Windows 实机取消仍需后续人工业务样本复测；MAC-13 PR 待提交并等待 Desktop CI Windows/macOS 检查。
+- 风险：本阶段不改变 Feishu/XHS 业务 API、排序和上传规则；真实飞书账号上传取消、真实小红书页面下载取消和 Windows 实机取消仍需后续人工业务样本复测；PR #15 已合并，Desktop CI Windows/macOS 基础检查已通过。
+
+## 2026-08-28
+
+- 阶段：MAC-13 PR 合并状态回写。
+- 修改文件：更新 `docs/current/tasks.md`、`docs/current/_dashboard.md`、`docs/current/acceptance.md`、`docs/current/macos-main-app-task-cards.md`、`docs/current/WORKING_CONTEXT.md` 和本日志。
+- 验证：PR #15 `Harden shell IPC and network cancel` 已合并到 `platform/macos-bootstrap`，merge commit 为 `845b3364045728f44c79649e71a9a7452f2af34a`；Desktop CI 通过，macOS job 24s，Windows job 46s；本地分支已 fast-forward 到 `origin/platform/macos-bootstrap`。
+- 风险：本条为合并状态文档回写，不改业务代码；后续完整测试验收仍需在合并后的 `platform/macos-bootstrap` 上执行。
+
+## 2026-08-28
+
+- 阶段：MAC-13 合并后完整测试验收。
+- 修改文件：更新 `docs/current/acceptance.md`、`docs/current/WORKING_CONTEXT.md` 和本日志。
+- 验证：`npm --prefix code/desktop ci` 通过，仍报告既有 21 个 audit 漏洞；全 JS `node --check` 通过；`resources:check` 通过，macOS system LibreOffice 命中 `/Applications/LibreOffice.app/Contents/MacOS/soffice`，bundled fonts 缺失为 public 仓库既定 warning；`render:fixture:smoke` 3/3 通过；`export:fixture:smoke` 2/2 通过，LibreOffice 版本 `26.8.0.3`；`puzzle:shadow:smoke` 和 `puzzle:text:smoke` 通过；shell service smoke 和 request-control body smoke 通过；Electron dev 以 `--remote-debugging-port=9362` 启动 10 秒通过；`dist:mac:dir` 通过，bundle 启动后可看到主/渲染/GPU 进程，`app.asar` 包含 `services/request-control.js`、`services/settings-service.js`、`services/shell-service.js`，Resources 下未发现 Windows LibreOffice runtime、VC redist 或 PowerShell 脚本；`dist/`、`_test_output/` 和 `node_modules/` 均为 ignored。
+- 风险：真实飞书账号上传取消、真实小红书页面下载取消、Windows 实机 folder-open/cancel 和 Apple signed/notarized release 仍未执行；npm audit 漏洞需后续独立治理。

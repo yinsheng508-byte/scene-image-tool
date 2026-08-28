@@ -886,7 +886,7 @@ Risks and rollback：
 Priority：P1
 Platform：Shared Security / Runtime
 Branch：`hardening/ipc-shell-and-cancel`
-Status：已完成本地实现和验证，PR 待提交。
+Status：已完成，PR #15 已合并。
 
 Objective：
 

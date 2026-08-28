@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-项目结构迁移已完成，Phase 8 自动化验收通过；迁移后本地构建垃圾清理和清理后自动验证已通过；GitHub public 首次上线、clone 验收和本地/远端覆盖校验已通过；macOS 首次 clone、`npm ci`、Electron 开发启动、Darwin LibreOffice runtime 探测和基础 puzzle smoke 已通过；页签级业务交互仍建议做人工冒烟。
+项目结构迁移已完成，Phase 8 自动化验收通过；迁移后本地构建垃圾清理和清理后自动验证已通过；GitHub public 首次上线、clone 验收和本地/远端覆盖校验已通过；macOS 首次 clone、`npm ci`、Electron 开发启动、Darwin LibreOffice runtime 探测、基础 puzzle smoke 和 MAC-13 合并后完整自动化验收已通过；页签级真实业务交互仍建议做人工冒烟。
 
 ## 最终验收范围
 
@@ -34,7 +34,8 @@
 | MAC-10 settings service 拆分 | `node --check`、临时 userData service smoke、Electron 启动、两个 puzzle smoke、PR #12 Desktop CI | 通过 | `main.js` 从 9180 行降至 9105 行；`settings:getAll` / `settings:set` IPC contract 和 userData `app-settings.json` 路径保持不变；Desktop CI 通过：Windows 47s、macOS 24s |
 | MAC-11 runtime artifact provisioning | `resources:provision:dry-run`、`resources:check`、sha256 mismatch temp smoke、PR #13 Desktop CI | 通过 | macOS system LibreOffice 检查通过；缺 bundled fonts 显示 warning 和 artifact-root action；Windows dry-run 不复制大资源；sha256 mismatch 用例返回非 0 并阻断；Desktop CI 通过：Windows 47s、macOS 39s |
 | MAC-12 macOS signing release 准备 | `node --check`、plist lint、workflow YAML parse、missing-signing preflight、`dist:mac:dir`、PR #14 Desktop CI | 准备通过；真实签名未执行 | 本机 0 个有效 signing identities 且无 `CSC_*` / `APPLE_*` env；`signing:mac:check` 和 `dist:mac` 在缺凭据时阻断；unsigned `dist:mac:dir` 仍通过；Desktop CI 通过：Windows 1m14s、macOS 34s |
-| MAC-13 IPC shell / cancel hardening | `node --check`、shell-service smoke、request-control body smoke、Electron dev 启动、`dist:mac:dir`、两个 puzzle smoke | 本地通过；PR 待提交 | `openExternal` 默认只允许 `https:`，`http:` 返回 `URL_SCHEME_BLOCKED`；`openPath` 拒绝 URL、未登记目录、相对路径和文件路径；Feishu/XHS 当前 fetch 支持 timeout / abort；preload progress listener 返回 unsubscribe；`app.asar` 包含 `services/**` |
+| MAC-13 IPC shell / cancel hardening | `node --check`、shell-service smoke、request-control body smoke、Electron dev 启动、`dist:mac:dir`、两个 puzzle smoke、PR #15 Desktop CI | 通过，PR #15 已合并 | `openExternal` 默认只允许 `https:`，`http:` 返回 `URL_SCHEME_BLOCKED`；`openPath` 拒绝 URL、未登记目录、相对路径和文件路径；Feishu/XHS 当前 fetch 支持 timeout / abort；preload progress listener 返回 unsubscribe；`app.asar` 包含 `services/**`；Desktop CI 通过：Windows 46s、macOS 24s |
+| MAC-13 合并后完整验收 | `npm ci`、全 JS `node --check`、`resources:check`、`render:fixture:smoke`、`export:fixture:smoke`、两个 puzzle smoke、Electron dev 启动、`dist:mac:dir`、bundle 启动和资源扫描 | 通过，有既有告警 | `npm ci` 通过但仍报告既有 21 个 audit 漏洞；`resources:check` 命中 macOS system LibreOffice，bundled fonts 缺失为 public 仓库既定 warning；export fixture 2/2 通过；render fixture 3/3 通过；bundle `app.asar` 包含 `services/**`，Resources 未发现 Windows runtime/redist/PowerShell |
 | 拼图阴影回归 | `npm --prefix code/desktop run puzzle:shadow:smoke` | 通过 | 不依赖 bundled fonts |
 | 拼图文字回归 | `npm --prefix code/desktop run puzzle:text:smoke` | 通过 | 不依赖 bundled fonts |
 | 第一阶段禁跑命令 | 未执行 | 符合约束 | 未运行 `font:probe`、`check:lo-runtime`、`dist`、`dist:full`、`dist:dev` |
