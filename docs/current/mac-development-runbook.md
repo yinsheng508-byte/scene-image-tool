@@ -2,7 +2,7 @@
 
 > 日期：2026-08-26
 > 目标：从公开 GitHub 仓库 clone 后，在 Mac 上先跑通开发启动和共享 smoke，再进入 macOS adapter / 打包任务。
-> 当前限制：现有打包配置仍偏 Windows，`dist:mac:dir` 尚未实现；public 首次线上基线不包含字体二进制；`check:lo-runtime` 仍是 Windows embedded runtime 检查。Mac 第一阶段先运行开发模式，不执行 Windows full build。
+> 当前限制：`dist:mac:dir` 已可生成 unsigned macOS app bundle；public 首次线上基线不包含字体二进制；`check:lo-runtime` 仍是 Windows embedded runtime 检查。Mac 第一阶段先运行开发模式，不执行 Windows full build。
 > GitHub 仓库：`https://github.com/yinsheng508-byte/scene-image-tool`
 > macOS 基线分支：`platform/macos-bootstrap`
 
@@ -145,7 +145,7 @@ git push -u origin platform/macos-<task-name>
 4. 新增统一 capability 返回结构，让 UI 根据能力状态显示可用/不可用。
 5. 修正 macOS LibreOffice / Office 预检文案。
 6. 增加 GitHub Actions 基础 matrix，只跑 `npm ci` 和两个 puzzle smoke。
-7. 平台化 electron-builder 资源配置后再新增 `dist:mac:dir` unsigned app bundle。
+7. `dist:mac:dir` unsigned app bundle 已可作为 macOS 打包 smoke；签名、公证和 dmg/zip 后置。
 
 ## 5. Mac 常见问题
 

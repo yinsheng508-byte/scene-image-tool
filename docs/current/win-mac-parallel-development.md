@@ -294,7 +294,7 @@ jobs:
 
 注意：
 
-- `dist:mac:dir` 当前尚未实现，Phase M1 再新增。
+- `dist:mac:dir` 已按 MAC-06 实现；仍不进入第一版 required CI。
 - 第一版 required CI 不运行 `dist:dev`、`dist:mac:dir`、`font:probe`、`check:lo-runtime`。
 - LibreOffice smoke 不应在第一版 CI 中作为必需检查，除非 runner 上已明确安装 runtime。
 - macOS 签名和 notarization 不进入第一阶段 CI。

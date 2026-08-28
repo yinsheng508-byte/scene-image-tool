@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke 和 Darwin LibreOffice runtime 探测已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3、PR #4、PR #5、PR #6 和 PR #7 已合并到 `platform/macos-bootstrap`；MAC-05 macOS LibreOffice 导出 smoke 和脱敏 fixture 已完成，下一阶段进入 MAC-06 macOS unsigned app bundle。
+Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke、Darwin LibreOffice runtime 探测、导出 fixture smoke 已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3、PR #4、PR #5、PR #6 和 PR #7 已合并到 `platform/macos-bootstrap`；MAC-06 macOS unsigned app bundle 已在 `platform/macos-package-dir` 完成，待 PR 合并。
 
 ## 当前最高优先级任务
 
@@ -36,7 +36,7 @@ GitHub public 远端：
 - macOS 开发落地指令：已新增。
 - macOS 主应用开发改造规划：已新增 `docs/current/macos-main-app-development-requirements.md` 和 `docs/current/macos-main-app-task-cards.md`。
 - macOS 代码全面审查与文档校准：已完成，已把当前真实风险回写到需求、任务卡、资源、能力、闸口和并行开发文档。
-- 当前后续任务：从 `platform/macos-bootstrap` 新建 `platform/macos-package-dir`，按 MAC-06 建立 macOS unsigned app bundle 打包脚本；MAC-07 基础 CI 可并行落地。
+- 当前后续任务：提交并合并 `platform/macos-package-dir`；随后按 MAC-07 建立 Windows/macOS 基础 CI matrix。
 
 ## 上次停在哪里
 
@@ -108,6 +108,7 @@ GitHub public 远端：
 - 2026-08-28 MAC-05 已新增生成式 `code/desktop/test-fixtures/export-basic/` fixture 定义和 `code/desktop/scripts/libreoffice-export-fixture-smoke.js`；`export:fixture:smoke` 会在 ignored `code/desktop/_test_output/` 下生成 DOCX/PPTX、LibreOffice PDF、PDF 渲染 PNG 和 `report.json`。
 - 2026-08-28 PR #6 `platform/macos-export-preflight-ui` 已合并到 `platform/macos-bootstrap`。
 - 2026-08-28 PR #7 `platform/macos-export-smoke` 已合并到 `platform/macos-bootstrap`。
+- 2026-08-28 MAC-06 已新增 `dist:mac:dir`、`assets/app-icon.icns`、`build.mac` dir target 和 `sign: null`；`build.files` 已包含 `platform/**`；Windows-only `vendor/libreoffice`、`vendor/redist` 和 packaged scripts 已下沉到 `build.win.extraResources`，macOS app bundle 不再携带这些资源。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-development-requirements.md`，把 Mac 主应用能力范围、platform adapter 目标、导出链路、UI capability、打包、CI、IPC hardening、资源治理和 M0-M11 阶段路线写成当前规划。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-task-cards.md`，拆出 MAC-00 至 MAC-13 任务卡；每张卡包含 Objective、Context、Scope、Out of scope、Steps、Acceptance、Validation、Deliverables 和 Risks。
 - `npm --prefix code/desktop run font:probe` 已通过。
@@ -147,7 +148,7 @@ GitHub public 远端：
 - platform adapter 边界尚未系统性拆分；Windows Office COM、PowerShell、taskkill 和 Windows embedded LibreOffice 仍主要集中在 `code/desktop/main.js`。
 - `runMicrosoftOfficeHealthCheck()` 已在非 Windows 平台早退为 `PLATFORM_UNSUPPORTED`，不再进入 `office-health-check.ps1` PowerShell 链路。
 - `runLibreOfficeHealthCheck()` 和 renderer LibreOffice 弹窗已完成 MAC-04 文案校准；完整平台能力设置区仍待 MAC-09。
-- `code/desktop/package.json` 顶层 `build.extraResources` 仍引用 public 仓库不存在的 Windows LibreOffice runtime / VC redist；`dist:mac:dir` 前必须按 MAC-06 平台化构建配置。
+- `code/desktop/package.json` 已完成 MAC-06 平台化构建配置；`dist:mac:dir` 可生成 macOS arm64 `.app`，Windows build 仍需 Windows 实机复测。
 - `shell:openExternal` / `shell:openPath` 主进程侧缺少 allowlist，XHS 下载 / 飞书上传取消还不能稳定中断当前网络请求；已追加 MAC-13 hardening 任务。
 - macOS 主应用开发改造规划尚未进入代码实施；需要按任务卡小 PR 串行推进。
 
@@ -168,7 +169,7 @@ GitHub public 远端：
 ## 当前环境状态
 
 - 当前执行环境为 macOS 工作区：`~/dev/scene-image-tool`。
-- 当前 Git 分支：`platform/macos-bootstrap`，已包含 PR #1/#2/#3/#4/#5/#6/#7。
+- 当前 Git 分支：`platform/macos-package-dir`，基于已包含 PR #1/#2/#3/#4/#5/#6/#7 的 `platform/macos-bootstrap`。
 - GitHub public 远端已上线，Mac 端已完成首次 clone 和基础启动验证。
 - 不在生产部署流程中。
 
@@ -191,7 +192,7 @@ GitHub public 远端：
 
 - macOS 首次开发启动验证已完成：`npm ci`、Electron 开发启动、`puzzle:shadow:smoke`、`puzzle:text:smoke` 均通过。
 - macOS LibreOffice runtime 探测已完成：Darwin adapter 命中系统 LibreOffice，缺失和 unsupported mode 返回结构化错误，不影响 Electron 启动。
-- macOS 主应用规划已按代码审查修正：第一版 CI 不跑打包/字体/runtime 检查，Mac 打包前先拆 `extraResources`，Office COM 非 Windows 早退作为 P0/P1 任务。
+- macOS 主应用规划已按代码审查修正：第一版 CI 不跑打包/字体/runtime 检查，`extraResources` 已在 MAC-06 平台化，Office COM 非 Windows 早退作为 P0/P1 任务。
 - 文档或规范修复完成后，更新 `docs/current/tasks.md` 和 `docs/current/session-log.md`。
 - 如修改代码脚本，执行对应最小自动化验证。
 

@@ -12,6 +12,7 @@
     "dist:checked": "electron-builder && node scripts/font-probe-test.js --mode=packaged --strict",
     "dist:trial": "electron-builder -c.productName=流量蜂虚拟笔记工具体验版 -c.extraMetadata.appEdition=trial",
     "dist:dev": "electron-builder --dir -c.asar=false -c.directories.output=dist",
+    "dist:mac:dir": "electron-builder --mac dir",
     "font:probe": "node scripts/font-probe-test.js --mode=dev",
     "font:probe:packaged": "node scripts/font-probe-test.js --mode=packaged --strict",
     "font:enum:smoke": "node scripts/font-enum-regression.js",
@@ -48,6 +49,7 @@
       "renderer/**",
       "assets/**",
       "fonts/**",
+      "platform/**",
       "shared/**",
       "package.json"
     ],
@@ -55,42 +57,48 @@
       "fonts/**",
       "node_modules/skia-canvas/**"
     ],
-    "extraResources": [
-      {
-        "from": "vendor/libreoffice",
-        "to": "libreoffice",
-        "filter": [
-          "program/**",
-          "share/**",
-          "presets/**",
-          "Fonts/**",
-          "System/**",
-          "System64/**",
-          "LICENSE*",
-          "NOTICE*",
-          "license.txt",
-          "README.md",
-          "update-settings.ini"
-        ]
-      },
-      {
-        "from": "scripts",
-        "to": "scripts",
-        "filter": [
-          "**/*"
-        ]
-      },
-      {
-        "from": "vendor/redist",
-        "to": "redist",
-        "filter": [
-          "vc_redist.x64.exe",
-          "vc_redist.x64.exe.sha256"
-        ]
-      }
-    ],
+    "mac": {
+      "icon": "assets/app-icon.icns",
+      "target": "dir",
+      "category": "public.app-category.productivity",
+      "sign": null
+    },
     "win": {
       "icon": "assets/app-icon.ico",
+      "extraResources": [
+        {
+          "from": "vendor/libreoffice",
+          "to": "libreoffice",
+          "filter": [
+            "program/**",
+            "share/**",
+            "presets/**",
+            "Fonts/**",
+            "System/**",
+            "System64/**",
+            "LICENSE*",
+            "NOTICE*",
+            "license.txt",
+            "README.md",
+            "update-settings.ini"
+          ]
+        },
+        {
+          "from": "scripts",
+          "to": "scripts",
+          "filter": [
+            "**/*"
+          ]
+        },
+        {
+          "from": "vendor/redist",
+          "to": "redist",
+          "filter": [
+            "vc_redist.x64.exe",
+            "vc_redist.x64.exe.sha256"
+          ]
+        }
+      ],
       "target": [
         {
           "target": "nsis",

@@ -236,20 +236,21 @@ D:\deptask\scene-image-tool-github-public-split
 
 ### Phase M1：macOS 打包配置
 
-状态：待执行。
+状态：`dist:mac:dir` 已按 MAC-06 完成；`dist:mac`、签名、公证和 `check:runtime:mac` 后置。
 
 执行：
 
-- 增加 `package.json` scripts：
+- 已增加 `package.json` scripts：
   - `dist:mac:dir`
+- 已平台化 electron-builder 配置，避免 macOS 打包读取 public 仓库不存在的 Windows LibreOffice runtime / VC redist exe。
+- 后续再增加：
   - `dist:mac`
   - `check:runtime:mac`
-- 在新增脚本前先平台化或外置 electron-builder 配置，避免当前顶层 `extraResources` 读取 public 仓库不存在的 Windows LibreOffice runtime / VC redist exe。
 - 增加 electron-builder `mac` 配置：
-  - `target`: `dmg`、`zip`
+  - `target`: 第一阶段为 `dir`，后续再做 `dmg`、`zip`
   - `icon`: `assets/app-icon.icns`
   - `category`: `public.app-category.productivity`
-- 准备 `.icns` 图标。
+- 已准备 `.icns` 图标。
 - notarization / signing 后置处理，先做 unsigned 开发包。
 
 验收：
