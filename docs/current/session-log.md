@@ -139,3 +139,10 @@
 - 修改文件：新增 `docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`；更新 `docs/INDEX.md`、`docs/current/_dashboard.md`、`docs/current/tasks.md`、`docs/current/session-log.md`、`docs/current/WORKING_CONTEXT.md`。
 - 验证：已把 Mac 主应用能力范围、platform adapter 目标、LibreOffice 导出链路、capability 结构、unsigned 打包、CI matrix、资源治理和 M0-M10 阶段门禁落到文档；已拆 MAC-00 至 MAC-12 任务卡，每张卡包含目标、范围、验收、验证命令和风险回滚；`git diff --check`、`npm --prefix code/desktop run puzzle:shadow:smoke`、`npm --prefix code/desktop run puzzle:text:smoke` 通过。
 - 风险：本阶段为规划和任务拆分，不包含新的业务代码实现；当前规划分支基于 `platform/macos-runtime-detection`，需要先合并 PR #1，再把规划文档合入后续基线。
+
+## 2026-08-28
+
+- 阶段：代码全面审查与 macOS 规划文档校准。
+- 修改文件：更新 `docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`、`docs/current/win-mac-parallel-development.md`、`docs/current/github-sync-macos-plan.md`、`docs/current/mac-development-runbook.md`、`docs/current/acceptance.md`、`docs/current/_dashboard.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/architecture/map.md`、`docs/architecture/capabilities.md`、`docs/architecture/gates.md`、`docs/architecture/do-not-break.md`、`docs/architecture/resources.md`。
+- 验证：已审查 `code/desktop/main.js`、`code/desktop/preload.js`、`code/desktop/package.json`、`code/desktop/scripts/check-lo-runtime.js`、`code/desktop/platform/darwin/libreoffice-runtime.js` 和 renderer 相关调用点；确认 macOS Office engine 当前仍可能进入 PowerShell、LibreOffice 预检/弹窗文案仍偏 Windows、顶层 `extraResources` 仍引用 public 仓库缺失的 Windows runtime/redist、`check:lo-runtime` 是 Windows-only 检查、shell IPC 和网络长任务取消需独立 hardening。`git diff --check`、`node --check code/desktop/main.js`、`node --check code/desktop/preload.js`、`node --check code/desktop/platform/darwin/libreoffice-runtime.js`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 均通过。
+- 风险：本轮只修改文档，不改业务代码；上述代码风险仍需按 MAC-01、MAC-03、MAC-04、MAC-06、MAC-07、MAC-13 逐个小 PR 落地。第一阶段仍未运行 `font:probe`、`check:lo-runtime`、`dist`、`dist:full`、`dist:dev`。

@@ -213,7 +213,7 @@ D:\deptask\scene-image-tool-github-public-split
 
 ### Phase M0：macOS 技术基线拆分
 
-状态：待执行。
+状态：部分完成。macOS clone、`npm ci`、Electron 开发启动和基础 puzzle smoke 已完成；Darwin LibreOffice runtime 探测已在 PR #1 完成。platform adapter 总壳、Office COM unsupported 早退和进程/脚本隔离仍待执行。
 
 执行：
 
@@ -223,7 +223,7 @@ D:\deptask\scene-image-tool-github-public-split
   - macOS 禁用 Office COM 入口，只提供 LibreOffice / PDF 路径。
 - 通用化 LibreOffice 查找：
   - Windows：内置 runtime、系统安装、注册表、`where soffice.exe`。
-  - macOS：`/Applications/LibreOffice.app/Contents/MacOS/soffice`、`/opt/homebrew/bin/soffice`、`/usr/local/bin/soffice`、用户配置路径。
+  - macOS：已在 PR #1 识别 `/Applications/LibreOffice.app/Contents/MacOS/soffice`、`/opt/homebrew/bin/soffice`、`/usr/local/bin/soffice` 和 `LIBREOFFICE_PATH`。
 - 通用化路径和环境：
   - 使用 `path.delimiter`，不要写死 `;`。
   - 不在 macOS 调用 `taskkill`、PowerShell、COM。
@@ -244,6 +244,7 @@ D:\deptask\scene-image-tool-github-public-split
   - `dist:mac:dir`
   - `dist:mac`
   - `check:runtime:mac`
+- 在新增脚本前先平台化或外置 electron-builder 配置，避免当前顶层 `extraResources` 读取 public 仓库不存在的 Windows LibreOffice runtime / VC redist exe。
 - 增加 electron-builder `mac` 配置：
   - `target`: `dmg`、`zip`
   - `icon`: `assets/app-icon.icns`
@@ -264,9 +265,10 @@ D:\deptask\scene-image-tool-github-public-split
 执行：
 
 - 新增 GitHub Actions：
-  - Windows job：`npm ci`、字体/拼图/LibreOffice 可选检查、`dist:dev`。
-  - macOS job：`npm ci`、JS 语法、字体/拼图 smoke、`dist:mac:dir`。
+  - Windows job：`npm ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke`。
+  - macOS job：`npm ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke`。
 - LibreOffice 相关 CI 分成 optional / required，避免没有 runtime 时阻断所有 PR。
+- `dist:dev`、`dist:mac:dir`、`font:probe`、`check:lo-runtime` 暂不进入第一版 required CI。
 
 验收：
 
@@ -306,10 +308,11 @@ git rev-list --objects --all | Select-String -Pattern 'API_key|\.env|settings\.l
 
 ## 5. 下一步建议
 
-下一步不要直接 push 当前迁移历史。建议顺序：
+当前 public 仓库已上线，下一步建议顺序：
 
-1. Mac 端从 `https://github.com/yinsheng508-byte/scene-image-tool.git` clone。
-2. 切到 `platform/macos-bootstrap`，先跑开发启动和共享 smoke。
-3. 开始 macOS 平台 adapter 和打包配置改造。
-4. 字体二进制、Windows LibreOffice runtime 和 redist 走后续 artifact / provisioning 任务，不回填到普通 Git。
-5. 业务改动拆分审查留在 GitHub 后续 PR 中进行，避免污染当前迁移仓库历史。
+1. 合并 `platform/macos-runtime-detection` / PR #1 到 `platform/macos-bootstrap`。
+2. 合并或重建 Mac 主应用规划文档 PR，确保当前代码审查结论进入基线文档。
+3. 按 `MAC-01` 建立 platform adapter 总壳。
+4. 按 `MAC-03` 修正 macOS Office COM unsupported 早退，不能触发 PowerShell。
+5. 按 `MAC-07` 建立基础 CI；打包、字体探针、LibreOffice 导出作为后续 optional 或独立任务。
+6. 字体二进制、Windows LibreOffice runtime 和 redist 继续走 artifact / provisioning，不回填到普通 Git。

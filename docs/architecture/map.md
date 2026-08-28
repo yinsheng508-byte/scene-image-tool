@@ -6,7 +6,7 @@
 
 | 模块名 | 职责 | 入口文件 | 关键依赖 | 备注 |
 |---|---|---|---|---|
-| Electron 主进程 | 窗口、菜单、IPC、设置、授权、转换、上传、下载、拼图生成 | `code/desktop/main.js` | Electron、PDFium、sharp、skia-canvas、PowerShell | 当前 8300+ 行，后续应拆分 |
+| Electron 主进程 | 窗口、菜单、IPC、设置、授权、转换、上传、下载、拼图生成 | `code/desktop/main.js` | Electron、PDFium、sharp、skia-canvas、PowerShell | 当前约 8900+ 行，Windows-only 能力仍需拆入 adapter |
 | 预加载桥 | 向渲染进程暴露白名单 API | `code/desktop/preload.js` | Electron `contextBridge`、`ipcRenderer` | 不打开 nodeIntegration |
 | 主界面 Shell | 6 个页签、全局状态和通用交互 | `code/desktop/renderer/index.html`、`code/desktop/renderer/renderer.js` | DOM、`window.appApi`、`window.licenseAPI` | 当前包含导出、飞书、小红书、设置 |
 | 授权模块 | 授权密钥、免费次数、版本检查、微信登录状态 | `code/desktop/renderer/license/*`、`code/desktop/main.js` | 远端授权 API、微信验证码登录 API | 业务闸口 |

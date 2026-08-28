@@ -20,6 +20,7 @@ MAC-00
   -> MAC-09
     -> MAC-10
       -> MAC-11
+  -> MAC-13
 ```
 
 可并行：
@@ -27,15 +28,27 @@ MAC-00
 - `MAC-07` CI 可在 `MAC-01` 后并行做基础版。
 - `MAC-08` fixture 可与 adapter 工作并行，但不能改主导出逻辑。
 - `MAC-09` UI 文案可在 `MAC-03` capability 结构稳定后做。
+- `MAC-13` 可在 `MAC-01` 后独立做 hardening，但涉及 `preload.js` 时需要避开 UI/capability PR。
 
 高冲突文件：
 
 - `code/desktop/main.js`
 - `code/desktop/renderer/renderer.js`
 - `code/desktop/renderer/index.html`
+- `code/desktop/preload.js`
 - `code/desktop/package.json`
 
 这些文件相关 PR 需要串行合并。
+
+## 代码审查校准
+
+本任务卡已按 2026-08-28 代码审查结果校准，后续执行时先把以下风险当作已确认事实，而不是待发现问题：
+
+- `runMicrosoftOfficeHealthCheck()` 当前没有非 Windows 早退，macOS 选择 Office engine 仍可能进入 PowerShell 执行链路。
+- `runLibreOfficeHealthCheck()` 和 renderer LibreOffice 弹窗仍存在 Windows 修复文案，macOS 上系统 LibreOffice 不应被描述为 Full 安装包 fallback。
+- `package.json` 顶层 `build.extraResources` 仍引用 public 仓库不存在的 Windows runtime / redist，macOS 打包前必须先平台化配置。
+- `scripts/check-lo-runtime.js` 是 Windows embedded runtime 完整性检查，不应作为 macOS runtime 探测命令。
+- `shell:openExternal` / `shell:openPath`、长任务网络取消需要独立 hardening，不要在新增 Mac UI 时继续扩大 IPC 暴露面。
 
 ## MAC-00：合并 macOS LibreOffice runtime detection
 
@@ -249,6 +262,7 @@ Scope：
 - 新增 common health normalizer。
 - 主进程 health check 返回兼容旧字段，同时新增 `capabilities` 或 `capability` 字段。
 - macOS Office COM 返回 `PLATFORM_UNSUPPORTED`。
+- `office:healthCheck` 作为历史兼容 alias 保留；新代码以 `export:healthCheck` / `capability:getAll` 为权威入口。
 
 Out of scope：
 
@@ -259,13 +273,15 @@ Steps：
 
 1. 定义 `normalizeHealthReport()`。
 2. LibreOffice health 把 runtime capability 放入顶层。
-3. Office health 在 macOS 直接返回 unsupported。
-4. 保留 `score`、`blockExport`、`warnings`、`suggestions` 兼容旧 UI。
+3. Office health 在 macOS 直接返回 unsupported，并且必须早于任何 `runPowerShellWithOutput("office-health-check.ps1")` 调用。
+4. `convert:documents` 选择 Office engine 时也走同一 unsupported 结果，不另起 PowerShell 预检。
+5. 保留 `score`、`blockExport`、`warnings`、`suggestions` 兼容旧 UI。
 
 Acceptance：
 
 - macOS 选择 Office engine 时不会尝试 PowerShell。
 - LibreOffice 缺失时 `blockExport=true`，`errorCode=LO_MISSING_BINARY`。
+- `office:healthCheck` 的兼容行为有文档说明，不再被当作新的 Office COM health API 使用。
 - 旧 renderer 不崩溃。
 
 Validation：
@@ -322,7 +338,8 @@ Steps：
 1. Renderer 从 health report 读取 `platform/errorCode/actions`。
 2. macOS 缺 LibreOffice 时提示安装 Homebrew cask 或设置 `LIBREOFFICE_PATH`。
 3. macOS Office COM 不可用时提供“切回 LibreOffice”主动作。
-4. 保持现有 modal 样式，不新增第二套弹窗系统。
+4. runtime source 为 `system_app` / Homebrew 时不显示“内置运行时不可用”或“重装 Full 安装包”主文案。
+5. 保持现有 modal 样式，不新增第二套弹窗系统。
 
 Acceptance：
 
@@ -460,6 +477,7 @@ Acceptance：
 - `.app` 能打开主界面。
 - `dist/` 被 Git 忽略。
 - app bundle 不包含 Windows LibreOffice runtime 和 VC redist exe。
+- generic `dist` / `dist:dev` 在平台配置未拆好前不得作为 macOS 验收命令。
 
 Validation：
 
@@ -507,18 +525,21 @@ Out of scope：
 
 - 不把 LibreOffice / font / package jobs 设为 required。
 - 不发布 artifacts。
+- 第一版 CI 不运行 `dist:dev`、`dist:mac:dir`、`font:probe`、`check:lo-runtime`。
 
 Steps：
 
 1. 新增 workflow。
 2. 设置 `fail-fast: false`。
 3. 跑 `npm ci` 和两个 puzzle smoke。
-4. PR 上确认 checks 出现。
+4. 可选增加 `git diff --check`。
+5. PR 上确认 checks 出现。
 
 Acceptance：
 
 - PR 能看到 Windows/macOS 两个基础 job。
 - job 不依赖字体二进制、Windows runtime、LibreOffice。
+- workflow 不调用任何打包脚本。
 - 失败时日志能定位到具体 OS。
 
 Validation：
@@ -844,3 +865,73 @@ Deliverables：
 Risks and rollback：
 
 - 签名失败不能阻断日常开发；保留 `dist:mac:dir` unsigned 路径作为 fallback。
+
+## MAC-13：IPC shell 边界和长任务取消 hardening
+
+Priority：P1
+Platform：Shared Security / Runtime
+Branch：`hardening/ipc-shell-and-cancel`
+
+Objective：
+
+收紧主进程 shell 类 IPC，并让飞书上传、小红书下载这类网络长任务在用户取消时能尽快停止当前请求。
+
+Context to read：
+
+- `docs/architecture/do-not-break.md`
+- `docs/architecture/gates.md`
+- `code/desktop/main.js` 中 `shell:openExternal`、`shell:openPath`、`feishu:*`、`xhs:*`
+- `code/desktop/preload.js`
+- `code/desktop/renderer/renderer.js`
+- `code/desktop/renderer/license/ui.js`
+
+Scope：
+
+- `shell:openExternal` 主进程侧 URL scheme allowlist，默认只允许 `https:`。
+- `shell:openPath` 明确调用场景和路径约束，优先打开用户选择目录、应用生成目录或已知下载 URL。
+- XHS 下载接入 timeout / AbortController，`xhs:cancel` 可中断当前 fetch。
+- 飞书上传接入 timeout / AbortController 或等价取消模型，`feishu:cancel` 可中断当前 upload。
+- preload 事件 listener 返回 unsubscribe，避免重复注册造成进度日志翻倍。
+
+Out of scope：
+
+- 不改变授权 API。
+- 不重写飞书或小红书业务规则。
+- 不新增 renderer Node direct access。
+
+Steps：
+
+1. 定义 shell IPC allowlist 和错误返回结构。
+2. 收窄 `openExternal` scheme，并为拦截场景返回清晰 `errorCode/message`。
+3. 为 `openPath` 建立路径来源约束或调用级 action 参数。
+4. 为 XHS 下载和飞书上传建立可取消请求控制器。
+5. preload progress listener 返回取消订阅函数。
+6. 更新 gates / capabilities 文档。
+
+Acceptance：
+
+- renderer 不能通过暴露 API 打开任意非 `https:` 外部链接。
+- Mac/Windows 上取消 XHS 下载时不会等待当前网络请求自然结束。
+- Mac/Windows 上取消飞书上传时进度能稳定收尾。
+- 重复初始化 UI 不会重复消费同一 progress event。
+- `contextIsolation: true`、`nodeIntegration: false` 保持不变。
+
+Validation：
+
+```bash
+PATH="/opt/homebrew/opt/node@22/bin:$PATH" node --check code/desktop/main.js
+PATH="/opt/homebrew/opt/node@22/bin:$PATH" node --check code/desktop/preload.js
+PATH="/opt/homebrew/opt/node@22/bin:$PATH" npm --prefix code/desktop run puzzle:shadow:smoke
+PATH="/opt/homebrew/opt/node@22/bin:$PATH" npm --prefix code/desktop run puzzle:text:smoke
+git diff --check
+```
+
+Deliverables：
+
+- IPC hardening patch。
+- 网络取消验收记录。
+- `docs/architecture/gates.md` / `docs/architecture/capabilities.md` 更新。
+
+Risks and rollback：
+
+- 外链和路径打开过度收窄可能影响更新下载、导出目录打开；先记录所有现有调用点，再按调用场景放行。

@@ -45,6 +45,11 @@
 
 - `main.js` 仍包含大量 Windows-only 转换、PowerShell、Office COM、进程终止和 runtime 探测逻辑。
 - `office:healthCheck` / `export:healthCheck` 的 UI 语义仍偏 Windows 文案。
+- `runMicrosoftOfficeHealthCheck()` 在非 Windows 平台仍会尝试调用 PowerShell；macOS 选择 Office engine 时必须在主进程或 adapter 层直接返回 `PLATFORM_UNSUPPORTED`。
+- `package.json` 顶层 `build.extraResources` 仍引用缺失的 Windows LibreOffice runtime 和 VC redist exe；public Mac clone 在打包前必须先平台化构建资源配置。
+- `scripts/check-lo-runtime.js` 当前是 Windows embedded LibreOffice 完整性检查，不是 macOS 系统 LibreOffice 探测脚本。
+- `shell:openExternal` / `shell:openPath` 目前只通过 renderer 约束调用意图，主进程还缺 URL scheme 和路径使用边界校验。
+- 飞书上传和小红书下载的取消逻辑主要在队列间检查；当前正在进行的 `fetch` / upload 请求仍缺统一 AbortController 或超时取消模型。
 - macOS 文档导出真实文件 smoke 尚未建立脱敏 fixture。
 - `dist:mac:dir` 尚未实现。
 - `.github/workflows` 尚不存在。
@@ -117,6 +122,7 @@ code/desktop/
 4. macOS 路径必须用 Node 原生 spawn / kill / fs 能力，不调用 Windows shell。
 5. Renderer 不直接判断底层命令细节，只看 capability 状态和用户动作建议。
 6. 所有新增公共结构先写 schema / normalizer，再让旧返回兼容这个结构。
+7. 平台限制必须在主进程或 platform adapter 成为权威判断；renderer 只负责展示，不能作为阻止 PowerShell、COM、`taskkill` 或外部路径打开的唯一防线。
 
 ## 5. Platform Adapter 设计
 
@@ -291,6 +297,7 @@ code/desktop/electron-builder.mac.yml
 - `mac.icon`: `assets/app-icon.icns`
 - signing / notarization 后置；开发包明确 unsigned。
 - `extraResources` 只包含跨平台 scripts / assets，不包含 Windows LibreOffice 和 VC redist。
+- 在新增 `dist:mac:dir` 前，先拆分或覆盖当前顶层 `extraResources`；否则 electron-builder 仍会读取 public 仓库中不存在的 `vendor/libreoffice` 和 `vendor/redist/vc_redist.x64.exe`。
 
 ### 8.3 资源策略
 
@@ -371,9 +378,10 @@ npm --prefix code/desktop run export:fixture:smoke
 | M5 | PDF / 图片 / 拼图 Mac 验证 | M0 | native 渲染依赖和拼图 smoke 稳定 |
 | M6 | macOS unsigned packaging | M2 | `dist:mac:dir` 生成可打开 `.app` |
 | M7 | GitHub Actions matrix | M0 | PR 有 Windows/macOS required checks |
-| M8 | 主应用模块拆分 | M1-M7 | `main.js` 明显减负，service 层边界稳定 |
-| M9 | 资源 artifact / provisioning | M6 | 字体和 Windows runtime 不进 Git，但可复现安装 |
-| M10 | 签名、公证、release | M6-M9 | tag 构建 dmg/zip，发布说明按平台分区 |
+| M8 | IPC shell 边界和长任务取消 hardening | M1 | 外链/路径打开有主进程白名单，网络长任务取消可中断当前请求 |
+| M9 | 主应用模块拆分 | M1-M8 | `main.js` 明显减负，service 层边界稳定 |
+| M10 | 资源 artifact / provisioning | M6 | 字体和 Windows runtime 不进 Git，但可复现安装 |
+| M11 | 签名、公证、release | M6-M10 | tag 构建 dmg/zip，发布说明按平台分区 |
 
 ## 11. Review 和 Acceptance Gate
 
@@ -417,10 +425,13 @@ npm --prefix code/desktop run export:fixture:smoke
 |---|---|---|
 | `main.js` 过大 | 平台改造容易互相冲突 | 先抽 adapter 壳，再迁移单一职责 |
 | Windows 导出回退 | 老用户核心能力受损 | Windows adapter 保持旧行为，迁移后跑 Windows smoke |
+| macOS 误触 PowerShell / Office COM | 用户选择 Office engine 后出现无意义失败或错误提示 | `runMicrosoftOfficeHealthCheck` / Office adapter 在非 Windows 先返回 `PLATFORM_UNSUPPORTED`，不进入脚本执行 |
 | macOS LibreOffice 行为差异 | PPT/Word 排版可能变化 | 第一版承诺“可解释导出”，不承诺 COM 高保真 |
 | 无脱敏 fixture | 导出回归无法常规化 | 新增 `code/desktop/test-fixtures/` 小样例 |
 | 字体不入库 | 拼图字体一致性不稳定 | 第一版 fallback，后续 artifact/provisioning |
 | macOS 打包误带 Windows 资源 | 构建失败或包体污染 | 平台化 `extraResources` |
+| 主进程 shell IPC 过宽 | renderer 注入风险会扩大到任意 URL / 路径打开 | `openExternal` 仅允许明确 scheme；`openPath` 只允许来自用户选择或应用生成的已知路径 |
+| 长任务取消不能中断当前网络请求 | 用户点击取消后仍要等待当前下载或上传完成 | 为 XHS 下载、飞书上传接入 AbortController / timeout，并统一进度收尾 |
 | 签名公证缺账号 | 用户打开有 Gatekeeper 提示 | 第一版明确 unsigned，签名作为 P2 |
 | npm audit 漏洞 | 发布合规风险 | 单独依赖治理 PR，不混入平台重构 |
 

@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke 和 Darwin LibreOffice runtime 探测已完成；Mac 主应用开发改造需求和任务卡已落地。下一阶段先合并 PR #1，再进入 platform adapter 边界拆分。
+Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke 和 Darwin LibreOffice runtime 探测已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。下一阶段先合并 PR #1，再进入 platform adapter 边界拆分。
 
 ## 当前最高优先级任务
 
@@ -35,7 +35,8 @@ GitHub public 远端：
 - Windows / macOS 并行开发方案：已完成。
 - macOS 开发落地指令：已新增。
 - macOS 主应用开发改造规划：已新增 `docs/current/macos-main-app-development-requirements.md` 和 `docs/current/macos-main-app-task-cards.md`。
-- 当前后续任务：先合并 `platform/macos-runtime-detection` / PR #1，再按 MAC-01 建立 platform adapter 总壳，把 Windows-only 的 PowerShell、Office COM、taskkill、Windows embedded LibreOffice 逐步隔离到 win32 adapter，macOS 保持系统 LibreOffice 和 Node spawn 路径。
+- macOS 代码全面审查与文档校准：已完成，已把当前真实风险回写到需求、任务卡、资源、能力、闸口和并行开发文档。
+- 当前后续任务：先合并 `platform/macos-runtime-detection` / PR #1，再按 MAC-01 建立 platform adapter 总壳；随后优先执行 MAC-03，修正 macOS Office COM unsupported 早退，避免触发 PowerShell；基础 CI 先按 MAC-07 落地，打包在资源配置平台化后再做 MAC-06。
 
 ## 上次停在哪里
 
@@ -96,8 +97,8 @@ GitHub public 远端：
 - 2026-08-28 已新增 `code/desktop/platform/darwin/libreoffice-runtime.js`，macOS 能识别 `/Applications/LibreOffice.app/Contents/MacOS/soffice`、`/opt/homebrew/bin/soffice`、`/usr/local/bin/soffice` 和 `LIBREOFFICE_PATH`，并返回 `ok/platform/capability/source/path/version/warnings/errorCode/message/actions`。
 - 2026-08-28 Darwin LibreOffice runtime 探测在本机命中 `source=system_app`，版本 `26.8.0.3`；空候选返回 `errorCode=LO_MISSING_BINARY`，embedded 模式返回 `errorCode=PLATFORM_UNSUPPORTED`，均不崩溃。
 - 2026-08-28 接入后 Electron 启动自检已显示 `[LO_RUNTIME_STARTUP] source=system_app path=/Applications/LibreOffice.app/Contents/MacOS/soffice version=26.8.0.3 probe=ok`。
-- 2026-08-28 已新增 `docs/current/macos-main-app-development-requirements.md`，把 Mac 主应用能力范围、platform adapter 目标、导出链路、UI capability、打包、CI、资源治理和 M0-M10 阶段路线写成当前规划。
-- 2026-08-28 已新增 `docs/current/macos-main-app-task-cards.md`，拆出 MAC-00 至 MAC-12 任务卡；每张卡包含 Objective、Context、Scope、Out of scope、Steps、Acceptance、Validation、Deliverables 和 Risks。
+- 2026-08-28 已新增并校准 `docs/current/macos-main-app-development-requirements.md`，把 Mac 主应用能力范围、platform adapter 目标、导出链路、UI capability、打包、CI、IPC hardening、资源治理和 M0-M11 阶段路线写成当前规划。
+- 2026-08-28 已新增并校准 `docs/current/macos-main-app-task-cards.md`，拆出 MAC-00 至 MAC-13 任务卡；每张卡包含 Objective、Context、Scope、Out of scope、Steps、Acceptance、Validation、Deliverables 和 Risks。
 - `npm --prefix code/desktop run font:probe` 已通过。
 - `docs/` 根目录当前只保留 `INDEX.md`、`context.md` 和迁移规划文档。
 - 历史资料已归档为 41 份历史方案、9 份报告、7 份参考说明。
@@ -133,6 +134,10 @@ GitHub public 远端：
 - 当前迁移前业务改动是全部纳入 GitHub 基线，还是拆分后逐步合并。
 - Windows / macOS 并行开发的实际人员分工、GitHub Project 是否启用、CI 是否先走 required + optional 分层。
 - platform adapter 边界尚未系统性拆分；Windows Office COM、PowerShell、taskkill 和 Windows embedded LibreOffice 仍主要集中在 `code/desktop/main.js`。
+- `runMicrosoftOfficeHealthCheck()` 当前仍可在非 Windows 平台进入 `office-health-check.ps1` PowerShell 链路，需要 MAC-03 优先修正。
+- `runLibreOfficeHealthCheck()` 和 renderer LibreOffice 弹窗当前仍有 Windows-oriented 修复文案，macOS runtime ok / missing 场景需要 MAC-04 调整。
+- `code/desktop/package.json` 顶层 `build.extraResources` 仍引用 public 仓库不存在的 Windows LibreOffice runtime / VC redist；`dist:mac:dir` 前必须按 MAC-06 平台化构建配置。
+- `shell:openExternal` / `shell:openPath` 主进程侧缺少 allowlist，XHS 下载 / 飞书上传取消还不能稳定中断当前网络请求；已追加 MAC-13 hardening 任务。
 - macOS 主应用开发改造规划尚未进入代码实施；需要按任务卡小 PR 串行推进。
 
 ## 本轮必读文件
@@ -175,6 +180,7 @@ GitHub public 远端：
 
 - macOS 首次开发启动验证已完成：`npm ci`、Electron 开发启动、`puzzle:shadow:smoke`、`puzzle:text:smoke` 均通过。
 - macOS LibreOffice runtime 探测已完成：Darwin adapter 命中系统 LibreOffice，缺失和 unsupported mode 返回结构化错误，不影响 Electron 启动。
+- macOS 主应用规划已按代码审查修正：第一版 CI 不跑打包/字体/runtime 检查，Mac 打包前先拆 `extraResources`，Office COM 非 Windows 早退作为 P0/P1 任务。
 - 文档或规范修复完成后，更新 `docs/current/tasks.md` 和 `docs/current/session-log.md`。
 - 如修改代码脚本，执行对应最小自动化验证。
 
