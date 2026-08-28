@@ -119,6 +119,7 @@ Risks and rollback：
 Priority：P0
 Platform：Shared
 Branch：`platform/macos-adapter-boundary`
+Status：已完成，待合并。
 
 Objective：
 

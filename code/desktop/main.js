@@ -5,7 +5,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const { detectDarwinLibreOfficeRuntime } = require("./platform/darwin/libreoffice-runtime");
+const { currentPlatformAdapter } = require("./platform");
 let PDFiumLibrary = null;
 let sharp = null;
 
@@ -4324,7 +4324,7 @@ function resolveLibreOfficeRuntime(options = {}) {
   );
 
   if (process.platform === "darwin") {
-    const resolved = detectDarwinLibreOfficeRuntime({
+    const resolved = currentPlatformAdapter.runtime.resolveLibreOffice({
       runtimeMode: mode,
       probeTimeoutMs,
       env: options.env,
