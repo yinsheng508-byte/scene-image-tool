@@ -12,7 +12,7 @@
 | 微信验证码登录 | 验证公众号验证码登录状态 | `code/desktop/main.js`、`wechat-login.js` | 登录态判断失真 | `wechat:*` |
 | 文件选择 | 所有文件/文件夹选择统一由主进程完成 | `code/desktop/main.js`、`preload.js` | 渲染进程权限扩大，安全边界被破坏 | `dialog:*` |
 | Shell 打开 | 打开外部链接或本地路径必须由主进程校验 | `code/desktop/main.js`、`preload.js` | renderer 注入后可能打开任意 URL 或路径 | `shell:openExternal`、`shell:openPath` |
-| 文档导出预检 | 导出前检查 LibreOffice / Office 环境 | `code/desktop/main.js`、`renderer.js` | 导出卡死、失败信息不可解释 | `export:healthCheck`、`office:healthCheck` |
+| 文档导出预检 | 导出前检查 LibreOffice / Office 环境 | `code/desktop/main.js`、`renderer.js` | 导出卡死、失败信息不可解释 | `export:healthCheck` 为新导出预检入口，`office:healthCheck` 仅为历史 LibreOffice alias；后续平台诊断读 `capability:getAll` |
 | 文档导出执行 | 扫描结果转 PDF 再渲染图片 | `code/desktop/main.js` | 进度、错误、取消和输出结构失控 | `convert:documents` |
 | 文档导出取消 | 请求取消并终止活跃转换进程 | `code/desktop/main.js` | 长任务无法停止，残留 Office / LO 进程 | `convert:cancel` |
 | 拼图生成 | 批量生成成品图并做字体/像素检查 | `code/desktop/main.js`、`puzzle/index.js` | 预览与导出不一致，资源路径失控 | `puzzle:generate` |
@@ -28,4 +28,5 @@
 - preload 暴露 shell 类能力后，主进程仍必须做 URL scheme / 路径来源校验，不能只依赖 renderer 校验。
 - 授权、导出、上传、下载等长任务必须有可解释错误和取消路径。
 - 导出预检失败时，UI 可以提示修复或切换引擎，但不能直接绕过主进程兜底。
+- 非 Windows 平台的 Office COM 预检必须在主进程返回 `PLATFORM_UNSUPPORTED`，不能进入 PowerShell。
 - 飞书写入顺序和图片排序属于业务语义，不能只按文件系统默认顺序处理。

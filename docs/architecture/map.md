@@ -43,6 +43,7 @@ code/
       index.js
       common/
         capability-result.js
+        health-report.js
         process-utils.js
       darwin/
         libreoffice-runtime.js
@@ -61,3 +62,4 @@ code/
 - 拼图预览和导出必须共享 `code/desktop/shared/puzzle-render-spec.mjs` 和 `text-layout.mjs`，避免预览/导出不一致。
 - 授权、微信登录、导出预检、飞书上传、取消任务走统一闸口，不在 UI 中直接绕过。
 - 导出取消的进程终止能力从 `platform/index.js` 进入对应平台 adapter；macOS 不调用 `taskkill`，Windows 继续由 win32 adapter 保留 `taskkill /T /F` 语义。
+- 导出预检返回必须同时保留旧 UI 字段和统一 capability 字段；`office-com` 在非 Windows 平台由主进程直接返回 `PLATFORM_UNSUPPORTED`，不得进入 PowerShell 脚本链路。

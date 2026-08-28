@@ -15,9 +15,11 @@
 | 导出取消 | `code/desktop/main.js` | `convert:cancel` | 长任务取消 | 需要清理活跃 Office / LO 进程 |
 | 平台 adapter 总入口 | `code/desktop/platform/index.js`、`platform/common/capability-result.js` | 主进程内部调用 | 平台能力选择、统一 capability 返回结构 | macOS runtime 已通过总入口接入；Windows runtime 暂保持 legacy passthrough |
 | 跨平台进程终止 adapter | `code/desktop/platform/index.js`、`platform/common/process-utils.js`、`platform/darwin/process-tree.js`、`platform/win32/process-tree.js` | 主进程内部调用 | 导出取消、活跃 Office / LO 进程清理 | macOS 使用 Node `process.kill(..., "SIGTERM")`；Windows adapter 保留 `taskkill /T /F`；`convert:cancel` 返回结构不变 |
-| LibreOffice 运行时检测 | `code/desktop/main.js`、`scripts/check-lo-runtime.js` | `export:healthCheck`、`office:healthCheck` | 导出前预检 | `office:healthCheck` 为历史兼容 alias；`scripts/check-lo-runtime.js` 只检查 Windows embedded runtime，macOS 不使用该脚本作为系统 LibreOffice 探测 |
+| 统一 health report | `code/desktop/platform/common/health-report.js`、`code/desktop/main.js` | `export:healthCheck`、`office:healthCheck`、`capability:getAll` | 导出前预检、平台能力展示 | 返回兼容旧 UI 的 `score/blockExport/checks/warnings/suggestions/actions`，同时新增 `platform/engine/capability/capabilities/errorCode/message` |
+| 平台能力汇总 | `code/desktop/main.js`、`code/desktop/preload.js` | `capability:getAll`、`window.appApi.getCapabilities` | 后续设置页/导出页诊断 | 当前汇总 LibreOffice runtime 与 Office COM；renderer 只读 capability 结果，不判断底层命令 |
+| LibreOffice 运行时检测 | `code/desktop/main.js`、`scripts/check-lo-runtime.js` | `export:healthCheck`、`office:healthCheck` | 导出前预检 | `office:healthCheck` 为历史兼容 alias；`scripts/check-lo-runtime.js` 只检查 Windows embedded runtime，macOS 不使用该脚本作为系统 LibreOffice 探测；LibreOffice 缺失时 `errorCode=LO_MISSING_BINARY` |
 | macOS LibreOffice runtime 探测 | `code/desktop/platform/darwin/libreoffice-runtime.js`、`code/desktop/main.js` | 启动自检、`export:healthCheck`、后续 platform adapter | macOS 系统 LibreOffice 能力发现 | 识别 `/Applications/LibreOffice.app/Contents/MacOS/soffice`、Homebrew `soffice` 和 `LIBREOFFICE_PATH`，返回结构化 capability 状态 |
-| Microsoft Office COM 检测和转换 | `code/desktop/scripts/*.ps1`、`main.js` | PowerShell 脚本 | 高保真导出 | Windows-only；macOS 必须返回 `PLATFORM_UNSUPPORTED`，不得进入 PowerShell 脚本链路 |
+| Microsoft Office COM 检测和转换 | `code/desktop/scripts/*.ps1`、`main.js` | PowerShell 脚本 | 高保真导出 | Windows-only；非 Windows 平台在 `runMicrosoftOfficeHealthCheck()` 直接返回 `PLATFORM_UNSUPPORTED`，不得进入 PowerShell 脚本链路 |
 | PDF 渲染为图片 | `code/desktop/main.js` | `@hyzyla/pdfium` | PDF / 中间态渲染 | 受 DPI、缩放、内存限制影响 |
 | 拼图模板存储 | `code/desktop/main.js`、`puzzle/template-manager.js` | `puzzle:loadTemplates`、`puzzle:saveTemplates` | 模板库 | 资源路径需规范化 |
 | 拼图背景和贴图复制 | `code/desktop/main.js` | `puzzle:copyBackground`、`puzzle:copySticker` | 模板资源管理 | 存入 userData puzzle 目录 |

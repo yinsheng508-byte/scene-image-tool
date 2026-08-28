@@ -167,3 +167,10 @@
 - 修改文件：新增 `code/desktop/platform/common/process-utils.js`、`code/desktop/platform/darwin/process-tree.js`、`code/desktop/platform/win32/process-tree.js`；更新 `code/desktop/platform/index.js` 和 `code/desktop/main.js`；回写 `docs/architecture/map.md`、`docs/architecture/capabilities.md`、`docs/architecture/do-not-break.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-task-cards.md`。
 - 验证：`node --check code/desktop/main.js`、`node --check code/desktop/platform/index.js`、`node --check code/desktop/platform/common/process-utils.js`、`node --check code/desktop/platform/darwin/process-tree.js`、`node --check code/desktop/platform/win32/process-tree.js` 通过；直接调用 `createPlatformAdapter("darwin").process.killProcessTreeByPid(-1)` 和 `createPlatformAdapter("win32").process.killProcessTreeByPid(-1)` 均返回 invalid pid 短路；`puzzle:shadow:smoke`、`puzzle:text:smoke` 通过。
 - 风险：macOS 当前先使用 `process.kill(pid, "SIGTERM")`，尚未实现 process group 级联终止；Windows `taskkill /T /F` 逻辑已隔离到 win32 adapter，但本机未执行 Windows 环境实机取消验证。PR #4 已合并到 `platform/macos-bootstrap`。
+
+## 2026-08-28
+
+- 阶段：MAC-03 统一导出 capability / health 返回结构。
+- 修改文件：新增 `code/desktop/platform/common/health-report.js`；更新 `code/desktop/main.js` 和 `code/desktop/preload.js`；回写 `docs/architecture/map.md`、`docs/architecture/capabilities.md`、`docs/architecture/gates.md`、`docs/architecture/do-not-break.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`。
+- 验证：`node --check code/desktop/main.js`、`node --check code/desktop/preload.js`、`node --check code/desktop/platform/common/health-report.js` 通过；直接调用 common health normalizer 包装 Darwin Office COM capability 时返回 `ok=false`、`blockExport=true`、`errorCode=PLATFORM_UNSUPPORTED`，并保留 actions；`npm exec electron .` 能启动主界面，启动自检命中 `source=system_app`、`version=26.8.0.3`。
+- 风险：本阶段保留旧 renderer 字段，不重做导出页文案；macOS LibreOffice / Office 弹窗的用户文案仍交给 MAC-04，Windows Office health 未在 Windows 实机复测。

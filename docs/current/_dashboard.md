@@ -10,3 +10,4 @@
 | macos-main-app-development | planning | Merged | Ready for MAC-01 | `platform/macos-bootstrap` | Mac 主应用需求、架构改造路线、任务卡和验收门禁已合入基线；下一步串行推进 adapter |
 | macos-adapter-boundary | platform | Merged | MAC-01 Done | `platform/macos-adapter-boundary` | PR #3 已合并，platform 总入口和 common capability helper 已进入 `platform/macos-bootstrap` |
 | macos-process-adapter | platform | Merged | MAC-02 Done | `platform/process-adapter` | PR #4 已合并；跨平台进程终止 adapter 已进入 `platform/macos-bootstrap` |
+| shared-capability-status | platform | In Review | MAC-03 Done | `feature/shared-capability-status` | 已新增统一 health report、Office COM 非 Windows unsupported 早退和 `capability:getAll` IPC |

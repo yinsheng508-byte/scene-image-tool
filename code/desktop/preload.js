@@ -23,6 +23,7 @@ contextBridge.exposeInMainWorld("appApi", {
   convertDocuments: (payload) => ipcRenderer.invoke("convert:documents", payload),
   cancelConvert: () => ipcRenderer.invoke("convert:cancel"),
   exportHealthCheck: (payload) => ipcRenderer.invoke("export:healthCheck", payload || {}),
+  getCapabilities: (payload) => ipcRenderer.invoke("capability:getAll", payload || {}),
   officeHealthCheck: (payload) => ipcRenderer.invoke("office:healthCheck", payload || {}),
   officeHealthFix: (payload) => ipcRenderer.invoke("office:healthFix", payload || {}),
   openImageFolder: () => ipcRenderer.invoke("dialog:openImageFolder"),
