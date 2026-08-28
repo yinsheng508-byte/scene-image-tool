@@ -886,6 +886,7 @@ Risks and rollback：
 Priority：P1
 Platform：Shared Security / Runtime
 Branch：`hardening/ipc-shell-and-cancel`
+Status：已完成本地实现和验证，PR 待提交。
 
 Objective：
 
@@ -902,11 +903,12 @@ Context to read：
 
 Scope：
 
-- `shell:openExternal` 主进程侧 URL scheme allowlist，默认只允许 `https:`。
-- `shell:openPath` 明确调用场景和路径约束，优先打开用户选择目录、应用生成目录或已知下载 URL。
-- XHS 下载接入 timeout / AbortController，`xhs:cancel` 可中断当前 fetch。
-- 飞书上传接入 timeout / AbortController 或等价取消模型，`feishu:cancel` 可中断当前 upload。
-- preload 事件 listener 返回 unsubscribe，避免重复注册造成进度日志翻倍。
+- `shell:openExternal` 主进程侧 URL scheme allowlist，默认只允许 `https:`。（已完成）
+- `shell:openPath` 明确调用场景和路径约束，只打开主进程登记过的既有目录。（已完成）
+- XHS 下载接入 timeout / AbortController，`xhs:cancel` 可中断当前 fetch。（已完成）
+- 飞书上传接入 timeout / AbortController 或等价取消模型，`feishu:cancel` 可中断当前 upload。（已完成）
+- preload 事件 listener 返回 unsubscribe，避免重复注册造成进度日志翻倍。（已完成）
+- `package.json` 打包白名单包含 `services/**`，避免 packaged app 缺主进程 service。（已完成）
 
 Out of scope：
 
@@ -916,19 +918,19 @@ Out of scope：
 
 Steps：
 
-1. 定义 shell IPC allowlist 和错误返回结构。
-2. 收窄 `openExternal` scheme，并为拦截场景返回清晰 `errorCode/message`。
-3. 为 `openPath` 建立路径来源约束或调用级 action 参数。
-4. 为 XHS 下载和飞书上传建立可取消请求控制器。
-5. preload progress listener 返回取消订阅函数。
-6. 更新 gates / capabilities 文档。
+1. 定义 shell IPC allowlist 和错误返回结构。（已完成）
+2. 收窄 `openExternal` scheme，并为拦截场景返回清晰 `errorCode/message`。（已完成）
+3. 为 `openPath` 建立路径来源约束或调用级 action 参数。（已完成）
+4. 为 XHS 下载和飞书上传建立可取消请求控制器。（已完成）
+5. preload progress listener 返回取消订阅函数。（已完成）
+6. 更新 gates / capabilities 文档。（已完成）
 
 Acceptance：
 
-- renderer 不能通过暴露 API 打开任意非 `https:` 外部链接。
-- Mac/Windows 上取消 XHS 下载时不会等待当前网络请求自然结束。
-- Mac/Windows 上取消飞书上传时进度能稳定收尾。
-- 重复初始化 UI 不会重复消费同一 progress event。
+- renderer 不能通过暴露 API 打开任意非 `https:` 外部链接；`shell-service` smoke 已覆盖 `http:` 被 `URL_SCHEME_BLOCKED` 拦截。
+- Mac/Windows 上取消 XHS 下载时不会等待当前网络请求自然结束；`request-control` body smoke 已覆盖当前请求 abort。
+- Mac/Windows 上取消飞书上传时进度能稳定收尾；Feishu fetch、response body 读取和 upload file 请求已接入同一 tracker，取消错误从单文件 catch 穿透。
+- 重复初始化 UI 不会重复消费同一 progress event；preload listener 返回 unsubscribe。
 - `contextIsolation: true`、`nodeIntegration: false` 保持不变。
 
 Validation：
@@ -940,6 +942,14 @@ PATH="/opt/homebrew/opt/node@22/bin:$PATH" npm --prefix code/desktop run puzzle:
 PATH="/opt/homebrew/opt/node@22/bin:$PATH" npm --prefix code/desktop run puzzle:text:smoke
 git diff --check
 ```
+
+本地补充验证：
+
+- `node --check` 已覆盖 `main.js`、`preload.js`、`renderer/renderer.js`、`renderer/compose.js`、`renderer/puzzle/index.js`、`services/shell-service.js`、`services/request-control.js`。
+- `shell-service` 直接 smoke 已覆盖 `https:` 放行、`http:` 拦截、未登记目录拦截、已登记目录打开和 `openPath` URL 拦截。
+- `request-control` 直接 smoke 已覆盖 response body 读取期 timeout 和 cancel 后 tracker 清空。
+- Electron dev 启动 10 秒通过，启动自检命中 macOS system LibreOffice。
+- `dist:mac:dir` 通过，app bundle 可启动，`app.asar` 包含 `services/request-control.js`、`services/settings-service.js`、`services/shell-service.js`。
 
 Deliverables：
 

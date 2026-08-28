@@ -8,7 +8,7 @@
 |---|---|---|---|
 | `code/desktop/main.js:createMainWindow` | `contextIsolation: true` 且 `nodeIntegration: false` | 渲染进程安全边界依赖 preload 白名单 | 打开 Node 集成会扩大攻击面 |
 | `code/desktop/preload.js` | 所有能力通过 `contextBridge` 暴露 | 主进程能力需要集中白名单 | UI 直接访问 Electron 会破坏边界 |
-| `shell:openExternal` / `shell:openPath` | renderer 只能请求，主进程必须校验 URL scheme 和路径来源 | preload 暴露的是能力入口，不是信任边界 | renderer 注入会扩大到任意外链或本地路径打开 |
+| `shell:openExternal` / `shell:openPath` | renderer 只能请求，主进程必须通过 `services/shell-service.js` 校验 URL scheme 和目录来源 | preload 暴露的是能力入口，不是信任边界；`source` 字段不是信任凭据 | renderer 注入会扩大到任意外链或本地路径打开 |
 | `code/desktop/main.js` Office / LibreOffice 转换链路 | 存在 safe copy、超时、fallback、进程终止和错误码 | 兼容 Windows、非 ASCII 路径、Office COM 卡顿 | 导出失败、卡死或无法取消 |
 | `code/desktop/platform/common/health-report.js` | health report 同时输出旧字段和统一 capability 字段 | 旧 renderer 仍依赖 `score/blockExport/checks/warnings/suggestions`，新 UI 需要 `platform/capability/errorCode/message/actions` | 旧 UI 崩溃、Mac 能力提示失真或 Windows 预检结果被误判 |
 | `code/desktop/platform/*/process-tree.js` 和 `platform/common/process-utils.js` | 导出取消通过 platform process adapter 终止活跃进程 | macOS 和 Windows 的进程树终止语义不同，不能在 UI 或转换逻辑里散落平台判断 | macOS 误调 `taskkill`、Windows 丢失 `/T /F`，导致取消失败或残留 Office / LO 进程 |
@@ -19,6 +19,7 @@
 | `code/desktop/renderer/puzzle/index.js` 多文件夹状态 | 同时支持逐拼图和子文件夹批量模式 | 业务规则复杂，旧状态需要兼容 | 生成数量和输出目录错乱 |
 | `code/desktop/renderer/puzzle/index.js` 文字编辑焦点处理 | 颜色选择器和文字编辑态有特殊处理 | 历史上 Delete / blur / Pickr 交互出过问题 | 文本编辑态卡住或误删 |
 | `code/desktop/main.js` 飞书上传排序 | 图片和笔记顺序有显式排序 | 写入顺序是业务语义 | 飞书记录附件错位 |
+| `code/desktop/services/request-control.js` | fetch tracker 覆盖 response body 读取期，取消错误可识别为 `TASK_CANCELLED` | Feishu/XHS 当前网络请求取消依赖该 tracker，不只是循环间隙 flag | 用户点击取消后仍可能等待当前上传/下载自然结束 |
 
 ## 业务规则硬约束
 
@@ -27,8 +28,8 @@
 | 授权和版本检查走 `license:*` IPC | 统一设备、密钥、版本状态 | `code/desktop/main.js`、`renderer/license/*` |
 | 文档导出必须支持取消 | 用户可能批量处理大文件 | `convert:documents`、`convert:cancel` |
 | 导出取消必须走 platform process adapter | 终止方式与平台强相关，且后续需要扩展 process group | `code/desktop/main.js`、`code/desktop/platform/*/process-tree.js` |
-| 飞书上传必须支持取消 | 上传可能耗时且有失败重试 | `feishu:uploadImages`、`feishu:cancel` |
-| 小红书下载必须支持取消 | 网络图片下载可能长时间阻塞 | `xhs:download`、`xhs:cancel` |
+| 飞书上传必须支持取消 | 上传可能耗时且有失败重试；取消必须中断当前 Feishu fetch，同时保留普通单文件失败继续策略 | `feishu:uploadImages`、`feishu:uploadRandom`、`feishu:cancel`、`services/request-control.js` |
+| 小红书下载必须支持取消 | 网络图片下载可能长时间阻塞；取消必须中断当前图片 fetch 并清理本次生成目录 | `xhs:download`、`xhs:cancel`、`services/request-control.js` |
 | 拼图导出不能超过像素上限 | 防止内存爆掉 | `puzzle:generate`、`puzzle:renderExportPreview` |
 | 当前应用入口固定为 `code/desktop/` | 避免恢复历史双入口 | README、架构文档、npm 命令 |
 

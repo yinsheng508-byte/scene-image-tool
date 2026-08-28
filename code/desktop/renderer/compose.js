@@ -1207,7 +1207,7 @@ downloadAllBtn.addEventListener('click', async () => {
                     actionText: '打开文件夹',
                     actionCallback: () => {
                         if (window.appApi?.openPath && saveFolderPath) {
-                            window.appApi.openPath(saveFolderPath);
+                            window.appApi.openPath({ path: saveFolderPath, source: "compose-output-folder" });
                         }
                     }
                 });
@@ -1321,7 +1321,7 @@ downloadAllBtn.addEventListener('click', async () => {
                 actionText: '打开文件夹',
                 actionCallback: () => {
                     if (window.appApi?.openPath && targetDir) {
-                        window.appApi.openPath(targetDir);
+                        window.appApi.openPath({ path: targetDir, source: "compose-output-folder" });
                     }
                 }
             });

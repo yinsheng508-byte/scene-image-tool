@@ -56,6 +56,7 @@
       "assets/**",
       "fonts/**",
       "platform/**",
+      "services/**",
       "shared/**",
       "package.json"
     ],

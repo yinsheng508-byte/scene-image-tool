@@ -10,6 +10,7 @@
 | 授权验证和版本检查 | `code/desktop/main.js`、`renderer/license/*` | `license:*` IPC | 授权、更新、免费次数 | 业务闸口 |
 | 微信验证码登录 | `code/desktop/main.js`、`wechat-login.js` | `wechat:getStatus`、`wechat:login` | 登录状态校验 | 远端 API |
 | 文件和文件夹选择 | `code/desktop/main.js`、`preload.js` | `dialog:*` IPC | 导出、上传、拼图、下载 | 统一从主进程调用 |
+| Shell 外链和路径打开 | `code/desktop/services/shell-service.js`、`code/desktop/main.js`、`preload.js` | `shell:openExternal`、`shell:openPath` | 更新下载、导出目录打开、模板库打开 | `openExternal` 默认只允许 `https:`；`openPath` 只打开主进程登记过的既有目录，拒绝 URL、相对路径、未登记目录和文件路径 |
 | 文档扫描 | `code/desktop/main.js` | `scan:documents` | Word / PPT / PDF 扫描 | 支持文件夹遍历 |
 | 文档转换和渲染 | `code/desktop/main.js`、`scripts/*` | `convert:documents` | 文档导出为图片 | 支持 LibreOffice / Office |
 | 导出取消 | `code/desktop/main.js` | `convert:cancel` | 长任务取消 | 需要清理活跃 Office / LO 进程 |
@@ -33,9 +34,9 @@
 | macOS signed release 准备 | `code/desktop/scripts/check-macos-signing-env.js`、`code/desktop/scripts/build-macos-release.js`、`.github/workflows/macos-release.yml`、`docs/current/macos-release-signing-runbook.md` | `signing:mac:check`、`dist:mac`、tag / workflow_dispatch | signed + notarized dmg/zip 发布前预检和构建 | 当前本机无 Developer ID 证书和 Apple secrets，真实签名验收未执行；`dist:mac:dir` unsigned fallback 不受影响 |
 | 飞书 Base 上传 | `code/desktop/main.js`、`renderer.js` | `feishu:uploadImages`、`feishu:uploadRandom` | 图片上传到附件字段 | PersonalBaseToken 口径 |
 | 飞书按笔记扫描 | `code/desktop/main.js`、`renderer.js` | `feishu:scanNoteFolders` | 按文件夹结构写入 | 入口顺序决定写入顺序 |
-| 飞书上传取消 | `code/desktop/main.js` | `feishu:cancel` | 长上传任务取消 | 需要保持进度一致 |
-| 小红书图片下载 | `code/desktop/main.js`、`renderer.js` | `xhs:download`、`xhs:cancel` | 商品图下载 | webview 提取 + 主进程下载 |
-| Shell 外链和路径打开 | `code/desktop/main.js`、`preload.js` | `shell:openExternal`、`shell:openPath` | 更新下载、导出目录打开、模板库打开 | 主进程侧还需 URL scheme allowlist 和路径来源约束；不要只依赖 renderer 校验 |
+| 网络请求控制 | `code/desktop/services/request-control.js`、`code/desktop/main.js` | 主进程内部调用 | 飞书上传、小红书图片下载 | 提供 AbortController tracker、请求 timeout、body 读取期取消和取消错误识别 |
+| 飞书上传取消 | `code/desktop/main.js`、`code/desktop/services/request-control.js` | `feishu:cancel` | 长上传任务取消 | `feishu:cancel` 会置取消 flag 并 abort 当前 Feishu fetch；单文件普通失败仍保留继续策略，取消错误会穿透并收尾 |
+| 小红书图片下载 | `code/desktop/main.js`、`renderer.js`、`code/desktop/services/request-control.js` | `xhs:download`、`xhs:cancel` | 商品图下载 | webview 提取 + 主进程下载；`xhs:cancel` 会 abort 当前图片 fetch，取消后清理本次生成目录 |
 | 共享文字布局 | `code/desktop/shared/text-layout.mjs` | ESM import | 拼图文字预览和导出 | 避免双实现 |
 | 共享拼图渲染规范 | `code/desktop/shared/puzzle-render-spec.mjs` | ESM import | 阴影、坑位、裁剪、图层 | 不要绕过 |
 

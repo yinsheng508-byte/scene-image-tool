@@ -404,7 +404,7 @@ npm --prefix code/desktop run render:fixture:smoke
 | M5 | PDF / 图片 / 拼图 Mac 验证 | M0 | native 渲染依赖和拼图 smoke 稳定 |
 | M6 | macOS unsigned packaging | M2 | `dist:mac:dir` 生成可打开 `.app` |
 | M7 | GitHub Actions matrix | M0 | PR 有 Windows/macOS required checks |
-| M8 | IPC shell 边界和长任务取消 hardening | M1 | 外链/路径打开有主进程白名单，网络长任务取消可中断当前请求 |
+| M8 | IPC shell 边界和长任务取消 hardening | M1 | 已完成本地落地：外链/路径打开有主进程白名单，飞书/XHS 网络长任务取消可中断当前请求 |
 | M9 | 主应用模块拆分 | M1-M8 | `main.js` 明显减负，service 层边界稳定 |
 | M10 | 资源 artifact / provisioning | M6 | 字体和 Windows runtime 不进 Git，但可复现安装 |
 | M11 | 签名、公证、release | M6-M10 | tag 构建 dmg/zip，发布说明按平台分区 |
@@ -456,8 +456,8 @@ npm --prefix code/desktop run render:fixture:smoke
 | 无脱敏 fixture | 导出回归无法常规化 | 新增 `code/desktop/test-fixtures/` 小样例 |
 | 字体不入库 | 拼图字体一致性不稳定 | 第一版 fallback，后续 artifact/provisioning |
 | macOS 打包误带 Windows 资源 | 构建失败或包体污染 | 平台化 `extraResources` |
-| 主进程 shell IPC 过宽 | renderer 注入风险会扩大到任意 URL / 路径打开 | `openExternal` 仅允许明确 scheme；`openPath` 只允许来自用户选择或应用生成的已知路径 |
-| 长任务取消不能中断当前网络请求 | 用户点击取消后仍要等待当前下载或上传完成 | 为 XHS 下载、飞书上传接入 AbortController / timeout，并统一进度收尾 |
+| 主进程 shell IPC 过宽 | renderer 注入风险会扩大到任意 URL / 路径打开 | 已通过 `services/shell-service.js` 收紧：`openExternal` 默认只允许 `https:`，`openPath` 只打开主进程登记过的既有目录 |
+| 长任务取消不能中断当前网络请求 | 用户点击取消后仍要等待当前下载或上传完成 | 已通过 `services/request-control.js` 为 XHS 下载、飞书上传接入 AbortController / timeout，并统一取消收尾 |
 | 签名公证缺账号 | 用户打开有 Gatekeeper 提示 | 第一版明确 unsigned，签名作为 P2 |
 | npm audit 漏洞 | 发布合规风险 | 单独依赖治理 PR，不混入平台重构 |
 
