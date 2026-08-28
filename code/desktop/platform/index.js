@@ -1,0 +1,56 @@
+const {
+  createCapabilitySuccess,
+  createUnsupportedCapability
+} = require("./common/capability-result");
+const { detectDarwinLibreOfficeRuntime } = require("./darwin/libreoffice-runtime");
+
+function createPlatformAdapter(platform = process.platform) {
+  return {
+    platform,
+    runtime: {
+      resolveLibreOffice(options = {}) {
+        if (platform === "darwin") {
+          return detectDarwinLibreOfficeRuntime(options);
+        }
+        return null;
+      }
+    },
+    process: {
+      platform
+    },
+    office: {
+      getCapability() {
+        if (platform === "win32") {
+          return createCapabilitySuccess({
+            platform,
+            capability: "office-com",
+            message: "Microsoft Office COM capability is handled by the legacy Windows path."
+          });
+        }
+        return createUnsupportedCapability({
+          platform,
+          capability: "office-com",
+          message: "macOS 不支持 Windows Office COM 高保真导出，请切换 LibreOffice。",
+          actions: ["Switch to LibreOffice export", "Install LibreOffice for macOS"]
+        });
+      }
+    },
+    packaging: {
+      getCapability() {
+        return createUnsupportedCapability({
+          platform,
+          capability: "packaging",
+          message: "Packaging capability is not wired into the platform adapter yet.",
+          actions: ["Use the platform-specific npm script when it is added"]
+        });
+      }
+    }
+  };
+}
+
+const currentPlatformAdapter = createPlatformAdapter();
+
+module.exports = {
+  createPlatformAdapter,
+  currentPlatformAdapter
+};

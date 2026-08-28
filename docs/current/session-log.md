@@ -153,3 +153,10 @@
 - 修改文件：通过 GitHub 合并 PR #1 `platform/macos-runtime-detection` 和 PR #2 `docs/macos-main-app-plan` 到 `platform/macos-bootstrap`；回写 `docs/current/tasks.md`、`docs/current/session-log.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/mac-development-runbook.md`。
 - 验证：本地 `platform/macos-bootstrap` 已 fast-forward 到合并后基线；`node --check code/desktop/main.js`、`node --check code/desktop/platform/darwin/libreoffice-runtime.js`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 均通过；Darwin runtime adapter 在本机返回 `ok=true`、`source=system_app`、`path=/Applications/LibreOffice.app/Contents/MacOS/soffice`、`version=26.8.0.3`；空候选返回 `errorCode=LO_MISSING_BINARY`。
 - 风险：MAC-00 只完成基线合并；platform adapter 总壳、Office COM unsupported 早退、CI、打包和 hardening 尚未实现。
+
+## 2026-08-28
+
+- 阶段：MAC-01 platform adapter 总壳。
+- 修改文件：新增 `code/desktop/platform/index.js`、`code/desktop/platform/common/capability-result.js`；更新 `code/desktop/main.js`，让 macOS LibreOffice runtime resolve 通过 `currentPlatformAdapter.runtime.resolveLibreOffice()`；回写 `docs/architecture/map.md`、`docs/architecture/capabilities.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-task-cards.md`。
+- 验证：`node --check code/desktop/main.js`、`node --check code/desktop/platform/index.js`、`node --check code/desktop/platform/common/capability-result.js` 通过；直接调用 `createPlatformAdapter("darwin")` 可返回 `source=system_app`、`version=26.8.0.3`；`createPlatformAdapter("win32").runtime.resolveLibreOffice()` 返回 `null`，保持 Windows legacy path；`puzzle:shadow:smoke`、`puzzle:text:smoke` 和 `git diff --check` 均通过。
+- 风险：MAC-01 只建立 adapter 入口和 helper，不迁移 PowerShell、Office COM、进程终止或打包配置；Windows 行为需要后续在对应 PR 中继续保护。
