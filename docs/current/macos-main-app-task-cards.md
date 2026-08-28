@@ -823,6 +823,7 @@ Risks and rollback：
 Priority：P2
 Platform：macOS / Release
 Branch：`platform/macos-release-signing`
+Status：发布准备已完成，待 PR；真实 signed/notarized 验收等待 Apple Developer 凭据。
 
 Objective：
 
@@ -871,8 +872,10 @@ spctl --assess --type execute <app>
 Deliverables：
 
 - Release workflow。
+- Signing preflight 和 signed build 入口。
 - Signing runbook。
-- 发布验收记录。
+- Release notes 模板。
+- 发布验收记录；真实 signed/notarized 验收待凭据。
 
 Risks and rollback：
 

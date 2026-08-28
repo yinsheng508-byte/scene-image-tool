@@ -244,7 +244,7 @@ code/desktop/
 | Office 高保真导出 | P2 | 先禁用，不承诺 COM 等价 |
 | 飞书上传 / 小红书下载 | P1 | 先验证网络、文件选择和输出目录 |
 | dmg / zip 打包 | P1 | unsigned 开发包先跑通 |
-| 签名 / notarization | P2 | 有 Apple Developer 账号后处理 |
+| 签名 / notarization | P2 | MAC-12 已落 preflight / workflow 准备；真实验收等待 Apple Developer 凭据 |
 
 ## 7. CI 设计
 
@@ -455,7 +455,7 @@ code/desktop/resources/runtime-manifest.json
 - Windows tag 构建 NSIS / portable。
 - macOS tag 构建 dmg / zip。
 - Release notes 按平台分区。
-- 签名 / notarization 后置接入。
+- macOS signing / notarization workflow 已接入准备版；证书和 secrets 配置完成后再跑真实 tag 验收。
 
 验收：
 
@@ -466,11 +466,11 @@ code/desktop/resources/runtime-manifest.json
 
 执行顺序：
 
-1. PR #1 至 PR #11 已进入 `platform/macos-bootstrap`，覆盖 Darwin runtime、adapter 总壳、进程 adapter、统一 capability/health、Mac 预检 UI、导出 fixture、unsigned app bundle、基础 CI、渲染 QA 和设置页能力面板。
-2. 下一步进入 MAC-10，优先选择 settings 或 dialogs/files 这类低风险 service 拆分，保持 IPC contract 不变。
-3. MAC-10 继续从 `platform/macos-bootstrap` 新建独立分支，每个 PR 只拆一个 service。
-4. 基础 CI 已按 `MAC-07` 增加，只跑 `npm ci` 和 puzzle smoke；LibreOffice 导出、字体探针、打包发布继续留作 optional 或独立任务。
-5. `dist:mac:dir` unsigned app bundle 已按 `MAC-06` 启用，后续再做签名、公证和发布包。
+1. PR #1 至 PR #13 已进入 `platform/macos-bootstrap`，覆盖 Darwin runtime、adapter 总壳、进程 adapter、统一 capability/health、Mac 预检 UI、导出 fixture、unsigned app bundle、基础 CI、渲染 QA、设置页能力面板、settings service 和资源 provisioning。
+2. MAC-12 macOS signing release 准备已在 `platform/macos-release-signing` 落地，真实 signed/notarized 验收等待 Apple Developer 凭据。
+3. 下一步进入 MAC-13 IPC shell 边界和长任务取消 hardening，保持 renderer 只能通过 preload 白名单调用。
+4. 基础 CI 已按 `MAC-07` 增加，只跑 `npm ci` 和 puzzle smoke；LibreOffice 导出、字体探针、真实签名打包发布继续留作 optional 或独立任务。
+5. `dist:mac:dir` unsigned app bundle 已按 `MAC-06` 启用，作为无签名凭据时的开发 fallback。
 
 ## 12. 禁止事项
 

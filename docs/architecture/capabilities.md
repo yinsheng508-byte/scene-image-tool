@@ -30,6 +30,7 @@
 | 拼图批量生成 | `code/desktop/main.js`、`puzzle/generation-engine.js` | `puzzle:generate` | 批量生成成品图 | 有像素上限和字体检查 |
 | 字体配置和探针 | `code/desktop/shared/font-config.mjs`、`scripts/font-probe-test.js`、`code/desktop/main.js` | `font:getSystemFonts`、npm scripts、`capability:getAll` | 预览/导出字体一致性 | capability 只提示 bundled fonts / system fallback 状态，不替代严格 `font:probe`；public 仓库不含字体二进制 |
 | runtime / 字体 provisioning | `code/desktop/resources/runtime-manifest.json`、`code/desktop/scripts/provision-runtime-artifacts.js`、`code/desktop/package.json` | `resources:check`、`resources:provision`、`resources:provision:dry-run` | 新 clone 准备本地字体、Windows LibreOffice runtime、VC redist；macOS 检查系统 LibreOffice | 不下载、不上传、不提交大资源；从 `SCENE_RUNTIME_ARTIFACT_ROOT` 或 `--artifact-root` 复制并做 sha256 校验 |
+| macOS signed release 准备 | `code/desktop/scripts/check-macos-signing-env.js`、`code/desktop/scripts/build-macos-release.js`、`.github/workflows/macos-release.yml`、`docs/current/macos-release-signing-runbook.md` | `signing:mac:check`、`dist:mac`、tag / workflow_dispatch | signed + notarized dmg/zip 发布前预检和构建 | 当前本机无 Developer ID 证书和 Apple secrets，真实签名验收未执行；`dist:mac:dir` unsigned fallback 不受影响 |
 | 飞书 Base 上传 | `code/desktop/main.js`、`renderer.js` | `feishu:uploadImages`、`feishu:uploadRandom` | 图片上传到附件字段 | PersonalBaseToken 口径 |
 | 飞书按笔记扫描 | `code/desktop/main.js`、`renderer.js` | `feishu:scanNoteFolders` | 按文件夹结构写入 | 入口顺序决定写入顺序 |
 | 飞书上传取消 | `code/desktop/main.js` | `feishu:cancel` | 长上传任务取消 | 需要保持进度一致 |

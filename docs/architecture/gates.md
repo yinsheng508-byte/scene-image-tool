@@ -21,6 +21,7 @@
 | 飞书上传取消 | 停止批量上传 | `code/desktop/main.js` | 用户取消无效，进度状态不可信 | `feishu:cancel` |
 | 小红书下载执行 | 根据提取链接下载图片 | `code/desktop/main.js`、`renderer.js` | 下载目录、referer、格式处理不一致 | `xhs:download` |
 | 小红书下载取消 | 停止下载队列 | `code/desktop/main.js` | 长任务无法停止 | `xhs:cancel` |
+| macOS signed release | signed dmg/zip 构建前必须检查证书、notarization credentials 和 entitlements | `code/desktop/scripts/check-macos-signing-env.js`、`code/desktop/scripts/build-macos-release.js`、`.github/workflows/macos-release.yml` | 无证书时产出伪 signed 包、secrets 泄露或 Gatekeeper 阻断 | `dist:mac` 会先跑 preflight；`dist:mac:dir` 保留 unsigned fallback |
 
 ## 核心约束
 
@@ -30,3 +31,4 @@
 - 导出预检失败时，UI 可以提示修复或切换引擎，但不能直接绕过主进程兜底。
 - 非 Windows 平台的 Office COM 预检必须在主进程返回 `PLATFORM_UNSUPPORTED`，不能进入 PowerShell。
 - 飞书写入顺序和图片排序属于业务语义，不能只按文件系统默认顺序处理。
+- Apple Developer 证书、Apple ID、app-specific password、API key、issuer 和 team secrets 不得写入 Git、PR 描述、issue 或日志。
