@@ -202,3 +202,10 @@
 - 修改文件：新增 `.github/workflows/desktop-ci.yml`；更新 `docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`、`docs/current/win-mac-parallel-development.md`、`docs/current/acceptance.md` 和本日志。
 - 验证：Context7 已核对 GitHub Actions matrix 和 `actions/setup-node` npm cache / `cache-dependency-path` 口径；workflow 只配置 `windows-latest` / `macos-latest`、Node 22、`npm --prefix code/desktop ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 和 `git diff --check`，未调用 LibreOffice、字体探针、打包或发布脚本；本地 YAML 解析、两个 puzzle smoke 和 `git diff --check` 通过；PR #9 最新 Actions 已通过，Windows job 57s，macOS job 31s。
 - 风险：第一版 CI 只覆盖基础依赖安装和 puzzle smoke；LibreOffice 导出、字体探针、打包发布仍是后续 optional / 独立任务。PR #9 已合并到 `platform/macos-bootstrap`。
+
+## 2026-08-28
+
+- 阶段：MAC-08 Mac PDF / 拼图 / 图片能力验收矩阵。
+- 修改文件：新增 `code/desktop/scripts/render-fixture-smoke.js` 和 `docs/current/macos-render-qa-matrix.md`；更新 `code/desktop/package.json`、`docs/INDEX.md`、`docs/architecture/capabilities.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`、`docs/current/acceptance.md` 和本日志。
+- 验证：`node --check code/desktop/scripts/render-fixture-smoke.js` 和 package JSON parse 通过；`npm --prefix code/desktop run render:fixture:smoke` 通过，Skia Canvas PNG 800x500、Sharp resize PNG 400x250、PDFium PDF 渲染 PNG 960x540 均非空；已视觉检查 Skia 和 PDFium 输出；Electron remote debugging Compose DOM smoke 通过，给 `#bgInput` / `#pptInput` 注入临时 PNG，经 preload `saveImageFile()` 导出 `skia-source_output.png`，尺寸 1600x1000、非空、视觉检查正常；`puzzle:shadow:smoke` 和 `puzzle:text:smoke` 复跑通过。
+- 风险：本阶段不改业务渲染算法；Compose 只覆盖单图 DOM 注入路径，系统文件选择器、多图批量、大图压力和 Windows 实机渲染仍需后续人工或 optional 自动化。

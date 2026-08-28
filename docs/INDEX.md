@@ -22,6 +22,7 @@
 - macOS 开发落地指令：`docs/current/mac-development-runbook.md`
 - macOS 主应用开发改造需求：`docs/current/macos-main-app-development-requirements.md`
 - macOS 主应用开发任务卡：`docs/current/macos-main-app-task-cards.md`
+- macOS 渲染 QA 矩阵：`docs/current/macos-render-qa-matrix.md`
 - 迁移规划：`docs/ai-project-template-项目结构迁移落地规划.md`
 
 ## 架构记忆
