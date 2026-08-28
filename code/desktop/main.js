@@ -6,6 +6,7 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { currentPlatformAdapter } = require("./platform");
+const { createSettingsService } = require("./services/settings-service");
 const {
   createCapabilityResult,
   normalizeTextList
@@ -15,7 +16,7 @@ let PDFiumLibrary = null;
 let sharp = null;
 
 let mainWindow = null;
-const APP_SETTINGS_FILE_NAME = "app-settings.json";
+const settingsService = createSettingsService({ app });
 const allowedExtensions = new Set([".doc", ".docx", ".ppt", ".pptx", ".pdf"]);
 const imageExtensions = new Set([
   ".png",
@@ -1585,71 +1586,6 @@ function formatPuzzleExportError(error, fallbackStage = "generate", context = {}
   };
 }
 
-function getAppSettingsPath() {
-  return path.join(app.getPath("userData"), APP_SETTINGS_FILE_NAME);
-}
-
-function sanitizeAppSettings(input) {
-  if (!input || typeof input !== "object" || Array.isArray(input)) {
-    return {};
-  }
-  const next = {};
-  Object.entries(input).forEach(([key, value]) => {
-    const safeKey = String(key || "").trim();
-    if (!safeKey) return;
-    if (value === undefined || value === null) return;
-    next[safeKey] = String(value);
-  });
-  return next;
-}
-
-function readAppSettings() {
-  const filePath = getAppSettingsPath();
-  if (!fs.existsSync(filePath)) {
-    return {};
-  }
-  try {
-    const raw = fs.readFileSync(filePath, "utf8");
-    const parsed = JSON.parse(raw);
-    return sanitizeAppSettings(parsed);
-  } catch (error) {
-    return {};
-  }
-}
-
-function writeAppSettings(settings) {
-  const filePath = getAppSettingsPath();
-  try {
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    const payload = JSON.stringify(sanitizeAppSettings(settings), null, 2);
-    fs.writeFileSync(filePath, payload, "utf8");
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
-function setAppSetting(key, value) {
-  const safeKey = String(key || "").trim();
-  if (!safeKey) {
-    return { ok: false, error: "配置键不能为空" };
-  }
-
-  const next = readAppSettings();
-  const hasValue = value !== undefined && value !== null && String(value).length > 0;
-  if (hasValue) {
-    next[safeKey] = String(value);
-  } else {
-    delete next[safeKey];
-  }
-
-  if (!writeAppSettings(next)) {
-    return { ok: false, error: "配置保存失败" };
-  }
-
-  return { ok: true, value: hasValue ? next[safeKey] : null };
-}
-
 const LICENSE_VERIFY_INTERVAL = 7 * 24 * 60 * 60 * 1000;
 const LICENSE_FREE_LIMIT = 5;
 const LICENSE_APP_ID = "biji_tool";
@@ -2058,18 +1994,7 @@ ipcMain.handle("app:getMeta", async () => {
   return getAppMeta();
 });
 
-ipcMain.handle("settings:getAll", async () => {
-  return {
-    ok: true,
-    settings: readAppSettings()
-  };
-});
-
-ipcMain.handle("settings:set", async (_event, payload) => {
-  const key = payload?.key;
-  const value = payload?.value;
-  return setAppSetting(key, value);
-});
+settingsService.registerIpc(ipcMain);
 
 ipcMain.handle("wechat:getStatus", async () => {
   return getWechatLoginState();

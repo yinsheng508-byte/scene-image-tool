@@ -6,7 +6,7 @@
 
 | 能力描述 | 实现位置 | 调用方式 | 适用场景 | 备注 |
 |---|---|---|---|---|
-| 应用元信息和设置持久化 | `code/desktop/main.js` | `app:getMeta`、`settings:getAll`、`settings:set` | 标题、配置、导出选项 | 设置文件在 userData |
+| 应用元信息和设置持久化 | `code/desktop/main.js`、`code/desktop/services/settings-service.js` | `app:getMeta`、`settings:getAll`、`settings:set` | 标题、配置、导出选项 | 设置文件仍为 userData 下的 `app-settings.json`，IPC contract 不变 |
 | 授权验证和版本检查 | `code/desktop/main.js`、`renderer/license/*` | `license:*` IPC | 授权、更新、免费次数 | 业务闸口 |
 | 微信验证码登录 | `code/desktop/main.js`、`wechat-login.js` | `wechat:getStatus`、`wechat:login` | 登录状态校验 | 远端 API |
 | 文件和文件夹选择 | `code/desktop/main.js`、`preload.js` | `dialog:*` IPC | 导出、上传、拼图、下载 | 统一从主进程调用 |
