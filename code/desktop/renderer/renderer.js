@@ -1241,7 +1241,7 @@ async function processNextXhsTask() {
         actionText: '打开文件夹',
         actionCallback: () => {
           if (window.appApi?.openPath && folderPath) {
-            window.appApi.openPath(folderPath);
+            window.appApi.openPath({ path: folderPath, source: "xhs-output-folder" });
           }
         }
       });
@@ -2642,13 +2642,8 @@ function openLibreOfficeModal(report = {}) {
         }
         return;
       }
-      if (window.appApi?.openPath) {
-        const openResp = await window.appApi.openPath(downloadUrl);
-        if (openResp?.ok === false) {
-          appendLog({ level: 2, message: `打开下载链接失败: ${openResp.error || "unknown"}` });
-          window.showToast("无法自动打开链接，请手动复制官网地址下载", "warning");
-        }
-      }
+      appendLog({ level: 2, message: "打开下载链接失败: openExternal unavailable" });
+      window.showToast("无法自动打开链接，请手动复制官网地址下载", "warning");
     };
     const onCopyDiag = async () => {
       const ok = await copyTextToClipboard(latestLibreOfficeDiagnosticsText);
@@ -3199,7 +3194,7 @@ async function handleConvert() {
       actionText: '打开文件夹',
       actionCallback: () => {
         if (window.appApi?.openPath && openTarget) {
-          window.appApi.openPath(openTarget);
+          window.appApi.openPath({ path: openTarget, source: "export-output-folder" });
         }
       }
     });

@@ -6022,7 +6022,7 @@ async function handleGenerate() {
       actionText: "打开文件夹",
       actionCallback: () => {
         if (window.appApi?.openPath && outputDir) {
-          window.appApi.openPath(outputDir);
+          window.appApi.openPath({ path: outputDir, source: "puzzle-output-folder" });
         }
       }
     });

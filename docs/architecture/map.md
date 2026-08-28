@@ -6,8 +6,10 @@
 
 | 模块名 | 职责 | 入口文件 | 关键依赖 | 备注 |
 |---|---|---|---|---|
-| Electron 主进程 | 窗口、菜单、IPC composition、授权、转换、上传、下载、拼图生成 | `code/desktop/main.js` | Electron、PDFium、sharp、skia-canvas、PowerShell | 当前约 9100+ 行，settings 已先拆入 service，Windows-only 能力仍需继续拆入 adapter |
+| Electron 主进程 | 窗口、菜单、IPC composition、授权、转换、上传、下载、拼图生成 | `code/desktop/main.js` | Electron、PDFium、sharp、skia-canvas、PowerShell | 当前约 9200+ 行，settings、shell IPC 和 request control 已先拆入 service，Windows-only 能力仍需继续拆入 adapter |
 | 主进程设置 service | 应用设置文件路径、读写、清洗和 settings IPC 注册 | `code/desktop/services/settings-service.js` | Electron `app.getPath("userData")`、Node `fs/path` | 保持 `app-settings.json` 路径和 `settings:*` IPC contract 不变 |
+| 主进程 Shell service | `shell:openExternal` / `shell:openPath` IPC 注册、外链 allowlist、可打开目录登记 | `code/desktop/services/shell-service.js` | Electron `shell`、Node `fs/path` | `openExternal` 默认只允许 `https:`；`openPath` 只打开主进程登记过的既有目录 |
+| 主进程请求控制 service | 可取消 fetch、request tracker、timeout 和取消错误识别 | `code/desktop/services/request-control.js` | Node `AbortController`、`fetch` | 飞书上传和小红书下载当前网络请求取消共用 |
 | 预加载桥 | 向渲染进程暴露白名单 API | `code/desktop/preload.js` | Electron `contextBridge`、`ipcRenderer` | 不打开 nodeIntegration |
 | 主界面 Shell | 6 个页签、全局状态和通用交互 | `code/desktop/renderer/index.html`、`code/desktop/renderer/renderer.js` | DOM、`window.appApi`、`window.licenseAPI` | 当前包含导出、飞书、小红书、设置 |
 | 授权模块 | 授权密钥、免费次数、版本检查、微信登录状态 | `code/desktop/renderer/license/*`、`code/desktop/main.js` | 远端授权 API、微信验证码登录 API | 业务闸口 |
@@ -41,6 +43,8 @@ code/
     package.json
     services/
       settings-service.js
+      shell-service.js
+      request-control.js
     renderer/
     scripts/
     shared/
@@ -71,6 +75,8 @@ code/
 - 文件系统、shell、clipboard、Office/LibreOffice、网络上传下载等能力留在主进程。
 - 拼图预览和导出必须共享 `code/desktop/shared/puzzle-render-spec.mjs` 和 `text-layout.mjs`，避免预览/导出不一致。
 - 授权、微信登录、导出预检、飞书上传、取消任务走统一闸口，不在 UI 中直接绕过。
+- Shell 外链和目录打开通过 `services/shell-service.js` 组合进主进程；renderer 只能请求，主进程按 URL scheme 和已登记目录校验。
+- 飞书上传和小红书下载的网络请求取消通过 `services/request-control.js` 组合进主进程；cancel IPC 需要 abort 当前 fetch 并返回稳定取消状态。
 - 导出取消的进程终止能力从 `platform/index.js` 进入对应平台 adapter；macOS 不调用 `taskkill`，Windows 继续由 win32 adapter 保留 `taskkill /T /F` 语义。
 - 导出预检返回必须同时保留旧 UI 字段和统一 capability 字段；`office-com` 在非 Windows 平台由主进程直接返回 `PLATFORM_UNSUPPORTED`，不得进入 PowerShell 脚本链路。
 - 设置持久化通过 `services/settings-service.js` 组合进主进程；renderer 仍只能通过 preload 暴露的 `getAppSettings()` / `setAppSetting()` 调用。

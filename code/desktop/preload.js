@@ -1,10 +1,19 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
+function subscribe(channel, callback) {
+  if (typeof callback !== "function") {
+    return () => {};
+  }
+  const listener = (_event, data) => callback(data);
+  ipcRenderer.on(channel, listener);
+  return () => {
+    ipcRenderer.removeListener(channel, listener);
+  };
+}
+
 contextBridge.exposeInMainWorld("appLog", {
   onLog: (callback) => {
-    ipcRenderer.on("app-log", (event, payload) => {
-      callback(payload);
-    });
+    return subscribe("app-log", callback);
   }
 });
 
@@ -57,18 +66,10 @@ contextBridge.exposeInMainWorld("appApi", {
   renderPuzzleExportPreview: (payload) => ipcRenderer.invoke("puzzle:renderExportPreview", payload),
   xhsDownload: (payload) => ipcRenderer.invoke("xhs:download", payload),
   xhsCancel: () => ipcRenderer.invoke("xhs:cancel"),
-  onConvertProgress: (callback) => {
-    ipcRenderer.on("convert:progress", (event, data) => callback(data));
-  },
-  onUploadProgress: (callback) => {
-    ipcRenderer.on("upload:progress", (event, data) => callback(data));
-  },
-  onXhsProgress: (callback) => {
-    ipcRenderer.on("xhs:progress", (event, data) => callback(data));
-  },
-  onPuzzleProgress: (callback) => {
-    ipcRenderer.on("puzzle:progress", (event, data) => callback(data));
-  }
+  onConvertProgress: (callback) => subscribe("convert:progress", callback),
+  onUploadProgress: (callback) => subscribe("upload:progress", callback),
+  onXhsProgress: (callback) => subscribe("xhs:progress", callback),
+  onPuzzleProgress: (callback) => subscribe("puzzle:progress", callback)
 });
 
 contextBridge.exposeInMainWorld("licenseAPI", {

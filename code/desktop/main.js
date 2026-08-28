@@ -7,6 +7,13 @@ const os = require("os");
 const path = require("path");
 const { currentPlatformAdapter } = require("./platform");
 const { createSettingsService } = require("./services/settings-service");
+const { createShellService } = require("./services/shell-service");
+const {
+  createCancelledError,
+  createRequestTracker,
+  fetchWithRequestTracking,
+  isAbortError
+} = require("./services/request-control");
 const {
   createCapabilityResult,
   normalizeTextList
@@ -17,6 +24,7 @@ let sharp = null;
 
 let mainWindow = null;
 const settingsService = createSettingsService({ app });
+const shellService = createShellService({ shell });
 const allowedExtensions = new Set([".doc", ".docx", ".ppt", ".pptx", ".pdf"]);
 const imageExtensions = new Set([
   ".png",
@@ -48,6 +56,8 @@ const libreOfficeSpeedState = {
 };
 let uploadAbortRequested = false;
 let xhsAbortRequested = false;
+const uploadRequestTracker = createRequestTracker();
+const xhsRequestTracker = createRequestTracker();
 let renderSpecPromise = null;
 let textLayoutPromise = null;
 let fontConfigPromise = null;
@@ -56,6 +66,8 @@ let textFontsRegistered = false;
 const DEFAULT_EXPORT_FONT_FAMILY = "SourceHanSansCN";
 const EXPORT_FONT_PROBE_TEXTS = ["拼图字体Probe123", "中文字体可用性检测", "AaBbCc123混排"];
 const EXPORT_FONT_PROBE_FONT_SIZE = 42;
+const DEFAULT_FEISHU_REQUEST_TIMEOUT_MS = 60000;
+const DEFAULT_XHS_REQUEST_TIMEOUT_MS = 60000;
 const registeredFontFaces = new Map();
 const exportFontCapabilityMap = new Map();
 const fontDebugCache = new Set();
@@ -1285,6 +1297,48 @@ function parsePositiveInt(value, fallback) {
   return integerValue > 0 ? integerValue : fallback;
 }
 
+function rememberOpenDialogPaths(result, source) {
+  if (!result || result.canceled) return 0;
+  return shellService.rememberOpenPaths(result.filePaths || [], source);
+}
+
+function getFeishuRequestControl() {
+  return {
+    tracker: uploadRequestTracker,
+    timeoutMs: parsePositiveInt(
+      process.env.SCENE_FEISHU_REQUEST_TIMEOUT_MS,
+      DEFAULT_FEISHU_REQUEST_TIMEOUT_MS
+    ),
+    timeoutCode: "FEISHU_REQUEST_TIMEOUT",
+    timeoutMessage: "飞书接口请求超时"
+  };
+}
+
+function getXhsRequestControl() {
+  return {
+    tracker: xhsRequestTracker,
+    timeoutMs: parsePositiveInt(
+      process.env.SCENE_XHS_REQUEST_TIMEOUT_MS,
+      DEFAULT_XHS_REQUEST_TIMEOUT_MS
+    ),
+    timeoutCode: "XHS_REQUEST_TIMEOUT",
+    timeoutMessage: "小红书图片下载请求超时"
+  };
+}
+
+function isTaskCancelledError(error) {
+  return isAbortError(error) || error?.cancelled === true || error?.message === "cancelled";
+}
+
+function sendUploadCancelledProgress() {
+  sendProgress("upload:progress", { phase: "cancelled" });
+}
+
+function buildUploadCancelledResult() {
+  sendUploadCancelledProgress();
+  return { ok: false, cancelled: true };
+}
+
 function clampPercent(value, fallback = 100) {
   const raw = Number(value);
   if (!Number.isFinite(raw)) return fallback;
@@ -1975,16 +2029,7 @@ ipcMain.handle("license:checkUpdate", async () => {
   }
 });
 
-ipcMain.handle("shell:openExternal", async (_event, payload) => {
-  const url = typeof payload === "string" ? payload : payload?.url;
-  if (!url) return { ok: false, error: "缺少链接" };
-  try {
-    await shell.openExternal(url);
-    return { ok: true };
-  } catch (error) {
-    return { ok: false, error: error.message };
-  }
-});
+shellService.registerIpc(ipcMain);
 
 ipcMain.handle("app:getVersion", async () => {
   return app.getVersion();
@@ -2052,6 +2097,7 @@ ipcMain.handle("dialog:openFilesOrFolders", async () => {
     if (result.canceled) {
       return { canceled: true, files: [], folders: [] };
     }
+    rememberOpenDialogPaths(result, "user-selected-directory");
     return { canceled: false, files: [], folders: result.filePaths || [] };
   }
 
@@ -2070,16 +2116,20 @@ ipcMain.handle("dialog:openFilesOrFolders", async () => {
 
 ipcMain.handle("dialog:openFolder", async () => {
   if (!mainWindow) return null;
-  return dialog.showOpenDialog(mainWindow, {
+  const result = await dialog.showOpenDialog(mainWindow, {
     properties: ["openDirectory", "multiSelections"]
   });
+  rememberOpenDialogPaths(result, "user-selected-directory");
+  return result;
 });
 
 ipcMain.handle("dialog:openOutputFolder", async () => {
   if (!mainWindow) return null;
-  return dialog.showOpenDialog(mainWindow, {
+  const result = await dialog.showOpenDialog(mainWindow, {
     properties: ["openDirectory", "createDirectory"]
   });
+  rememberOpenDialogPaths(result, "user-selected-output-directory");
+  return result;
 });
 
 ipcMain.handle("file:save", async (event, payload) => {
@@ -2102,16 +2152,20 @@ ipcMain.handle("file:save", async (event, payload) => {
 
 ipcMain.handle("dialog:openImageFolder", async () => {
   if (!mainWindow) return null;
-  return dialog.showOpenDialog(mainWindow, {
+  const result = await dialog.showOpenDialog(mainWindow, {
     properties: ["openDirectory"]
   });
+  rememberOpenDialogPaths(result, "user-selected-image-directory");
+  return result;
 });
 
 ipcMain.handle("dialog:openImageFolders", async () => {
   if (!mainWindow) return null;
-  return dialog.showOpenDialog(mainWindow, {
+  const result = await dialog.showOpenDialog(mainWindow, {
     properties: ["openDirectory", "multiSelections"]
   });
+  rememberOpenDialogPaths(result, "user-selected-image-directory");
+  return result;
 });
 
 ipcMain.handle("dialog:openImageFile", async () => {
@@ -2149,6 +2203,7 @@ ipcMain.handle("dialog:openImageFilesOrFolder", async () => {
   if (result.canceled) {
     return { canceled: true, files: [], folders: [] };
   }
+  rememberOpenDialogPaths(result, "user-selected-image-directory");
   const paths = result.filePaths || [];
   const files = [];
   const folders = [];
@@ -2169,25 +2224,12 @@ ipcMain.handle("dialog:openImageFilesOrFolder", async () => {
 
 ipcMain.handle("dialog:selectSaveDirectory", async () => {
   if (!mainWindow) return null;
-  return dialog.showOpenDialog(mainWindow, {
+  const result = await dialog.showOpenDialog(mainWindow, {
     properties: ["openDirectory", "createDirectory"],
     title: "选择保存目录"
   });
-});
-
-ipcMain.handle("shell:openPath", async (_event, targetPath) => {
-  if (!targetPath) {
-    return { ok: false, error: "缺少路径" };
-  }
-  try {
-    const result = await shell.openPath(targetPath);
-    if (result) {
-      return { ok: false, error: result };
-    }
-    return { ok: true };
-  } catch (error) {
-    return { ok: false, error: error.message };
-  }
+  rememberOpenDialogPaths(result, "user-selected-save-directory");
+  return result;
 });
 
 ipcMain.handle("puzzle:openTemplateLibrary", async () => {
@@ -2195,10 +2237,14 @@ ipcMain.handle("puzzle:openTemplateLibrary", async () => {
     await ensurePuzzleDirs();
     const templateLibraryPath = getPuzzleDataDir();
     await fs.promises.mkdir(templateLibraryPath, { recursive: true });
-    const result = await shell.openPath(templateLibraryPath);
-    if (result) {
-      logToRenderer(4, `打开模板库目录失败: ${result}`);
-      return { ok: false, error: result };
+    shellService.rememberOpenPath(templateLibraryPath, "puzzle-template-library");
+    const result = await shellService.openPath({
+      path: templateLibraryPath,
+      source: "puzzle-template-library"
+    });
+    if (result?.ok === false) {
+      logToRenderer(4, `打开模板库目录失败: ${result.error}`);
+      return result;
     }
     logToRenderer(1, `打开模板库目录: ${templateLibraryPath}`);
     return { ok: true, path: templateLibraryPath };
@@ -2229,6 +2275,7 @@ ipcMain.handle("file:createDirectory", async (_event, payload) => {
     }
 
     await fs.promises.mkdir(fullPath, { recursive: true });
+    shellService.rememberOpenPath(fullPath, "generated-directory");
     return { ok: true, path: fullPath };
   } catch (error) {
     return { ok: false, error: error.message };
@@ -2245,6 +2292,7 @@ ipcMain.handle("file:saveImage", async (_event, payload) => {
     // buffer 可能是 ArrayBuffer 或 Uint8Array
     const bufferData = Buffer.from(buffer);
     await fs.promises.writeFile(fullPath, bufferData);
+    shellService.rememberOpenPath(directory, "saved-image-directory");
     return { ok: true, path: fullPath };
   } catch (error) {
     return { ok: false, error: error.message };
@@ -3427,6 +3475,7 @@ ipcMain.handle("puzzle:generate", async (event, payload) => {
     await fs.promises.mkdir(outputRoot, { recursive: true });
     const outputDir = resolveUniquePath(path.join(outputRoot, `${templateName}_${formatTimestamp()}`));
     await fs.promises.mkdir(outputDir, { recursive: true });
+    shellService.rememberOpenPath(outputDir, "puzzle-output");
 
     logToRenderer(1, `拼图开始生成: ${tasks.length} 张`);
     logToRenderer(1, `拼图阴影管线: v${shadowPipelineVersion}`);
@@ -6904,6 +6953,7 @@ ipcMain.handle("convert:documents", async (event, payload) => {
   if (items.length === 0) {
     return { ok: false, error: "没有可导出的文件" };
   }
+  shellService.rememberOpenPath(outputRoot, "export-output-root");
 
   const pageLimit = Number.isInteger(Number(pageLimitRaw)) && Number(pageLimitRaw) > 0
     ? Number(pageLimitRaw)
@@ -7241,6 +7291,7 @@ ipcMain.handle("convert:documents", async (event, payload) => {
     if (!outputFolders.some((dir) => path.normalize(dir) === normalizedDir)) {
       outputFolders.push(outputDir);
     }
+    shellService.rememberOpenPath(outputDir, "export-output-folder");
   };
 
   const reportFileStart = (item) => {
@@ -7735,6 +7786,9 @@ ipcMain.handle("convert:documents", async (event, payload) => {
     }
   };
 
+  shellService.rememberOpenPath(outputRoot, "export-output-root");
+  shellService.rememberOpenPaths(outputFolders, "export-output-folder");
+
   sendProgress("convert:progress", {
     phase: "done",
     totalFiles,
@@ -7844,7 +7898,10 @@ function parseBaseLink(link) {
   return { appToken, tableId, viewId };
 }
 
-async function apiRequest({ domain, path, token, method = "GET", query, body, headers }) {
+async function apiRequest({ domain, path, token, method = "GET", query, body, headers, requestControl, shouldAbort }) {
+  if (typeof shouldAbort === "function" && shouldAbort()) {
+    throw createCancelledError();
+  }
   const url = new URL(`${domain}${path}`);
   if (query) {
     Object.entries(query).forEach(([key, value]) => {
@@ -7852,15 +7909,30 @@ async function apiRequest({ domain, path, token, method = "GET", query, body, he
       url.searchParams.set(key, String(value));
     });
   }
-  const response = await fetch(url, {
+  const fetchOptions = {
     method,
     headers: {
       Authorization: `Bearer ${token}`,
       ...headers
     },
     body
-  });
-  const text = await response.text();
+  };
+  let response = null;
+  let text = "";
+  if (requestControl) {
+    const result = await fetchWithRequestTracking(url, fetchOptions, {
+      ...requestControl,
+      consume: async (trackedResponse) => ({
+        response: trackedResponse,
+        text: await trackedResponse.text()
+      })
+    });
+    response = result.response;
+    text = result.text;
+  } else {
+    response = await fetch(url, fetchOptions);
+    text = await response.text();
+  }
   let json = null;
   try {
     json = JSON.parse(text);
@@ -7876,26 +7948,30 @@ async function apiRequest({ domain, path, token, method = "GET", query, body, he
   return json;
 }
 
-async function listTables(domain, token, appToken) {
+async function listTables(domain, token, appToken, options = {}) {
   const response = await apiRequest({
     domain,
     path: `/open-apis/bitable/v1/apps/${appToken}/tables`,
-    token
+    token,
+    requestControl: options.requestControl,
+    shouldAbort: options.shouldAbort
   });
   return response.data?.items || [];
 }
 
-async function listFields(domain, token, appToken, tableId, viewId) {
+async function listFields(domain, token, appToken, tableId, viewId, options = {}) {
   const response = await apiRequest({
     domain,
     path: `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/fields`,
     token,
-    query: { view_id: viewId }
+    query: { view_id: viewId },
+    requestControl: options.requestControl,
+    shouldAbort: options.shouldAbort
   });
   return response.data?.items || [];
 }
 
-async function listRecords(domain, token, appToken, tableId, viewId, limit) {
+async function listRecords(domain, token, appToken, tableId, viewId, limit, options = {}) {
   let pageToken = undefined;
   const items = [];
   while (items.length < limit) {
@@ -7907,7 +7983,9 @@ async function listRecords(domain, token, appToken, tableId, viewId, limit) {
         view_id: viewId,
         page_size: 200,
         page_token: pageToken
-      }
+      },
+      requestControl: options.requestControl,
+      shouldAbort: options.shouldAbort
     });
     const batch = response.data?.items || [];
     items.push(...batch);
@@ -7944,9 +8022,15 @@ function getBitableParentType(filePath) {
   return imageExtensions.has(ext) ? "bitable_image" : "bitable_file";
 }
 
-async function uploadDriveFile(domain, token, filePath, parentType, parentNode) {
+async function uploadDriveFile(domain, token, filePath, parentType, parentNode, options = {}) {
+  if (typeof options.shouldAbort === "function" && options.shouldAbort()) {
+    throw createCancelledError();
+  }
   const stats = await fs.promises.stat(filePath);
   const buffer = await fs.promises.readFile(filePath);
+  if (typeof options.shouldAbort === "function" && options.shouldAbort()) {
+    throw createCancelledError();
+  }
   const fileName = path.basename(filePath);
   const mimeType = getMimeType(fileName);
 
@@ -7964,12 +8048,14 @@ async function uploadDriveFile(domain, token, filePath, parentType, parentNode) 
     path: "/open-apis/drive/v1/medias/upload_all",
     token,
     method: "POST",
-    body: form
+    body: form,
+    requestControl: options.requestControl,
+    shouldAbort: options.shouldAbort
   });
   return response.data?.file_token;
 }
 
-async function batchUpdateRecords(domain, token, appToken, tableId, records) {
+async function batchUpdateRecords(domain, token, appToken, tableId, records, options = {}) {
   const response = await apiRequest({
     domain,
     path: `/open-apis/bitable/v1/apps/${appToken}/tables/${tableId}/records/batch_update`,
@@ -7979,7 +8065,9 @@ async function batchUpdateRecords(domain, token, appToken, tableId, records) {
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify({ records })
+    body: JSON.stringify({ records }),
+    requestControl: options.requestControl,
+    shouldAbort: options.shouldAbort
   });
   return response.data;
 }
@@ -8268,6 +8356,10 @@ async function handleFeishuModuleUpload(_event, payload) {
 
     const domain = payload?.domain || "https://base-api.feishu.cn";
     const { appToken, tableId, viewId } = parseBaseLink(link);
+    const requestOptions = {
+      requestControl: getFeishuRequestControl(),
+      shouldAbort: () => uploadAbortRequested
+    };
 
     const folderDataList = [];
     for (const folder of folders) {
@@ -8312,7 +8404,7 @@ async function handleFeishuModuleUpload(_event, payload) {
       total: totalImages
     });
 
-    const fields = await listFields(domain, token, appToken, tableId, viewId);
+    const fields = await listFields(domain, token, appToken, tableId, viewId, requestOptions);
     const field = fields.find((item) => item.field_name === fieldName);
     if (!field) {
       return { ok: false, error: "未找到对应字段" };
@@ -8321,7 +8413,7 @@ async function handleFeishuModuleUpload(_event, payload) {
       return { ok: false, error: "字段类型不是附件" };
     }
 
-    const records = await listRecords(domain, token, appToken, tableId, viewId, endRow);
+    const records = await listRecords(domain, token, appToken, tableId, viewId, endRow, requestOptions);
     if (records.length < endRow) {
       return { ok: false, error: "行范围超出记录数量" };
     }
@@ -8370,7 +8462,7 @@ async function handleFeishuModuleUpload(_event, payload) {
 
           try {
             const parentType = getBitableParentType(filePath);
-            const fileToken = await uploadDriveFile(domain, token, filePath, parentType, appToken);
+            const fileToken = await uploadDriveFile(domain, token, filePath, parentType, appToken, requestOptions);
             if (fileToken) {
               rowFileTokens.push({ file_token: fileToken });
               successCount += 1;
@@ -8385,6 +8477,9 @@ async function handleFeishuModuleUpload(_event, payload) {
               throw new Error("上传返回空 token");
             }
           } catch (error) {
+            if (uploadAbortRequested || isTaskCancelledError(error)) {
+              throw error;
+            }
             const errorInfo = serializeError(error);
             const errorMsg = errorInfo.message || "上传失败";
             const errorSuffix = errorInfo.code ? ` (错误码: ${errorInfo.code})` : "";
@@ -8419,7 +8514,7 @@ async function handleFeishuModuleUpload(_event, payload) {
     }
 
     if (updates.length > 0) {
-      await batchUpdateRecords(domain, token, appToken, tableId, updates);
+      await batchUpdateRecords(domain, token, appToken, tableId, updates, requestOptions);
     }
 
     sendProgress("upload:progress", {
@@ -8438,6 +8533,9 @@ async function handleFeishuModuleUpload(_event, payload) {
       recordIds
     };
   } catch (error) {
+    if (uploadAbortRequested || isTaskCancelledError(error)) {
+      return buildUploadCancelledResult();
+    }
     return { ok: false, error: serializeError(error) };
   }
 }
@@ -8484,6 +8582,10 @@ async function handleFeishuNoteFolderUpload(_event, payload) {
 
     const domain = payload?.domain || "https://base-api.feishu.cn";
     const { appToken, tableId, viewId } = parseBaseLink(link);
+    const requestOptions = {
+      requestControl: getFeishuRequestControl(),
+      shouldAbort: () => uploadAbortRequested
+    };
     const endRow = startRow + noteGroups.length - 1;
     const totalImages = noteGroups.reduce((sum, group) => sum + group.images.length, 0);
 
@@ -8492,7 +8594,7 @@ async function handleFeishuNoteFolderUpload(_event, payload) {
       total: totalImages
     });
 
-    const fields = await listFields(domain, token, appToken, tableId, viewId);
+    const fields = await listFields(domain, token, appToken, tableId, viewId, requestOptions);
     const field = fields.find((item) => item.field_name === fieldName);
     if (!field) {
       return { ok: false, error: "未找到对应字段" };
@@ -8501,7 +8603,7 @@ async function handleFeishuNoteFolderUpload(_event, payload) {
       return { ok: false, error: "字段类型不是附件" };
     }
 
-    const records = await listRecords(domain, token, appToken, tableId, viewId, endRow);
+    const records = await listRecords(domain, token, appToken, tableId, viewId, endRow, requestOptions);
     if (records.length < endRow) {
       return { ok: false, error: `行范围超出记录数量，需要写入到第 ${endRow} 行` };
     }
@@ -8548,7 +8650,7 @@ async function handleFeishuNoteFolderUpload(_event, payload) {
 
         try {
           const parentType = getBitableParentType(image.path);
-          const fileToken = await uploadDriveFile(domain, token, image.path, parentType, appToken);
+          const fileToken = await uploadDriveFile(domain, token, image.path, parentType, appToken, requestOptions);
           if (fileToken) {
             rowFileTokens.push({ file_token: fileToken });
             successCount += 1;
@@ -8564,6 +8666,9 @@ async function handleFeishuNoteFolderUpload(_event, payload) {
             throw new Error("上传返回空 token");
           }
         } catch (error) {
+          if (uploadAbortRequested || isTaskCancelledError(error)) {
+            throw error;
+          }
           const errorInfo = serializeError(error);
           const errorMsg = errorInfo.message || "上传失败";
           const errorSuffix = errorInfo.code ? ` (错误码: ${errorInfo.code})` : "";
@@ -8599,7 +8704,7 @@ async function handleFeishuNoteFolderUpload(_event, payload) {
     }
 
     if (updates.length > 0) {
-      await batchUpdateRecords(domain, token, appToken, tableId, updates);
+      await batchUpdateRecords(domain, token, appToken, tableId, updates, requestOptions);
     }
 
     sendProgress("upload:progress", {
@@ -8618,6 +8723,9 @@ async function handleFeishuNoteFolderUpload(_event, payload) {
       recordIds
     };
   } catch (error) {
+    if (uploadAbortRequested || isTaskCancelledError(error)) {
+      return buildUploadCancelledResult();
+    }
     return { ok: false, error: serializeError(error) };
   }
 }
@@ -8652,6 +8760,10 @@ ipcMain.handle("feishu:uploadRandom", async (event, payload) => {
 
     const domain = payload?.domain || "https://base-api.feishu.cn";
     const { appToken, tableId, viewId } = parseBaseLink(link);
+    const requestOptions = {
+      requestControl: getFeishuRequestControl(),
+      shouldAbort: () => uploadAbortRequested
+    };
 
     const rowCount = endRow - startRow + 1;
     const imagesPerRow = payload?.uploadCount ? Number(payload.uploadCount) : 1;
@@ -8675,7 +8787,7 @@ ipcMain.handle("feishu:uploadRandom", async (event, payload) => {
       return { ok: false, error: `图片文件夹内图片数量(${images.length})少于每行上传数(${imagesPerRow})，请增加图片或减少上传数` };
     }
 
-    const fields = await listFields(domain, token, appToken, tableId, viewId);
+    const fields = await listFields(domain, token, appToken, tableId, viewId, requestOptions);
     const field = fields.find((item) => item.field_name === fieldName);
     if (!field) {
       return { ok: false, error: "未找到对应字段" };
@@ -8684,7 +8796,7 @@ ipcMain.handle("feishu:uploadRandom", async (event, payload) => {
       return { ok: false, error: "字段类型不是附件" };
     }
 
-    const records = await listRecords(domain, token, appToken, tableId, viewId, endRow);
+    const records = await listRecords(domain, token, appToken, tableId, viewId, endRow, requestOptions);
     if (records.length < endRow) {
       return { ok: false, error: "行范围超出记录数量" };
     }
@@ -8729,7 +8841,7 @@ ipcMain.handle("feishu:uploadRandom", async (event, payload) => {
 
         try {
           const parentType = getBitableParentType(filePath);
-          const fileToken = await uploadDriveFile(domain, token, filePath, parentType, appToken);
+          const fileToken = await uploadDriveFile(domain, token, filePath, parentType, appToken, requestOptions);
           if (fileToken) {
             rowFileTokens.push({ file_token: fileToken });
             successCount += 1;
@@ -8744,6 +8856,9 @@ ipcMain.handle("feishu:uploadRandom", async (event, payload) => {
             throw new Error("上传返回空 token");
           }
         } catch (error) {
+          if (uploadAbortRequested || isTaskCancelledError(error)) {
+            throw error;
+          }
           const errorInfo = serializeError(error);
           const errorMsg = errorInfo.message || "上传失败";
           const errorSuffix = errorInfo.code ? ` (错误码: ${errorInfo.code})` : "";
@@ -8777,7 +8892,7 @@ ipcMain.handle("feishu:uploadRandom", async (event, payload) => {
     }
 
     if (updates.length > 0) {
-      await batchUpdateRecords(domain, token, appToken, tableId, updates);
+      await batchUpdateRecords(domain, token, appToken, tableId, updates, requestOptions);
     }
 
     sendProgress("upload:progress", {
@@ -8797,12 +8912,16 @@ ipcMain.handle("feishu:uploadRandom", async (event, payload) => {
       selected: selectedImages
     };
   } catch (error) {
+    if (uploadAbortRequested || isTaskCancelledError(error)) {
+      return buildUploadCancelledResult();
+    }
     return { ok: false, error: serializeError(error) };
   }
 });
 
 ipcMain.handle("feishu:cancel", async () => {
   uploadAbortRequested = true;
+  uploadRequestTracker.abortAll(createCancelledError());
   return { ok: true };
 });
 
@@ -8867,17 +8986,26 @@ function normalizeXhsImageUrl(inputUrl) {
   }
 }
 
-async function downloadBuffer(url, referer) {
-  const response = await fetch(url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Referer": referer
+async function downloadBuffer(url, referer, options = {}) {
+  const { response, arrayBuffer } = await fetchWithRequestTracking(
+    url,
+    {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Referer": referer
+      }
+    },
+    {
+      ...(options.requestControl || getXhsRequestControl()),
+      consume: async (trackedResponse) => ({
+        response: trackedResponse,
+        arrayBuffer: trackedResponse.ok ? await trackedResponse.arrayBuffer() : null
+      })
     }
-  });
+  );
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
   }
-  const arrayBuffer = await response.arrayBuffer();
   return Buffer.from(arrayBuffer);
 }
 
@@ -8920,6 +9048,8 @@ ipcMain.handle("xhs:download", async (event, payload) => {
   const folderName = title;
   const folderPath = resolveUniqueFolderPath(path.join(outputDir, folderName));
   await fs.promises.mkdir(folderPath, { recursive: true });
+  shellService.rememberOpenPath(outputDir, "xhs-output-root");
+  shellService.rememberOpenPath(folderPath, "xhs-output-folder");
 
   let success = 0;
   let failed = 0;
@@ -8928,6 +9058,7 @@ ipcMain.handle("xhs:download", async (event, payload) => {
   let detailIndex = 0;
 
   const referer = getReferer(sourceUrl);
+  const requestOptions = { requestControl: getXhsRequestControl() };
 
   try {
     sendProgress("xhs:progress", {
@@ -8941,7 +9072,7 @@ ipcMain.handle("xhs:download", async (event, payload) => {
 
     for (let index = 0; index < imageUrls.length; index += 1) {
       if (xhsAbortRequested) {
-        throw new Error("cancelled");
+        throw createCancelledError();
       }
       const image = imageUrls[index];
       const url = image.url;
@@ -8958,10 +9089,13 @@ ipcMain.handle("xhs:download", async (event, payload) => {
         const normalizedUrl = normalizeXhsImageUrl(url);
         let buffer = null;
         try {
-          buffer = await downloadBuffer(normalizedUrl, referer);
+          buffer = await downloadBuffer(normalizedUrl, referer, requestOptions);
         } catch (error) {
+          if (xhsAbortRequested || isTaskCancelledError(error)) {
+            throw error;
+          }
           if (normalizedUrl !== url) {
-            buffer = await downloadBuffer(url, referer);
+            buffer = await downloadBuffer(url, referer, requestOptions);
           } else {
             throw error;
           }
@@ -8997,6 +9131,9 @@ ipcMain.handle("xhs:download", async (event, payload) => {
         await fs.promises.writeFile(outputPath, jpgBuffer);
         success = nextIndex;
       } catch (error) {
+        if (xhsAbortRequested || isTaskCancelledError(error)) {
+          throw error;
+        }
         failed += 1;
         logToRenderer(3, `下载失败: ${url} (${error.message})`);
       }
@@ -9031,7 +9168,7 @@ ipcMain.handle("xhs:download", async (event, payload) => {
       skipped
     };
   } catch (error) {
-    if (error.message === "cancelled") {
+    if (error.message === "cancelled" || xhsAbortRequested || isTaskCancelledError(error)) {
       if (fs.existsSync(folderPath)) {
         await fs.promises.rm(folderPath, { recursive: true, force: true });
       }
@@ -9052,6 +9189,7 @@ ipcMain.handle("xhs:download", async (event, payload) => {
 
 ipcMain.handle("xhs:cancel", async () => {
   xhsAbortRequested = true;
+  xhsRequestTracker.abortAll(createCancelledError());
   return { ok: true };
 });
 
