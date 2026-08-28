@@ -823,7 +823,7 @@ Risks and rollback：
 Priority：P2
 Platform：macOS / Release
 Branch：`platform/macos-release-signing`
-Status：发布准备已完成，待 PR；真实 signed/notarized 验收等待 Apple Developer 凭据。
+Status：发布准备已完成，PR #14 已合并；真实 signed/notarized 验收等待 Apple Developer 凭据。
 
 Objective：
 

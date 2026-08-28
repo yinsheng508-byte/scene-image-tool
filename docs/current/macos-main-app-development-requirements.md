@@ -2,7 +2,7 @@
 
 > 日期：2026-08-28
 > 模式：深度分析，落地需求文档和任务卡文档
-> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7/#8/#9/#10/#11/#12/#13 已合并；MAC-12 macOS 签名发布准备已完成，真实 signed/notarized 验收等待 Apple 凭据；下一阶段进入 MAC-13 hardening。
+> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7/#8/#9/#10/#11/#12/#13/#14 已合并；MAC-12 macOS 签名发布准备已完成，真实 signed/notarized 验收等待 Apple 凭据；下一阶段进入 MAC-13 hardening。
 > 目标：把现有 Windows Electron 工具稳妥落地到 macOS，形成可持续主应用开发架构，而不是复制一套 Mac 分叉。
 
 ## 1. 结论

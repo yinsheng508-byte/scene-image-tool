@@ -33,7 +33,7 @@
 | macOS 平台能力设置页 | Electron remote debugging + `window.appApi.getCapabilities()` | 通过 | 设置页显示 LibreOffice、Office COM、PDF render、font、packaging 5 项；LibreOffice `system_app` 可用，Office COM `PLATFORM_UNSUPPORTED`；刷新按钮可恢复；无横向溢出、无元素重叠、无 Windows 修复词；PR #11 Desktop CI 通过：Windows 53s、macOS 32s |
 | MAC-10 settings service 拆分 | `node --check`、临时 userData service smoke、Electron 启动、两个 puzzle smoke、PR #12 Desktop CI | 通过 | `main.js` 从 9180 行降至 9105 行；`settings:getAll` / `settings:set` IPC contract 和 userData `app-settings.json` 路径保持不变；Desktop CI 通过：Windows 47s、macOS 24s |
 | MAC-11 runtime artifact provisioning | `resources:provision:dry-run`、`resources:check`、sha256 mismatch temp smoke、PR #13 Desktop CI | 通过 | macOS system LibreOffice 检查通过；缺 bundled fonts 显示 warning 和 artifact-root action；Windows dry-run 不复制大资源；sha256 mismatch 用例返回非 0 并阻断；Desktop CI 通过：Windows 47s、macOS 39s |
-| MAC-12 macOS signing release 准备 | `node --check`、plist lint、workflow YAML parse、missing-signing preflight、`dist:mac:dir` | 准备通过；真实签名未执行 | 本机 0 个有效 signing identities 且无 `CSC_*` / `APPLE_*` env；`signing:mac:check` 和 `dist:mac` 在缺凭据时阻断；unsigned `dist:mac:dir` 仍通过 |
+| MAC-12 macOS signing release 准备 | `node --check`、plist lint、workflow YAML parse、missing-signing preflight、`dist:mac:dir`、PR #14 Desktop CI | 准备通过；真实签名未执行 | 本机 0 个有效 signing identities 且无 `CSC_*` / `APPLE_*` env；`signing:mac:check` 和 `dist:mac` 在缺凭据时阻断；unsigned `dist:mac:dir` 仍通过；Desktop CI 通过：Windows 1m14s、macOS 34s |
 | 拼图阴影回归 | `npm --prefix code/desktop run puzzle:shadow:smoke` | 通过 | 不依赖 bundled fonts |
 | 拼图文字回归 | `npm --prefix code/desktop run puzzle:text:smoke` | 通过 | 不依赖 bundled fonts |
 | 第一阶段禁跑命令 | 未执行 | 符合约束 | 未运行 `font:probe`、`check:lo-runtime`、`dist`、`dist:full`、`dist:dev` |

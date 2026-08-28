@@ -151,7 +151,7 @@ git push -u origin platform/macos-<task-name>
 8. 已完成：MAC-09 设置页能力面板已通过 PR #11 合并到 `platform/macos-bootstrap`。
 9. 已完成：MAC-10 settings service 已通过 PR #12 合并到 `platform/macos-bootstrap`，保持 IPC contract 和 userData `app-settings.json` 不变。
 10. 已完成：MAC-11 runtime manifest 和 provisioning script 已通过 PR #13 合并；支持 `resources:check`、dry-run、本地 artifact root 和 sha256 mismatch 阻断。
-11. 准备完成：MAC-12 已新增 macOS signing preflight、`dist:mac` signed build 入口、release workflow 和 runbook；真实签名公证等待 Apple Developer 证书和 notarization secrets。
+11. 准备完成：MAC-12 已通过 PR #14 合并 macOS signing preflight、`dist:mac` signed build 入口、release workflow 和 runbook；真实签名公证等待 Apple Developer 证书和 notarization secrets。
 12. 当前：进入 MAC-13 IPC shell 边界和长任务取消 hardening；继续保持 preload / contextBridge 安全边界。
 
 ## 5. Mac 常见问题

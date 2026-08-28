@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke、Darwin LibreOffice runtime 探测、导出 fixture smoke、unsigned app bundle、基础 CI matrix、Mac 渲染 QA 矩阵、MAC-09 平台能力设置页 / 诊断区、MAC-10 settings service 最小拆分和 MAC-11 资源 artifact / provisioning 已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3、PR #4、PR #5、PR #6、PR #7、PR #8、PR #9、PR #10、PR #11、PR #12 和 PR #13 已合并到 `platform/macos-bootstrap`；MAC-12 macOS 签名发布准备已完成，当前待 PR 验证和合并，真实 signed/notarized 验收等待 Apple 凭据。
+Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke、Darwin LibreOffice runtime 探测、导出 fixture smoke、unsigned app bundle、基础 CI matrix、Mac 渲染 QA 矩阵、MAC-09 平台能力设置页 / 诊断区、MAC-10 settings service 最小拆分、MAC-11 资源 artifact / provisioning 和 MAC-12 macOS 签名发布准备已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3、PR #4、PR #5、PR #6、PR #7、PR #8、PR #9、PR #10、PR #11、PR #12、PR #13 和 PR #14 已合并到 `platform/macos-bootstrap`；下一阶段进入 MAC-13 IPC shell 边界和长任务取消 hardening。
 
 ## 当前最高优先级任务
 
@@ -36,7 +36,7 @@ GitHub public 远端：
 - macOS 开发落地指令：已新增。
 - macOS 主应用开发改造规划：已新增 `docs/current/macos-main-app-development-requirements.md` 和 `docs/current/macos-main-app-task-cards.md`。
 - macOS 代码全面审查与文档校准：已完成，已把当前真实风险回写到需求、任务卡、资源、能力、闸口和并行开发文档。
-- 当前后续任务：`platform/macos-release-signing` 已完成 signing preflight、signed dmg/zip build 入口、tag workflow、entitlements、runbook 和 release notes 模板；待 PR 合并后进入 MAC-13 IPC shell 边界和长任务取消 hardening。
+- 当前后续任务：从 `platform/macos-bootstrap` 新建 MAC-13 分支，收紧 shell IPC allowlist，并为飞书上传 / 小红书下载补当前请求级取消能力；不得绕过 preload / contextBridge 边界。
 
 ## 上次停在哪里
 
@@ -115,7 +115,7 @@ GitHub public 远端：
 - 2026-08-28 MAC-09 已扩展 `capability:getAll` 汇总，返回 LibreOffice、Office COM、PDF render、font 和 packaging 5 项结构化 capability；设置页新增平台能力面板，使用 `window.appApi.getCapabilities()` 展示 loading/refresh/unsupported/missing 状态。macOS Electron DOM 验收通过：LibreOffice `system_app` 可用，Office COM `PLATFORM_UNSUPPORTED`，字体走 `system_fallback` 且明确 public 仓库不含字体二进制，packaging 指向 `dist:mac:dir`；无横向溢出、无重叠、无 Windows 修复词。PR #11 已合并，Desktop CI 通过：Windows job 53s，macOS job 32s。
 - 2026-08-28 MAC-10 已新增 `code/desktop/services/settings-service.js`，把 settings 读写 helper、配置清洗和 `settings:getAll` / `settings:set` IPC registration 从 `main.js` 拆入 service；`main.js` 从 9180 行降至 9105 行；renderer API、IPC 名称、返回结构和 userData `app-settings.json` 路径保持不变。`node --check`、临时 userData service smoke、Electron 启动 smoke、`puzzle:shadow:smoke` 和 `puzzle:text:smoke` 已通过；PR #12 Desktop CI 通过：Windows job 47s，macOS job 24s。
 - 2026-08-28 MAC-11 已新增 `code/desktop/resources/runtime-manifest.json` 和 `code/desktop/scripts/provision-runtime-artifacts.js`，并新增 `resources:check`、`resources:provision`、`resources:provision:dry-run` npm scripts；manifest 记录 macOS system LibreOffice、bundled fonts、Windows LibreOffice runtime、Windows VC redist 的 source/version/target path 和 checksum 状态；脚本支持 dry-run、check-only、本地 `--artifact-root` / `SCENE_RUNTIME_ARTIFACT_ROOT`、按平台/资源过滤、sha256 校验和 mismatch 阻断。PR #13 Desktop CI 通过：Windows job 47s，macOS job 39s。
-- 2026-08-28 MAC-12 已新增 `signing:mac:check`、`dist:mac`、`code/desktop/scripts/check-macos-signing-env.js`、`code/desktop/scripts/build-macos-release.js`、macOS entitlements、`.github/workflows/macos-release.yml`、`docs/current/macos-release-signing-runbook.md` 和 `docs/templates/macos-release-notes.md`。本机 `security find-identity -v -p codesigning` 返回 0 个有效 signing identities，且未发现 `CSC_*` / `APPLE_*` env；缺凭据时 signing preflight 和 `dist:mac` 均阻断，`dist:mac:dir` unsigned fallback 仍通过。
+- 2026-08-28 MAC-12 已新增 `signing:mac:check`、`dist:mac`、`code/desktop/scripts/check-macos-signing-env.js`、`code/desktop/scripts/build-macos-release.js`、macOS entitlements、`.github/workflows/macos-release.yml`、`docs/current/macos-release-signing-runbook.md` 和 `docs/templates/macos-release-notes.md`。本机 `security find-identity -v -p codesigning` 返回 0 个有效 signing identities，且未发现 `CSC_*` / `APPLE_*` env；缺凭据时 signing preflight 和 `dist:mac` 均阻断，`dist:mac:dir` unsigned fallback 仍通过；PR #14 Desktop CI 通过：Windows job 1m14s，macOS job 34s。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-development-requirements.md`，把 Mac 主应用能力范围、platform adapter 目标、导出链路、UI capability、打包、CI、IPC hardening、资源治理和 M0-M11 阶段路线写成当前规划。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-task-cards.md`，拆出 MAC-00 至 MAC-13 任务卡；每张卡包含 Objective、Context、Scope、Out of scope、Steps、Acceptance、Validation、Deliverables 和 Risks。
 - `npm --prefix code/desktop run font:probe` 已通过。
@@ -179,7 +179,7 @@ GitHub public 远端：
 ## 当前环境状态
 
 - 当前执行环境为 macOS 工作区：`~/dev/scene-image-tool`。
-- 当前 Git 分支：`platform/macos-release-signing`，基于已包含 PR #1/#2/#3/#4/#5/#6/#7/#8/#9/#10/#11/#12/#13 的 `platform/macos-bootstrap`。
+- 当前 Git 分支：`platform/macos-bootstrap`，已包含 PR #1/#2/#3/#4/#5/#6/#7/#8/#9/#10/#11/#12/#13/#14。
 - GitHub public 远端已上线，Mac 端已完成首次 clone 和基础启动验证。
 - 不在生产部署流程中。
 
