@@ -573,6 +573,7 @@ Risks and rollback：
 Priority：P1
 Platform：macOS / QA
 Branch：`platform/macos-render-qa`
+Status：已完成，待合并。
 
 Objective：
 

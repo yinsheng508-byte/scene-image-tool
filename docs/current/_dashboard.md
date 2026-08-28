@@ -15,3 +15,4 @@
 | macos-export-smoke | test | Merged | MAC-05 Done | `platform/macos-export-smoke` | PR #7 已合并；生成式 DOCX/PPTX LibreOffice fixture smoke 已进入 `platform/macos-bootstrap` |
 | macos-package-dir | packaging | Merged | MAC-06 Done | `platform/macos-package-dir` | PR #8 已合并；unsigned macOS app bundle 配置已进入 `platform/macos-bootstrap` |
 | github-desktop-ci | infra | Merged | MAC-07 Done | `infra/github-desktop-ci` | PR #9 已合并；Windows/macOS 基础 CI job 已进入 `platform/macos-bootstrap` |
+| macos-render-qa | qa | In Review | MAC-08 Done | `platform/macos-render-qa` | 已新增 render fixture smoke 和 Compose DOM smoke 记录；待 PR 合并 |

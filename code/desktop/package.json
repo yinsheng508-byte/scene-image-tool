@@ -18,6 +18,7 @@
     "font:enum:smoke": "node scripts/font-enum-regression.js",
     "perf:baseline": "node scripts/export-baseline-report.js",
     "export:fixture:smoke": "node scripts/libreoffice-export-fixture-smoke.js",
+    "render:fixture:smoke": "node scripts/render-fixture-smoke.js",
     "ppt:smoke": "node scripts/ppt-export-smoke.js",
     "puzzle:shadow:smoke": "node scripts/puzzle-shadow-regression.js",
     "puzzle:text:smoke": "node scripts/puzzle-text-style-regression.js",

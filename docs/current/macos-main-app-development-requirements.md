@@ -2,7 +2,7 @@
 
 > 日期：2026-08-28
 > 模式：深度分析，落地需求文档和任务卡文档
-> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7/#8/#9 已合并；下一阶段进入 MAC-08。
+> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7/#8/#9 已合并；MAC-08 已在 `platform/macos-render-qa` 完成，待 PR 合并。
 > 目标：把现有 Windows Electron 工具稳妥落地到 macOS，形成可持续主应用开发架构，而不是复制一套 Mac 分叉。
 
 ## 1. 结论
@@ -55,6 +55,7 @@
 - macOS 文档导出真实文件 smoke 已建立生成式脱敏 fixture，输出进入 ignored `_test_output`。
 - `dist:mac:dir` 已实现并可生成可启动的 macOS arm64 `.app`。
 - `.github/workflows/desktop-ci.yml` 已新增，第一版只跑 Windows/macOS 基础 CI。
+- `render:fixture:smoke` 已新增，覆盖 Skia Canvas、Sharp 和 PDFium 基础渲染；Compose DOM smoke 已完成一次导出验证。
 - macOS `.icns` 图标已准备为 `code/desktop/assets/app-icon.icns`。
 - 字体二进制不在 public 仓库，严格字体探针和最终字体分发策略仍待 artifact / provisioning 设计。
 - `npm ci` 仍报告既有 21 个 audit 漏洞，需后续独立治理。
@@ -375,6 +376,14 @@ npm --prefix code/desktop run export:fixture:smoke
 ```
 
 `export:fixture:smoke` 已实现：运行时生成 DOCX/PPTX fixture，调用 macOS LibreOffice 转 PDF，再用现有 PDF 渲染栈输出 PNG 和 JSON report。
+
+涉及 Mac native 渲染：
+
+```bash
+npm --prefix code/desktop run render:fixture:smoke
+```
+
+`render:fixture:smoke` 已实现：运行时生成 Skia PNG、Sharp resize PNG、极小 PDF fixture 和 PDFium 渲染 PNG。
 
 ## 10. 阶段路线
 

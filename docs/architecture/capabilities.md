@@ -21,6 +21,7 @@
 | macOS LibreOffice runtime 探测 | `code/desktop/platform/darwin/libreoffice-runtime.js`、`code/desktop/main.js` | 启动自检、`export:healthCheck`、后续 platform adapter | macOS 系统 LibreOffice 能力发现 | 识别 `/Applications/LibreOffice.app/Contents/MacOS/soffice`、Homebrew `soffice` 和 `LIBREOFFICE_PATH`，返回结构化 capability 状态 |
 | Microsoft Office COM 检测和转换 | `code/desktop/scripts/*.ps1`、`main.js` | PowerShell 脚本 | 高保真导出 | Windows-only；非 Windows 平台在 `runMicrosoftOfficeHealthCheck()` 直接返回 `PLATFORM_UNSUPPORTED`，不得进入 PowerShell 脚本链路 |
 | PDF 渲染为图片 | `code/desktop/main.js` | `@hyzyla/pdfium` | PDF / 中间态渲染 | 受 DPI、缩放、内存限制影响 |
+| macOS 渲染 fixture smoke | `code/desktop/scripts/render-fixture-smoke.js` | `npm run render:fixture:smoke` | Mac native 渲染依赖最小回归 | 运行时生成 Skia/Sharp/PDFium 产物到 ignored `_test_output` |
 | 拼图模板存储 | `code/desktop/main.js`、`puzzle/template-manager.js` | `puzzle:loadTemplates`、`puzzle:saveTemplates` | 模板库 | 资源路径需规范化 |
 | 拼图背景和贴图复制 | `code/desktop/main.js` | `puzzle:copyBackground`、`puzzle:copySticker` | 模板资源管理 | 存入 userData puzzle 目录 |
 | 拼图图片扫描 | `code/desktop/main.js` | `puzzle:scanImages`、`puzzle:scanSubfolderGroups` | 单文件夹、多文件夹、子文件夹模式 | 排序规则要保持 |
