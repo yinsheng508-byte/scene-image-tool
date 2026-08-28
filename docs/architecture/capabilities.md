@@ -14,6 +14,7 @@
 | 文档转换和渲染 | `code/desktop/main.js`、`scripts/*` | `convert:documents` | 文档导出为图片 | 支持 LibreOffice / Office |
 | 导出取消 | `code/desktop/main.js` | `convert:cancel` | 长任务取消 | 需要清理活跃 Office / LO 进程 |
 | LibreOffice 运行时检测 | `code/desktop/main.js`、`scripts/check-lo-runtime.js` | `export:healthCheck`、`office:healthCheck` | 导出前预检 | 内置/系统路径都有逻辑 |
+| macOS LibreOffice runtime 探测 | `code/desktop/platform/darwin/libreoffice-runtime.js`、`code/desktop/main.js` | 启动自检、`export:healthCheck`、后续 platform adapter | macOS 系统 LibreOffice 能力发现 | 识别 `/Applications/LibreOffice.app/Contents/MacOS/soffice`、Homebrew `soffice` 和 `LIBREOFFICE_PATH`，返回结构化 capability 状态 |
 | Microsoft Office COM 检测和转换 | `code/desktop/scripts/*.ps1`、`main.js` | PowerShell 脚本 | 高保真导出 | 受 Office 环境影响 |
 | PDF 渲染为图片 | `code/desktop/main.js` | `@hyzyla/pdfium` | PDF / 中间态渲染 | 受 DPI、缩放、内存限制影响 |
 | 拼图模板存储 | `code/desktop/main.js`、`puzzle/template-manager.js` | `puzzle:loadTemplates`、`puzzle:saveTemplates` | 模板库 | 资源路径需规范化 |
@@ -50,4 +51,3 @@
 ### 渲染和导出
 
 PDFium、sharp、skia-canvas、字体探针、拼图渲染规范。
-

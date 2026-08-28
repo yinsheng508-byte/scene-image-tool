@@ -118,3 +118,17 @@
 - 修改文件：补齐 public split 仓库中缺失的 40 份中文归档文档；更新 `docs/current/WORKING_CONTEXT.md`、`docs/current/tasks.md`、`docs/current/_dashboard.md`、`docs/current/acceptance.md`、`docs/current/github-public-sync-runbook.md`、`docs/current/github-sync-macos-plan.md` 和本日志。
 - 验证：通过 GitHub tree API 和本地 `git hash-object --path` 做 hash 级对比；`code/desktop/` 开发代码缺失 0、内容不一致 0；本地 dirty 的 20 个 public-eligible 开发文件均已上传且内容一致；发现 40 份中文归档文档缺失，缺失项中 `code/` 文件数为 0；高置信密钥扫描未发现真实凭据，命中的 Authorization 字段为占位值或变量名；补齐后 public 源码 blob 数为 157。
 - 风险：public 仓库仍按策略排除字体二进制、Windows LibreOffice runtime 和 VC redist exe；这类资源不应被视为漏传代码。
+
+## 2026-08-28
+
+- 阶段：macOS 首次开发启动验证。
+- 修改文件：本阶段仅回写 `docs/current/tasks.md`、`docs/current/session-log.md`、`docs/current/WORKING_CONTEXT.md`；未修改业务代码。
+- 验证：已在 macOS 安装/确认 Xcode Command Line Tools、Homebrew、git、git-lfs、Homebrew `node@22` 和 LibreOffice；`node@22` 为 `v22.23.2`，npm 为 `10.9.8`，git-lfs 为 `3.7.1`，LibreOffice 为 `26.8.0.3`。已 clone `https://github.com/yinsheng508-byte/scene-image-tool.git` 到 `~/dev/scene-image-tool` 并切换跟踪 `origin/platform/macos-bootstrap`；`npm --prefix code/desktop ci` 通过，仍报告既有 21 个 npm audit 漏洞；`cd code/desktop && npm exec electron .` 能打开 Electron 主界面并持续运行，启动日志显示现有 `[LO_RUNTIME_STARTUP] missing`；`npm --prefix code/desktop run puzzle:shadow:smoke` 和 `npm --prefix code/desktop run puzzle:text:smoke` 均通过。
+- 风险：macOS 启动阶段确认现有 LibreOffice 启动探测尚未识别系统 LibreOffice；第一阶段按约束未运行 `font:probe`、`check:lo-runtime`、`dist`、`dist:full`、`dist:dev`。
+
+## 2026-08-28
+
+- 阶段：macOS LibreOffice runtime 探测。
+- 修改文件：新增 `code/desktop/platform/darwin/libreoffice-runtime.js`；更新 `code/desktop/main.js`、`docs/current/tasks.md`、`docs/current/session-log.md`、`docs/current/WORKING_CONTEXT.md`、`docs/architecture/map.md`、`docs/architecture/capabilities.md`、`docs/architecture/resources.md`。
+- 验证：`node --check code/desktop/platform/darwin/libreoffice-runtime.js` 和 `node --check code/desktop/main.js` 通过；直接调用 Darwin runtime adapter 可返回结构化结果，真实环境命中 `source=system_app`、`path=/Applications/LibreOffice.app/Contents/MacOS/soffice`、`version=26.8.0.3`；空候选测试返回 `ok=false`、`errorCode=LO_MISSING_BINARY` 和明确安装/配置 actions；`runtimeMode=embedded` 在 macOS 返回 `errorCode=PLATFORM_UNSUPPORTED`，不崩溃；`cd code/desktop && npm exec electron .` 启动自检已显示 `[LO_RUNTIME_STARTUP] source=system_app ... probe=ok`；`puzzle:shadow:smoke` 和 `puzzle:text:smoke` 复跑通过。
+- 风险：本阶段只完成 Darwin LibreOffice runtime 探测和小范围预检适配；Windows Office COM / PowerShell / taskkill 的系统性 win32 adapter 拆分尚未开始；macOS 打包脚本和 GitHub Actions matrix 尚未实现。

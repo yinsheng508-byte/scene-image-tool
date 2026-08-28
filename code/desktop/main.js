@@ -5,6 +5,7 @@ const crypto = require("crypto");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
+const { detectDarwinLibreOfficeRuntime } = require("./platform/darwin/libreoffice-runtime");
 let PDFiumLibrary = null;
 let sharp = null;
 
@@ -1331,7 +1332,7 @@ function prependEnvPath(env, entries = []) {
   if (!pathEntries.length) return env;
   const pathKey = resolvePathEnvKey(env);
   const currentPath = String(env[pathKey] || "");
-  const combined = [...pathEntries, ...currentPath.split(";")];
+  const combined = [...pathEntries, ...currentPath.split(path.delimiter)];
   const seen = new Set();
   const merged = [];
   combined.forEach((item) => {
@@ -1342,7 +1343,7 @@ function prependEnvPath(env, entries = []) {
     seen.add(key);
     merged.push(text);
   });
-  env[pathKey] = merged.join(";");
+  env[pathKey] = merged.join(path.delimiter);
   return env;
 }
 
@@ -3839,6 +3840,14 @@ function decodePowerShellBuffer(buffer) {
 
 function killProcessTreeByPid(pid) {
   if (!pid || Number(pid) <= 0) return;
+  if (process.platform !== "win32") {
+    try {
+      process.kill(Number(pid), "SIGTERM");
+    } catch (error) {
+      // Ignore cleanup errors.
+    }
+    return;
+  }
   try {
     const killer = spawn("taskkill", ["/PID", String(pid), "/T", "/F"], { windowsHide: true });
     killer.on("error", () => {
@@ -4298,7 +4307,12 @@ function resolveLibreOfficeRuntime(options = {}) {
     normalizeLibreOfficeRuntimeMode(process.env.SCENE_LO_RUNTIME_MODE, DEFAULT_LO_RUNTIME_MODE)
   );
   const refresh = Boolean(options.refresh);
-  if (!refresh && cachedLibreOfficeRuntime && cachedLibreOfficeRuntime.mode === mode) {
+  if (
+    !refresh
+    && cachedLibreOfficeRuntime
+    && cachedLibreOfficeRuntime.mode === mode
+    && (cachedLibreOfficeRuntime.platform || process.platform) === process.platform
+  ) {
     return { ...cachedLibreOfficeRuntime };
   }
 
@@ -4308,6 +4322,18 @@ function resolveLibreOfficeRuntime(options = {}) {
     1000,
     parsePositiveInt(options.probeTimeoutMs, DEFAULT_LO_RUNTIME_PROBE_TIMEOUT_MS)
   );
+
+  if (process.platform === "darwin") {
+    const resolved = detectDarwinLibreOfficeRuntime({
+      runtimeMode: mode,
+      probeTimeoutMs,
+      env: options.env,
+      libreOfficePath: options.libreOfficePath
+    });
+    cachedLibreOfficeRuntime = { ...resolved };
+    return { ...resolved };
+  }
+
   const seen = new Set();
   const candidates = [];
   const pushCandidate = (source, value) => {
@@ -4451,7 +4477,7 @@ function runNodeOfficeHealthFallback(runtime = {}) {
     }
   };
 
-  const tempDir = String(process.env.TEMP || process.env.TMP || os.tmpdir() || "").trim();
+  const tempDir = String(process.env.TEMP || process.env.TMP || process.env.TMPDIR || os.tmpdir() || "").trim();
   let tempWritable = false;
   let tempDetail = "";
   try {
@@ -4476,18 +4502,19 @@ function runNodeOfficeHealthFallback(runtime = {}) {
 
   let userProfileOk = false;
   let userProfileDetail = "";
+  const profileEnvName = process.platform === "win32" ? "USERPROFILE" : "HOME";
   try {
-    const userProfile = String(process.env.USERPROFILE || "").trim();
+    const userProfile = String(process.env[profileEnvName] || "").trim();
     userProfileOk = Boolean(userProfile) && fs.existsSync(userProfile);
-    userProfileDetail = userProfileOk ? userProfile : "USERPROFILE 不可用";
+    userProfileDetail = userProfileOk ? userProfile : `${profileEnvName} 不可用`;
   } catch (error) {
     userProfileOk = false;
-    userProfileDetail = "USERPROFILE 不可用";
+    userProfileDetail = `${profileEnvName} 不可用`;
   }
-  addCheck("user_profile_path", userProfileOk, "medium", userProfileDetail, 20);
+  addCheck(process.platform === "win32" ? "user_profile_path" : "home_path", userProfileOk, "medium", userProfileDetail, 20);
   if (!userProfileOk) {
     blockExport = true;
-    suggestions.push("请确认当前账户具备可访问的 USERPROFILE 目录。");
+    suggestions.push(`请确认当前账户具备可访问的 ${profileEnvName} 目录。`);
   }
 
   let tempSpaceOk = true;
@@ -4512,14 +4539,24 @@ function runNodeOfficeHealthFallback(runtime = {}) {
 
   let loProcessCount = 0;
   try {
-    const taskList = spawnSync(
-      "tasklist",
-      ["/FI", "IMAGENAME eq soffice*.exe", "/FO", "CSV", "/NH"],
-      { windowsHide: true, encoding: "utf8" }
-    );
-    const stdout = String(taskList?.stdout || "").trim();
-    if (stdout && !/^INFO:/i.test(stdout)) {
-      loProcessCount = stdout.split(/\r?\n/).filter((line) => line.trim() && !/^INFO:/i.test(line)).length;
+    if (process.platform === "win32") {
+      const taskList = spawnSync(
+        "tasklist",
+        ["/FI", "IMAGENAME eq soffice*.exe", "/FO", "CSV", "/NH"],
+        { windowsHide: true, encoding: "utf8" }
+      );
+      const stdout = String(taskList?.stdout || "").trim();
+      if (stdout && !/^INFO:/i.test(stdout)) {
+        loProcessCount = stdout.split(/\r?\n/).filter((line) => line.trim() && !/^INFO:/i.test(line)).length;
+      }
+    } else {
+      const pgrep = spawnSync("pgrep", ["-f", "soffice|LibreOffice.app"], {
+        encoding: "utf8"
+      });
+      const stdout = String(pgrep?.stdout || "").trim();
+      if (stdout) {
+        loProcessCount = stdout.split(/\r?\n/).filter((line) => line.trim()).length;
+      }
     }
   } catch (error) {
     loProcessCount = 0;
@@ -4565,27 +4602,42 @@ async function runLibreOfficeHealthCheck(options = {}) {
   let blockExport = false;
   let scriptError = "";
 
-  try {
-    const stdout = await runPowerShellWithOutput("libreoffice-health-check.ps1", [], { timeoutMs });
-    const parsed = parsePowerShellJsonOutput(stdout, "LibreOffice 预检输出解析失败");
-    payload = parsed && typeof parsed === "object" ? parsed : {};
-    score = Number.isFinite(Number(payload.score)) ? Math.max(0, Math.min(100, Math.floor(Number(payload.score)))) : 100;
-    blockExport = Boolean(payload.blockExport);
-    if (Array.isArray(payload.checks)) checks.push(...payload.checks);
-    if (Array.isArray(payload.warnings)) warnings.push(...payload.warnings);
-    if (Array.isArray(payload.suggestions)) suggestions.push(...payload.suggestions);
-    if (Array.isArray(payload.actions)) actions.push(...payload.actions);
-  } catch (error) {
-    const serialized = serializeError(error);
-    scriptError = String(serialized.message || "unknown");
-    checks.push({
-      name: "health_script",
-      ok: false,
-      severity: "medium",
-      detail: `预检脚本执行失败: ${scriptError}`
-    });
-    warnings.push(`预检脚本执行失败: ${scriptError}`);
-    actions.push("预检脚本失败，切换 Node 兜底预检。");
+  if (process.platform === "win32") {
+    try {
+      const stdout = await runPowerShellWithOutput("libreoffice-health-check.ps1", [], { timeoutMs });
+      const parsed = parsePowerShellJsonOutput(stdout, "LibreOffice 预检输出解析失败");
+      payload = parsed && typeof parsed === "object" ? parsed : {};
+      score = Number.isFinite(Number(payload.score)) ? Math.max(0, Math.min(100, Math.floor(Number(payload.score)))) : 100;
+      blockExport = Boolean(payload.blockExport);
+      if (Array.isArray(payload.checks)) checks.push(...payload.checks);
+      if (Array.isArray(payload.warnings)) warnings.push(...payload.warnings);
+      if (Array.isArray(payload.suggestions)) suggestions.push(...payload.suggestions);
+      if (Array.isArray(payload.actions)) actions.push(...payload.actions);
+    } catch (error) {
+      const serialized = serializeError(error);
+      scriptError = String(serialized.message || "unknown");
+      checks.push({
+        name: "health_script",
+        ok: false,
+        severity: "medium",
+        detail: `预检脚本执行失败: ${scriptError}`
+      });
+      warnings.push(`预检脚本执行失败: ${scriptError}`);
+      actions.push("预检脚本失败，切换 Node 兜底预检。");
+      const fallback = runNodeOfficeHealthFallback(runtime);
+      score = Number(fallback.score) || 0;
+      blockExport = Boolean(fallback.blockExport);
+      checks.push(...(Array.isArray(fallback.checks) ? fallback.checks : []));
+      warnings.push(...(Array.isArray(fallback.warnings) ? fallback.warnings : []));
+      suggestions.push(...(Array.isArray(fallback.suggestions) ? fallback.suggestions : []));
+      actions.push(...(Array.isArray(fallback.actions) ? fallback.actions : []));
+      payload = {
+        fallbackSource: "node",
+        fallback
+      };
+    }
+  } else {
+    actions.push("非 Windows 平台跳过 PowerShell 预检，切换 Node 兜底预检。");
     const fallback = runNodeOfficeHealthFallback(runtime);
     score = Number(fallback.score) || 0;
     blockExport = Boolean(fallback.blockExport);
@@ -4898,7 +4950,7 @@ function resolveLibreOfficeLaunchBinary(sofficePath, options = {}) {
   }
   return {
     launchPath: normalizedSofficePath,
-    launchBinary: "soffice.exe",
+    launchBinary: path.basename(normalizedSofficePath) || "soffice",
     usedSofficeCom: false
   };
 }
