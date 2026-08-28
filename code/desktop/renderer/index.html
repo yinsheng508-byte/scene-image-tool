@@ -629,7 +629,7 @@
           <section class="tab-content active" data-tab="export">
             <div class="card">
               <div class="card-header">
-                <span class="card-desc">选择文件后将自动扫描并导出 PNG，默认使用内置 LibreOffice；如本机安装 Microsoft Office，可切换高保真导出。</span>
+                <span class="card-desc">选择文件后将自动扫描并导出 PNG，推荐使用 LibreOffice；Office 高保真导出仅在支持的平台可用。</span>
               </div>
               <div class="card-body">
                 <div class="panel-title">文档导出</div>
@@ -656,8 +656,8 @@
                     <div class="panel-row">
                       <label class="field-label" for="exportEngineSelect">导出引擎</label>
                       <select id="exportEngineSelect">
-                        <option value="libreoffice" selected>LibreOffice（默认，免安装）</option>
-                        <option value="office">Office（本机高保真）</option>
+                        <option value="libreoffice" selected>LibreOffice（推荐，跨平台）</option>
+                        <option value="office">Office（高保真，仅 Windows COM）</option>
                       </select>
                     </div>
                     <div class="panel-row">

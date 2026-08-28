@@ -310,6 +310,7 @@ Risks and rollback：
 Priority：P1
 Platform：macOS / Renderer
 Branch：`platform/macos-export-preflight-ui`
+Status：已完成，待合并。
 
 Objective：
 
