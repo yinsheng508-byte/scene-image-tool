@@ -381,7 +381,7 @@ Risks and rollback：
 Priority：P1
 Platform：macOS / Shared
 Branch：`platform/macos-export-smoke`
-Status：已完成，待合并。
+Status：已完成，PR #7 已合并。
 
 Objective：
 
