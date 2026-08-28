@@ -247,7 +247,7 @@ Risks and rollback：
 Priority：P0
 Platform：Shared
 Branch：`feature/shared-capability-status`
-Status：已完成，待合并。
+Status：已完成，PR #5 已合并。
 
 Objective：
 
