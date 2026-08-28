@@ -14,7 +14,7 @@
 | `code/desktop/vendor/README.md` | runtime 外部化策略说明 | 保持跟踪 | 公开仓库需要说明为什么没有内置 runtime | 随 runtime manifest 更新 |
 | macOS 系统 LibreOffice | 通过 `code/desktop/platform/darwin/libreoffice-runtime.js` 探测 `/Applications/LibreOffice.app/Contents/MacOS/soffice`、`/opt/homebrew/bin/soffice`、`/usr/local/bin/soffice` 和 `LIBREOFFICE_PATH` | 不跟踪二进制 | macOS 开发基线依赖系统安装，不携带 runtime dump | 后续与统一 platform adapter / runtime manifest 对齐 |
 | `local-artifacts/` | 已物理删除 | 不跟踪 | 本地敏感资料、样例和临时碎片不应作为项目常驻内容 | 如需团队共享，改为脱敏模板、密钥管理系统或 `code/desktop/test-fixtures/` |
-| `code/desktop/test-fixtures/` | 当前不存在 | 可跟踪脱敏样例 | `.gitignore` 已对该目录放行 | 需要内置 smoke 样例时单独新增并脱敏 |
+| `code/desktop/test-fixtures/` | 已新增 `export-basic/` 生成式 DOCX/PPTX fixture manifest | 可跟踪脱敏样例，不跟踪运行生成的 Office/PDF/PNG 输出 | `.gitignore` 已对该目录放行；`export:fixture:smoke` 的实际输出进入 `code/desktop/_test_output/` | 后续新增 fixture 继续使用小型公开样例或生成式定义 |
 | `docs/archive/reference/场景化图片排版工具.html` | 历史单页工具 | 跟踪为归档参考 | 当前应用入口已在 `code/desktop/` | 不作为当前运行入口 |
 
 ## 约束
@@ -25,7 +25,7 @@
 - 不把本地样例、压缩备份、密钥文档提交到 Git。
 - 需要提交测试样例时，必须先脱敏并放入 `code/desktop/test-fixtures/`。
 - `local-artifacts/` 不作为常驻目录；临时生成后应在交付或构建验收前清理。
-- 当前没有内置 PPT smoke fixture；`ppt:smoke` 需要显式传入外部或临时样例路径。
+- 当前已有 `export:fixture:smoke` 生成式 DOCX/PPTX fixture，用于 macOS LibreOffice 导出 smoke；旧 `ppt:smoke` 仍需要显式传入外部或临时样例路径。
 - GitHub 同步前必须处理 `code/desktop/vendor/libreoffice/program/mergedlo.dll` 这类 100 MiB+ 文件；macOS 开发基线不应携带 Windows LibreOffice runtime。
 - 大资源历史瘦身属于独立任务，不能混入普通功能开发或结构迁移。
 - `npm --prefix code/desktop run check:lo-runtime` 当前只检查 Windows embedded LibreOffice runtime，不作为 macOS 系统 LibreOffice 探测命令；macOS 使用 `platform/darwin/libreoffice-runtime.js` 和后续 `check:runtime:mac`。

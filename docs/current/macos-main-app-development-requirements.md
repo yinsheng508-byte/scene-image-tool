@@ -2,7 +2,7 @@
 
 > 日期：2026-08-28
 > 模式：深度分析，落地需求文档和任务卡文档
-> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6 已合并；下一阶段进入 MAC-05。
+> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6 已合并；MAC-05 已在 `platform/macos-export-smoke` 完成，待 PR 合并。
 > 目标：把现有 Windows Electron 工具稳妥落地到 macOS，形成可持续主应用开发架构，而不是复制一套 Mac 分叉。
 
 ## 1. 结论
@@ -52,7 +52,7 @@
 - `scripts/check-lo-runtime.js` 当前是 Windows embedded LibreOffice 完整性检查，不是 macOS 系统 LibreOffice 探测脚本。
 - `shell:openExternal` / `shell:openPath` 目前只通过 renderer 约束调用意图，主进程还缺 URL scheme 和路径使用边界校验。
 - 飞书上传和小红书下载的取消逻辑主要在队列间检查；当前正在进行的 `fetch` / upload 请求仍缺统一 AbortController 或超时取消模型。
-- macOS 文档导出真实文件 smoke 尚未建立脱敏 fixture。
+- macOS 文档导出真实文件 smoke 已建立生成式脱敏 fixture，输出进入 ignored `_test_output`。
 - `dist:mac:dir` 尚未实现。
 - `.github/workflows` 尚不存在。
 - macOS `.icns` 图标尚未准备。
@@ -366,7 +366,7 @@ open code/desktop/dist/mac*/流量蜂虚拟笔记工具.app
 npm --prefix code/desktop run export:fixture:smoke
 ```
 
-`export:fixture:smoke` 目前尚未实现，需要先新增脱敏 fixture。
+`export:fixture:smoke` 已实现：运行时生成 DOCX/PPTX fixture，调用 macOS LibreOffice 转 PDF，再用现有 PDF 渲染栈输出 PNG 和 JSON report。
 
 ## 10. 阶段路线
 
