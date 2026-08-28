@@ -18,4 +18,4 @@
 | macos-render-qa | qa | Merged | MAC-08 Done | `platform/macos-render-qa` | PR #10 已合并；render fixture smoke 和 Compose DOM smoke 记录已进入基线 |
 | platform-capability-panel | renderer | Merged | MAC-09 Done | `feature/platform-capability-panel` | PR #11 已合并；设置页平台能力面板和 5 项 capability 汇总已进入 `platform/macos-bootstrap`，Desktop CI Windows/macOS 通过 |
 | main-process-settings-service | refactor | Merged | MAC-10 Done | `refactor/main-process-settings-service` | PR #12 已合并；settings 持久化和 `settings:*` IPC registration 已从 `main.js` 拆入 service，Desktop CI Windows/macOS 通过 |
-| runtime-artifact-provisioning | infra | Ready for PR | MAC-11 Done | `infra/runtime-artifact-provisioning` | runtime manifest 和 provisioning script 已完成；支持 dry-run、check-only、本地 artifact root 和 sha256 mismatch 阻断 |
+| runtime-artifact-provisioning | infra | Merged | MAC-11 Done | `infra/runtime-artifact-provisioning` | PR #13 已合并；runtime manifest 和 provisioning script 已进入 `platform/macos-bootstrap`，Desktop CI Windows/macOS 通过 |

@@ -762,7 +762,7 @@ Risks and rollback：
 Priority：P2
 Platform：Infra / Release
 Branch：`infra/runtime-artifact-provisioning`
-Status：已完成，待 PR。
+Status：已完成，PR #13 已合并。
 
 Objective：
 

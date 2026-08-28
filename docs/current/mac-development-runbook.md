@@ -150,7 +150,8 @@ git push -u origin platform/macos-<task-name>
 7. 已完成：`dist:mac:dir` unsigned app bundle 已可作为 macOS 打包 smoke；签名、公证和 dmg/zip 后置。
 8. 已完成：MAC-09 设置页能力面板已通过 PR #11 合并到 `platform/macos-bootstrap`。
 9. 已完成：MAC-10 settings service 已通过 PR #12 合并到 `platform/macos-bootstrap`，保持 IPC contract 和 userData `app-settings.json` 不变。
-10. 当前：进入 MAC-11 资源 artifact / provisioning，先落 manifest、dry-run 和 sha256 校验，不提交字体或 runtime 二进制。
+10. 已完成：MAC-11 runtime manifest 和 provisioning script 已通过 PR #13 合并；支持 `resources:check`、dry-run、本地 artifact root 和 sha256 mismatch 阻断。
+11. 当前：进入 MAC-12 macOS 签名、公证和发布准备；证书、Apple ID、API key 和 notarization secrets 不能写入 Git。
 
 ## 5. Mac 常见问题
 
