@@ -6,6 +6,11 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { currentPlatformAdapter } = require("./platform");
+const {
+  createCapabilityResult,
+  normalizeTextList
+} = require("./platform/common/capability-result");
+const { createHealthReport } = require("./platform/common/health-report");
 let PDFiumLibrary = null;
 let sharp = null;
 
@@ -4443,6 +4448,43 @@ function createLibreOfficeRuntimeActionText(runtime) {
   return `Runtime: source=${runtime.source || "unknown"} path=${runtime.path}${versionLabel}${probeLabel}`;
 }
 
+function createLibreOfficeRuntimeCapability(runtime = {}) {
+  return createCapabilityResult({
+    ok: Boolean(runtime.ok),
+    platform: runtime.platform || process.platform,
+    capability: "libreoffice",
+    source: runtime.source || "",
+    path: runtime.path || "",
+    version: runtime.version || "",
+    warnings: runtime.warnings || [],
+    errorCode: runtime.errorCode || "LO_MISSING_BINARY",
+    message: runtime.message || (runtime.ok
+      ? "LibreOffice runtime detected."
+      : "未检测到可用 LibreOffice 运行时。"),
+    actions: runtime.actions || []
+  });
+}
+
+function getCapabilityStatus(options = {}) {
+  const libreOfficeRuntime = resolveLibreOfficeRuntime({
+    runtimeMode: options.runtimeMode,
+    refresh: options.refreshRuntime
+  });
+  const libreoffice = createLibreOfficeRuntimeCapability(libreOfficeRuntime);
+  const officeCom = currentPlatformAdapter.office.getCapability();
+  const capabilities = [libreoffice, officeCom];
+  return {
+    ok: capabilities.some((capability) => capability.ok),
+    platform: process.platform,
+    capabilities,
+    warnings: normalizeTextList(capabilities.flatMap((capability) => capability.warnings || [])),
+    actions: normalizeTextList(capabilities.flatMap((capability) => capability.actions || [])),
+    raw: {
+      libreOfficeRuntime
+    }
+  };
+}
+
 function runNodeOfficeHealthFallback(runtime = {}) {
   const checks = [];
   const warnings = [];
@@ -4644,7 +4686,7 @@ async function runLibreOfficeHealthCheck(options = {}) {
     severity: "high",
     detail: runtime.ok
       ? `source=${runtime.source || "unknown"} path=${runtime.path}${runtimeVersionText}${runtimeProbeText}`
-      : `mode=${runtime.mode || "auto"} 未找到可用 soffice.exe`
+      : `mode=${runtime.mode || "auto"} 未找到可用 soffice`
   });
 
   if (runtime.ok) {
@@ -4670,42 +4712,35 @@ async function runLibreOfficeHealthCheck(options = {}) {
       suggestions.push("下载地址：https://www.libreoffice.org/download/download-libreoffice/");
     }
   }
-  runtime.warnings.forEach((warning) => warnings.push(String(warning)));
+  (runtime.warnings || []).forEach((warning) => warnings.push(String(warning)));
 
   if (score < 40) {
     blockExport = true;
   }
 
-  const dedupeTextList = (list) => {
-    const seen = new Set();
-    const out = [];
-    (list || []).forEach((item) => {
-      const text = String(item || "").trim();
-      if (!text) return;
-      const key = text.toLowerCase();
-      if (seen.has(key)) return;
-      seen.add(key);
-      out.push(text);
-    });
-    return out;
-  };
-
-  const normalized = {
+  const capability = createLibreOfficeRuntimeCapability(runtime);
+  return createHealthReport({
     ok: !blockExport,
+    platform: process.platform,
+    engine: EXPORT_ENGINE_LIBREOFFICE,
+    capability,
     blockExport,
     score,
     checks,
-    suggestions: dedupeTextList(suggestions),
-    warnings: dedupeTextList(warnings),
-    actions: dedupeTextList(actions),
+    suggestions,
+    warnings,
+    actions,
+    errorCode: blockExport ? (capability.errorCode || "LIBREOFFICE_HEALTH_BLOCKED") : "",
+    message: blockExport
+      ? (capability.message || "LibreOffice 环境预检未通过。")
+      : "LibreOffice 环境预检通过。",
     runtime,
     raw: {
       ...payload,
       runtime,
       scriptError
     }
-  };
-  return normalized;
+  });
 }
 
 function normalizeRequiredOfficeApps(requiredApps = []) {
@@ -4729,6 +4764,33 @@ function normalizeRequiredOfficeApps(requiredApps = []) {
 async function runMicrosoftOfficeHealthCheck(options = {}) {
   const timeoutMs = parsePositiveInt(options.timeoutMs, 20000);
   const requiredApps = normalizeRequiredOfficeApps(options.requiredApps);
+  const capability = currentPlatformAdapter.office.getCapability();
+  if (process.platform !== "win32") {
+    return createHealthReport({
+      ok: false,
+      platform: process.platform,
+      engine: EXPORT_ENGINE_OFFICE,
+      capability,
+      blockExport: true,
+      score: 0,
+      requiredApps,
+      apps: {},
+      checks: [{
+        name: "office_com_platform",
+        ok: false,
+        severity: "high",
+        detail: capability.message || "Microsoft Office COM is not supported on this platform."
+      }],
+      warnings: [capability.message || "Microsoft Office COM is not supported on this platform."],
+      suggestions: capability.actions || [],
+      actions: capability.actions || [],
+      errorCode: capability.errorCode || "PLATFORM_UNSUPPORTED",
+      message: capability.message || "Microsoft Office COM is not supported on this platform.",
+      raw: {
+        capability
+      }
+    });
+  }
   const args = [
     "-RequiredApps",
     requiredApps.join(",")
@@ -4758,9 +4820,11 @@ async function runMicrosoftOfficeHealthCheck(options = {}) {
     const score = Number.isFinite(Number(payload.score))
       ? Math.max(0, Math.min(100, Math.floor(Number(payload.score))))
       : (blockExport ? 0 : 100);
-    return {
+    return createHealthReport({
       ok: !blockExport,
+      platform: process.platform,
       engine: EXPORT_ENGINE_OFFICE,
+      capability,
       blockExport,
       score,
       requiredApps,
@@ -4769,8 +4833,12 @@ async function runMicrosoftOfficeHealthCheck(options = {}) {
       warnings,
       suggestions,
       actions,
+      errorCode: blockExport ? "OFFICE_HEALTH_BLOCKED" : "",
+      message: blockExport
+        ? "Microsoft Office 环境预检未通过。"
+        : "Microsoft Office 环境预检通过。",
       raw: payload
-    };
+    });
   } catch (error) {
     const serialized = serializeError(error);
     const checks = [{
@@ -4779,9 +4847,11 @@ async function runMicrosoftOfficeHealthCheck(options = {}) {
       severity: "high",
       detail: serialized.message || "Microsoft Office 预检脚本执行失败"
     }];
-    return {
+    return createHealthReport({
       ok: false,
+      platform: process.platform,
       engine: EXPORT_ENGINE_OFFICE,
+      capability,
       blockExport: requiredApps.length > 0,
       score: 0,
       requiredApps,
@@ -4790,10 +4860,12 @@ async function runMicrosoftOfficeHealthCheck(options = {}) {
       warnings: [serialized.message || "Microsoft Office 预检脚本执行失败"],
       suggestions: ["请确认本机已安装 Microsoft Office，并至少手动打开 Word/PowerPoint 完成首次初始化。"],
       actions: [],
+      errorCode: "OFFICE_HEALTH_CHECK_FAILED",
+      message: serialized.message || "Microsoft Office 预检脚本执行失败",
       raw: {
         scriptError: serialized
       }
-    };
+    });
   }
 }
 
@@ -6976,14 +7048,14 @@ ipcMain.handle("convert:documents", async (event, payload) => {
         if (beforeCheck.blockExport) {
           return {
             ok: false,
-            error: "Microsoft Office 环境预检未通过，请安装所需 Word/PowerPoint，或切回 LibreOffice 后重试",
+            error: beforeCheck.message || "Microsoft Office 环境预检未通过，请安装所需 Word/PowerPoint，或切回 LibreOffice 后重试",
             diagnostics: {
               exportEngine: {
                 requested: options.exportEngine,
                 effective: options.exportEngine,
                 requiredApps: options.requiredOfficeApps,
                 precheckSkipped: false,
-                precheckReason: ""
+                precheckReason: beforeCheck.errorCode || ""
               },
               precheck: officePrecheckReport,
               office: beforeCheck
@@ -7660,6 +7732,21 @@ ipcMain.handle("export:healthCheck", async (_event, payload) => {
       runtimeMode: payload?.runtimeMode,
       refreshRuntime: payload?.refreshRuntime,
       light: payload?.light
+    });
+    return { ok: true, result };
+  } catch (error) {
+    return {
+      ok: false,
+      error: serializeError(error)
+    };
+  }
+});
+
+ipcMain.handle("capability:getAll", async (_event, payload) => {
+  try {
+    const result = getCapabilityStatus({
+      runtimeMode: payload?.runtimeMode,
+      refreshRuntime: payload?.refreshRuntime
     });
     return { ok: true, result };
   } catch (error) {

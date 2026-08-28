@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke 和 Darwin LibreOffice runtime 探测已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3 和 PR #4 已合并到 `platform/macos-bootstrap`；MAC-02 process adapter 已完成，下一阶段进入 MAC-03 capability / health 返回结构。
+Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke 和 Darwin LibreOffice runtime 探测已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3 和 PR #4 已合并到 `platform/macos-bootstrap`；MAC-03 capability / health 返回结构已在 `feature/shared-capability-status` 完成，待 PR 合并。
 
 ## 当前最高优先级任务
 
@@ -36,7 +36,7 @@ GitHub public 远端：
 - macOS 开发落地指令：已新增。
 - macOS 主应用开发改造规划：已新增 `docs/current/macos-main-app-development-requirements.md` 和 `docs/current/macos-main-app-task-cards.md`。
 - macOS 代码全面审查与文档校准：已完成，已把当前真实风险回写到需求、任务卡、资源、能力、闸口和并行开发文档。
-- 当前后续任务：从 `platform/macos-bootstrap` 新建 `feature/shared-capability-status`，按 MAC-03 统一导出 capability / health 返回结构，修正 macOS Office COM unsupported 早退，避免触发 PowerShell；基础 CI 先按 MAC-07 落地，打包在资源配置平台化后再做 MAC-06。
+- 当前后续任务：先合并 `feature/shared-capability-status` 的 MAC-03 统一 health / capability 返回结构；随后进入 MAC-04 修正 macOS 导出预检 UI 文案，或并行执行 MAC-07 基础 CI；打包在资源配置平台化后再做 MAC-06。
 
 ## 上次停在哪里
 
@@ -102,6 +102,7 @@ GitHub public 远端：
 - 2026-08-28 PR #3 `platform/macos-adapter-boundary` 已合并到 `platform/macos-bootstrap`。
 - 2026-08-28 MAC-02 已新增 `code/desktop/platform/common/process-utils.js`、`code/desktop/platform/darwin/process-tree.js` 和 `code/desktop/platform/win32/process-tree.js`；`main.js` 的导出取消进程终止已通过 `currentPlatformAdapter.process.killProcessTreeByPid()` 进入平台 adapter；非 Windows `getProcessNameByPid()` 已早退，避免 macOS 取消路径触发 PowerShell 进程名查询。
 - 2026-08-28 PR #4 `platform/process-adapter` 已合并到 `platform/macos-bootstrap`。
+- 2026-08-28 MAC-03 已新增 `code/desktop/platform/common/health-report.js`；`runLibreOfficeHealthCheck()` 和 `runMicrosoftOfficeHealthCheck()` 返回旧字段兼容 + 新 `platform/engine/capability/capabilities/errorCode/message` 字段；非 Windows Office COM health 直接返回 `PLATFORM_UNSUPPORTED`；已新增 `capability:getAll` IPC 和 preload `getCapabilities`。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-development-requirements.md`，把 Mac 主应用能力范围、platform adapter 目标、导出链路、UI capability、打包、CI、IPC hardening、资源治理和 M0-M11 阶段路线写成当前规划。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-task-cards.md`，拆出 MAC-00 至 MAC-13 任务卡；每张卡包含 Objective、Context、Scope、Out of scope、Steps、Acceptance、Validation、Deliverables 和 Risks。
 - `npm --prefix code/desktop run font:probe` 已通过。
@@ -139,7 +140,7 @@ GitHub public 远端：
 - 当前迁移前业务改动是全部纳入 GitHub 基线，还是拆分后逐步合并。
 - Windows / macOS 并行开发的实际人员分工、GitHub Project 是否启用、CI 是否先走 required + optional 分层。
 - platform adapter 边界尚未系统性拆分；Windows Office COM、PowerShell、taskkill 和 Windows embedded LibreOffice 仍主要集中在 `code/desktop/main.js`。
-- `runMicrosoftOfficeHealthCheck()` 当前仍可在非 Windows 平台进入 `office-health-check.ps1` PowerShell 链路，需要 MAC-03 优先修正。
+- `runMicrosoftOfficeHealthCheck()` 已在非 Windows 平台早退为 `PLATFORM_UNSUPPORTED`，不再进入 `office-health-check.ps1` PowerShell 链路。
 - `runLibreOfficeHealthCheck()` 和 renderer LibreOffice 弹窗当前仍有 Windows-oriented 修复文案，macOS runtime ok / missing 场景需要 MAC-04 调整。
 - `code/desktop/package.json` 顶层 `build.extraResources` 仍引用 public 仓库不存在的 Windows LibreOffice runtime / VC redist；`dist:mac:dir` 前必须按 MAC-06 平台化构建配置。
 - `shell:openExternal` / `shell:openPath` 主进程侧缺少 allowlist，XHS 下载 / 飞书上传取消还不能稳定中断当前网络请求；已追加 MAC-13 hardening 任务。
@@ -162,7 +163,7 @@ GitHub public 远端：
 ## 当前环境状态
 
 - 当前执行环境为 macOS 工作区：`~/dev/scene-image-tool`。
-- 当前 Git 分支：`platform/macos-bootstrap`，已包含 PR #1/#2/#3/#4。
+- 当前 Git 分支：`feature/shared-capability-status`，基于已包含 PR #1/#2/#3/#4 的 `platform/macos-bootstrap`。
 - GitHub public 远端已上线，Mac 端已完成首次 clone 和基础启动验证。
 - 不在生产部署流程中。
 

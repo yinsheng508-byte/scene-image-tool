@@ -247,6 +247,7 @@ Risks and rollback：
 Priority：P0
 Platform：Shared
 Branch：`feature/shared-capability-status`
+Status：已完成，待合并。
 
 Objective：
 
@@ -642,9 +643,9 @@ Context to read：
 
 Scope：
 
-- 新增 `appApi.getCapabilities()` IPC。
-- 主进程聚合 platform capability。
-- Renderer 用已有 panel / toast / modal 样式展示。
+- 消费 MAC-03 已新增的 `window.appApi.getCapabilities()`。
+- Renderer 用已有 panel / toast / modal 样式展示平台能力。
+- 必要时补充 PDF render、font、packaging 等 capability 项，但不重复实现底层 LibreOffice / Office COM 汇总入口。
 
 Out of scope：
 
@@ -653,10 +654,9 @@ Out of scope：
 
 Steps：
 
-1. 主进程新增 `capability:getAll` IPC。
-2. preload 白名单暴露 `getCapabilities`。
-3. UI 展示 LibreOffice、Office COM、PDF render、font、packaging 状态。
-4. 每项提供 `message/actions`。
+1. 调用 `window.appApi.getCapabilities()` 获取平台能力。
+2. UI 展示 LibreOffice、Office COM、PDF render、font、packaging 状态。
+3. 每项提供 `message/actions`。
 
 Acceptance：
 
