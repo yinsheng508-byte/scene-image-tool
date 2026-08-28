@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-08-28",
+  "desktopRoot": ".",
+  "policy": [
+    "Do not commit bundled font binaries to the public source repository.",
+    "Do not commit Windows LibreOffice runtime dumps to the public source repository.",
+    "Do not commit VC Redistributable executables to the public source repository.",
+    "Use this manifest with a local artifact root or system installation to prepare development and packaging resources."
+  ],
+  "artifacts": [
+    {
+      "id": "macos-system-libreoffice",
+      "name": "macOS system LibreOffice",
+      "kind": "system-binary",
+      "platforms": ["darwin"],
+      "required": true,
+      "version": "system",
+      "sha256": null,
+      "targetPath": null,
+      "source": {
+        "type": "system-install",
+        "envVar": "LIBREOFFICE_PATH",
+        "candidates": [
+          "/Applications/LibreOffice.app/Contents/MacOS/soffice",
+          "/opt/homebrew/bin/soffice",
+          "/usr/local/bin/soffice"
+        ],
+        "installHints": [
+          "brew install --cask libreoffice",
+          "Set LIBREOFFICE_PATH to an absolute soffice path when LibreOffice is installed outside standard locations."
+        ]
+      },
+      "requiredFor": [
+        "macOS Word/PPT export through LibreOffice",
+        "export:fixture:smoke"
+      ]
+    },
+    {
+      "id": "bundled-fonts",
+      "name": "Bundled export fonts",
+      "kind": "directory",
+      "platforms": ["darwin", "win32"],
+      "required": false,
+      "version": "pending-license-review",
+      "sha256": null,
+      "targetPath": "fonts",
+      "source": {
+        "type": "local-artifact-root",
+        "path": "fonts",
+        "notes": "Provide a license-reviewed font tree matching shared/font-config.mjs."
+      },
+      "requiredFiles": [
+        { "path": "SourceHanSansCN-Light.otf", "sha256": null },
+        { "path": "SourceHanSansCN-Regular.otf", "sha256": null },
+        { "path": "SourceHanSansCN-Medium.otf", "sha256": null },
+        { "path": "SourceHanSansCN-Bold.otf", "sha256": null },
+        { "path": "SourceHanSerifCN-Light.otf", "sha256": null },
+        { "path": "SourceHanSerifCN-Regular.otf", "sha256": null },
+        { "path": "SourceHanSerifCN-Medium.otf", "sha256": null },
+        { "path": "SourceHanSerifCN-Bold.otf", "sha256": null },
+        { "path": "AlibabaPuHuiTi-3/AlibabaPuHuiTi-3/AlibabaPuHuiTi-3-35-Thin/AlibabaPuHuiTi-3-35-Thin.ttf", "sha256": null },
+        { "path": "AlibabaPuHuiTi-3/AlibabaPuHuiTi-3/AlibabaPuHuiTi-3-55-Regular/AlibabaPuHuiTi-3-55-Regular.ttf", "sha256": null },
+        { "path": "AlibabaPuHuiTi-3/AlibabaPuHuiTi-3/AlibabaPuHuiTi-3-65-Medium/AlibabaPuHuiTi-3-65-Medium.ttf", "sha256": null },
+        { "path": "AlibabaPuHuiTi-3/AlibabaPuHuiTi-3/AlibabaPuHuiTi-3-115-Black/AlibabaPuHuiTi-3-115-Black.ttf", "sha256": null },
+        { "path": "KaiTi.ttf", "sha256": null },
+        { "path": "PingFangSC-Light.otf", "sha256": null },
+        { "path": "PingFangSC-Regular.otf", "sha256": null },
+        { "path": "PingFangSC-Medium.otf", "sha256": null },
+        { "path": "PingFangSC-Semibold.otf", "sha256": null }
+      ],
+      "requiredFor": [
+        "font:probe",
+        "font:probe:packaged",
+        "strict packaged export font checks"
+      ]
+    },
+    {
+      "id": "windows-libreoffice-runtime",
+      "name": "Windows embedded LibreOffice runtime",
+      "kind": "directory",
+      "platforms": ["win32"],
+      "required": false,
+      "version": "26.2.1.2",
+      "sha256": null,
+      "targetPath": "vendor/libreoffice",
+      "source": {
+        "type": "local-artifact-root",
+        "path": "windows/libreoffice",
+        "notes": "Provide the vetted Windows LibreOffice runtime directory from the private artifact store."
+      },
+      "requiredDirectories": [
+        "program",
+        "share",
+        "presets",
+        "System64"
+      ],
+      "requiredFiles": [
+        { "path": "program/soffice.exe", "sha256": null },
+        { "path": "program/soffice.bin", "sha256": null },
+        { "path": "program/bootstrap.ini", "sha256": null },
+        { "path": "System64/msvcp140.dll", "sha256": null },
+        { "path": "System64/vcruntime140.dll", "sha256": null },
+        { "path": "System64/vcruntime140_1.dll", "sha256": null }
+      ],
+      "requiredFor": [
+        "check:lo-runtime",
+        "Windows LibreOffice export",
+        "Windows full installer packaging"
+      ]
+    },
+    {
+      "id": "windows-vc-redist-x64",
+      "name": "Microsoft Visual C++ Redistributable x64",
+      "kind": "file",
+      "platforms": ["win32"],
+      "required": false,
+      "version": "Visual Studio 2015-2022 x64",
+      "sha256": "cc0ff0eb1dc3f5188ae6300faef32bf5beeba4bdd6e8e445a9184072096b713b",
+      "targetPath": "vendor/redist/vc_redist.x64.exe",
+      "source": {
+        "type": "local-artifact-root",
+        "path": "windows/redist/vc_redist.x64.exe",
+        "upstream": "https://aka.ms/vs/17/release/vc_redist.x64.exe",
+        "notes": "Download or mirror this executable outside Git, then verify sha256 before packaging."
+      },
+      "requiredFor": [
+        "Windows installer VC runtime installation"
+      ]
+    }
+  ]
+}

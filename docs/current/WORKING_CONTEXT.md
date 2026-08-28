@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke、Darwin LibreOffice runtime 探测、导出 fixture smoke、unsigned app bundle、基础 CI matrix、Mac 渲染 QA 矩阵、MAC-09 平台能力设置页 / 诊断区和 MAC-10 settings service 最小拆分已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3、PR #4、PR #5、PR #6、PR #7、PR #8、PR #9、PR #10、PR #11 和 PR #12 已合并到 `platform/macos-bootstrap`；下一阶段进入 MAC-11 资源 artifact / provisioning。
+Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke、Darwin LibreOffice runtime 探测、导出 fixture smoke、unsigned app bundle、基础 CI matrix、Mac 渲染 QA 矩阵、MAC-09 平台能力设置页 / 诊断区和 MAC-10 settings service 最小拆分已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3、PR #4、PR #5、PR #6、PR #7、PR #8、PR #9、PR #10、PR #11 和 PR #12 已合并到 `platform/macos-bootstrap`；MAC-11 资源 artifact / provisioning 已完成，当前待 PR 验证和合并。
 
 ## 当前最高优先级任务
 
@@ -36,7 +36,7 @@ GitHub public 远端：
 - macOS 开发落地指令：已新增。
 - macOS 主应用开发改造规划：已新增 `docs/current/macos-main-app-development-requirements.md` 和 `docs/current/macos-main-app-task-cards.md`。
 - macOS 代码全面审查与文档校准：已完成，已把当前真实风险回写到需求、任务卡、资源、能力、闸口和并行开发文档。
-- 当前后续任务：从 `platform/macos-bootstrap` 新建 MAC-11 分支，设计资源 artifact / provisioning；继续保持 public 仓库不携带字体二进制、Windows LibreOffice runtime、VC redist exe。
+- 当前后续任务：`infra/runtime-artifact-provisioning` 已完成 runtime manifest、provisioning script 和资源文档；待 PR 合并后进入 MAC-12 macOS 签名、公证和发布准备。
 
 ## 上次停在哪里
 
@@ -114,6 +114,7 @@ GitHub public 远端：
 - 2026-08-28 MAC-08 已新增 `render:fixture:smoke`，覆盖 Skia Canvas PNG、Sharp resize、PDFium PDF 渲染到 PNG；已用 Electron remote debugging 完成 Compose DOM smoke，走 file input 和 preload `saveImageFile()` 导出 1600x1000 PNG；结果写入 `docs/current/macos-render-qa-matrix.md`。PR #10 已合并，Desktop CI 已通过：Windows job 40s，macOS job 25s。
 - 2026-08-28 MAC-09 已扩展 `capability:getAll` 汇总，返回 LibreOffice、Office COM、PDF render、font 和 packaging 5 项结构化 capability；设置页新增平台能力面板，使用 `window.appApi.getCapabilities()` 展示 loading/refresh/unsupported/missing 状态。macOS Electron DOM 验收通过：LibreOffice `system_app` 可用，Office COM `PLATFORM_UNSUPPORTED`，字体走 `system_fallback` 且明确 public 仓库不含字体二进制，packaging 指向 `dist:mac:dir`；无横向溢出、无重叠、无 Windows 修复词。PR #11 已合并，Desktop CI 通过：Windows job 53s，macOS job 32s。
 - 2026-08-28 MAC-10 已新增 `code/desktop/services/settings-service.js`，把 settings 读写 helper、配置清洗和 `settings:getAll` / `settings:set` IPC registration 从 `main.js` 拆入 service；`main.js` 从 9180 行降至 9105 行；renderer API、IPC 名称、返回结构和 userData `app-settings.json` 路径保持不变。`node --check`、临时 userData service smoke、Electron 启动 smoke、`puzzle:shadow:smoke` 和 `puzzle:text:smoke` 已通过；PR #12 Desktop CI 通过：Windows job 47s，macOS job 24s。
+- 2026-08-28 MAC-11 已新增 `code/desktop/resources/runtime-manifest.json` 和 `code/desktop/scripts/provision-runtime-artifacts.js`，并新增 `resources:check`、`resources:provision`、`resources:provision:dry-run` npm scripts；manifest 记录 macOS system LibreOffice、bundled fonts、Windows LibreOffice runtime、Windows VC redist 的 source/version/target path 和 checksum 状态；脚本支持 dry-run、check-only、本地 `--artifact-root` / `SCENE_RUNTIME_ARTIFACT_ROOT`、按平台/资源过滤、sha256 校验和 mismatch 阻断。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-development-requirements.md`，把 Mac 主应用能力范围、platform adapter 目标、导出链路、UI capability、打包、CI、IPC hardening、资源治理和 M0-M11 阶段路线写成当前规划。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-task-cards.md`，拆出 MAC-00 至 MAC-13 任务卡；每张卡包含 Objective、Context、Scope、Out of scope、Steps、Acceptance、Validation、Deliverables 和 Risks。
 - `npm --prefix code/desktop run font:probe` 已通过。
@@ -157,6 +158,7 @@ GitHub public 远端：
 - `code/desktop/package.json` 已完成 MAC-06 平台化构建配置；`dist:mac:dir` 可生成 macOS arm64 `.app`，Windows build 仍需 Windows 实机复测。
 - `shell:openExternal` / `shell:openPath` 主进程侧缺少 allowlist，XHS 下载 / 飞书上传取消还不能稳定中断当前网络请求；已追加 MAC-13 hardening 任务。
 - Windows 实机 settings UI 未单独复测；PR #12 Desktop CI 已覆盖 Windows `npm ci`、两个 puzzle smoke 和 `git diff --check`，完整人工 UI 仍待后续 Windows 回归。
+- MAC-11 未下载、未上传、未复制真实字体或 Windows runtime；字体和 Windows LibreOffice runtime 逐文件 sha256 仍待授权和 artifact 存储确定后补齐。
 
 ## 本轮必读文件
 
@@ -175,7 +177,7 @@ GitHub public 远端：
 ## 当前环境状态
 
 - 当前执行环境为 macOS 工作区：`~/dev/scene-image-tool`。
-- 当前 Git 分支：`platform/macos-bootstrap`，已包含 PR #1/#2/#3/#4/#5/#6/#7/#8/#9/#10/#11/#12。
+- 当前 Git 分支：`infra/runtime-artifact-provisioning`，基于已包含 PR #1/#2/#3/#4/#5/#6/#7/#8/#9/#10/#11/#12 的 `platform/macos-bootstrap`。
 - GitHub public 远端已上线，Mac 端已完成首次 clone 和基础启动验证。
 - 不在生产部署流程中。
 
@@ -208,6 +210,7 @@ GitHub public 远端：
 - 不删除 `code/desktop/fonts/`、`code/desktop/vendor/`、`code/desktop/node_modules/` 和 `.git/`。
 - 不做 Git 历史重写。
 - 不把 `node_modules/`、`dist/`、`release/`、`out/`、本地样例、密钥、字体二进制或 runtime dump 提交到 Git。
+- 不把本地 artifact root 提交到 Git；`code/desktop/resources/artifacts/` 已加入忽略，但提交前仍需检查 staged 文件。
 - 不运行第一阶段禁跑命令作为 macOS 首次启动验收：`font:probe`、`check:lo-runtime`、`dist`、`dist:full`、`dist:dev`。
 - 后续不要把迁移前业务改动混入治理修复提交；需要单独审查和提交。
 

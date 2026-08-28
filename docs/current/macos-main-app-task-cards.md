@@ -762,6 +762,7 @@ Risks and rollback：
 Priority：P2
 Platform：Infra / Release
 Branch：`infra/runtime-artifact-provisioning`
+Status：已完成，待 PR。
 
 Objective：
 
@@ -808,8 +809,9 @@ git diff --check
 
 Deliverables：
 
-- Manifest。
-- Provisioning script。
+- `code/desktop/resources/runtime-manifest.json`。
+- `code/desktop/scripts/provision-runtime-artifacts.js`。
+- `resources:check`、`resources:provision`、`resources:provision:dry-run` npm scripts。
 - 资源治理文档。
 
 Risks and rollback：

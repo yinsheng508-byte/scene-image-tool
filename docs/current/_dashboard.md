@@ -4,10 +4,10 @@
 |---|---|---|---|---|---|
 | project-structure-template-migration | refactor | Complete | Done | `codex/project-structure-template-migration` | Phase 8 自动化验收通过；迁移后本地构建垃圾已物理清理，保留人工页签冒烟建议 |
 | github-public-sync | release-prep | Deployed + Reconciled | G3 Done | `codex/project-structure-template-migration` | public 仓库已上线：`https://github.com/yinsheng508-byte/scene-image-tool`；`main` 和 `platform/macos-bootstrap` 保持同步；代码覆盖校验通过，40 份中文归档文档已补齐 |
-| github-sync-macos | planning | Ready for MAC-01 | M0 Done | `platform/macos-bootstrap` | 已完成公开干净导出基线、Mac 首次启动和 Darwin runtime 探测；PR #1/#2 已合并，后续推进 adapter、CI 和打包 |
+| github-sync-macos | planning | Active | MAC-11 Done | `platform/macos-bootstrap` | 已完成公开干净导出基线、Mac 首次启动、adapter、CI、打包、能力面板和资源 provisioning；PR #1-#12 已合并 |
 | win-mac-parallel-development | planning | Complete | Ready for GitHub | `codex/project-structure-template-migration` | 已形成 Windows / macOS 并行开发、CI、Project 看板和发布策略 |
 | mac-development-runbook | docs | Complete | Ready for Mac | `platform/macos-bootstrap` | 已补齐真实 GitHub 地址、Mac 首次环境、clone、启动、smoke 和每日开发指令 |
-| macos-main-app-development | planning | Merged | Ready for MAC-01 | `platform/macos-bootstrap` | Mac 主应用需求、架构改造路线、任务卡和验收门禁已合入基线；下一步串行推进 adapter |
+| macos-main-app-development | planning | Merged | MAC-11 Done | `platform/macos-bootstrap` | Mac 主应用需求、架构改造路线、任务卡和验收门禁已合入基线；当前串行推进到资源 provisioning |
 | macos-adapter-boundary | platform | Merged | MAC-01 Done | `platform/macos-adapter-boundary` | PR #3 已合并，platform 总入口和 common capability helper 已进入 `platform/macos-bootstrap` |
 | macos-process-adapter | platform | Merged | MAC-02 Done | `platform/process-adapter` | PR #4 已合并；跨平台进程终止 adapter 已进入 `platform/macos-bootstrap` |
 | shared-capability-status | platform | Merged | MAC-03 Done | `feature/shared-capability-status` | PR #5 已合并；统一 health report、Office COM 非 Windows unsupported 早退和 `capability:getAll` IPC 已进入基线 |
@@ -18,3 +18,4 @@
 | macos-render-qa | qa | Merged | MAC-08 Done | `platform/macos-render-qa` | PR #10 已合并；render fixture smoke 和 Compose DOM smoke 记录已进入基线 |
 | platform-capability-panel | renderer | Merged | MAC-09 Done | `feature/platform-capability-panel` | PR #11 已合并；设置页平台能力面板和 5 项 capability 汇总已进入 `platform/macos-bootstrap`，Desktop CI Windows/macOS 通过 |
 | main-process-settings-service | refactor | Merged | MAC-10 Done | `refactor/main-process-settings-service` | PR #12 已合并；settings 持久化和 `settings:*` IPC registration 已从 `main.js` 拆入 service，Desktop CI Windows/macOS 通过 |
+| runtime-artifact-provisioning | infra | Ready for PR | MAC-11 Done | `infra/runtime-artifact-provisioning` | runtime manifest 和 provisioning script 已完成；支持 dry-run、check-only、本地 artifact root 和 sha256 mismatch 阻断 |

@@ -16,7 +16,8 @@
 | 共享渲染规范 | 字体映射、文字布局、拼图渲染规则 | `code/desktop/shared/*` | ESM | 主进程和渲染进程共享 |
 | 平台适配层 | 平台专属 runtime、进程和打包能力逐步隔离 | `code/desktop/platform/*` | Node `fs/path/child_process` | 当前已新增 platform 总入口、common capability helper、Darwin LibreOffice runtime 探测、跨平台进程终止 adapter 和 packaging capability；后续继续拆 Office / 打包实现细节 |
 | 文档转换脚本 | Office / LibreOffice 检测和转换 | `code/desktop/scripts/*` | PowerShell、Microsoft Office COM、LibreOffice | Windows 兼容重点 |
-| 应用资源 | 图标、二维码、字体、运行时 | `code/desktop/assets/`、`code/desktop/fonts/`、`code/desktop/vendor/` | electron-builder extraResources | 资源策略见 `docs/architecture/resources.md` |
+| 资源 provisioning | runtime / fonts artifact manifest、本地复制和 sha256 校验 | `code/desktop/resources/runtime-manifest.json`、`code/desktop/scripts/provision-runtime-artifacts.js` | Node `fs/path/crypto` | 不下载、不提交大资源；从外部 artifact root 复制并校验 |
+| 应用资源 | 图标、二维码、字体、运行时 | `code/desktop/assets/`、`code/desktop/fonts/`、`code/desktop/vendor/`、`code/desktop/resources/` | electron-builder extraResources、本地 provisioning | 资源策略见 `docs/architecture/resources.md` |
 
 ## 用户功能入口
 
@@ -42,6 +43,8 @@ code/
     renderer/
     scripts/
     shared/
+    resources/
+      runtime-manifest.json
     platform/
       index.js
       common/

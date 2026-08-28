@@ -2,7 +2,7 @@
 
 > 日期：2026-08-28
 > 模式：深度分析，落地需求文档和任务卡文档
-> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7/#8/#9/#10/#11/#12 已合并；下一阶段进入 MAC-11 资源 artifact / provisioning。
+> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7/#8/#9/#10/#11/#12 已合并；MAC-11 资源 artifact / provisioning 已完成，待 PR 合并后进入 MAC-12。
 > 目标：把现有 Windows Electron 工具稳妥落地到 macOS，形成可持续主应用开发架构，而不是复制一套 Mac 分叉。
 
 ## 1. 结论
@@ -59,7 +59,8 @@
 - `capability:getAll` 已扩展到 LibreOffice、Office COM、PDF render、font、packaging 5 项；设置页显示 loading/refresh/unsupported/missing 状态，macOS DOM/布局验收通过。
 - PR #12 / MAC-10 已把 settings 持久化 helper 和 `settings:*` IPC registration 从 `main.js` 拆入 `code/desktop/services/settings-service.js`，保持 renderer API、IPC 名称、返回结构和 userData `app-settings.json` 不变。
 - macOS `.icns` 图标已准备为 `code/desktop/assets/app-icon.icns`。
-- 字体二进制不在 public 仓库，严格字体探针和最终字体分发策略仍待 artifact / provisioning 设计。
+- 字体二进制不在 public 仓库，严格字体探针仍需 license-reviewed artifact root；MAC-11 已提供 manifest、dry-run 和校验脚本，最终存储位置和逐文件 checksum 待补齐。
+- MAC-11 已新增 runtime manifest 和 provisioning script；当前不会下载或提交大资源，VC redist 已有 sha256，字体和 Windows LibreOffice runtime 逐文件 checksum 仍待授权和 artifact 存储确定后补齐。
 - `npm ci` 仍报告既有 21 个 audit 漏洞，需后续独立治理。
 
 ## 3. 产品能力落地范围
