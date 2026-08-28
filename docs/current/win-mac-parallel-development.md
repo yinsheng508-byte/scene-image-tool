@@ -466,12 +466,11 @@ code/desktop/resources/runtime-manifest.json
 
 执行顺序：
 
-1. 先合并 `platform/macos-runtime-detection` / PR #1，让 Darwin LibreOffice runtime 探测进入 `platform/macos-bootstrap`。
-2. 合并或重建 Mac 主应用规划文档 PR，确保任务卡与最新代码审查结论一致。
-3. 按 `MAC-01` 建立 platform adapter 总壳，不在 UI 层堆平台分支。
-4. 按 `MAC-03` 先修正 macOS Office COM unsupported 早退，避免触发 PowerShell。
-5. 基础 CI 已按 `MAC-07` 增加，只跑 `npm ci` 和 puzzle smoke。
-6. `dist:mac:dir` unsigned app bundle 已按 `MAC-06` 启用，后续再做签名、公证和发布包。
+1. PR #1 至 PR #10 已进入 `platform/macos-bootstrap`，覆盖 Darwin runtime、adapter 总壳、进程 adapter、统一 capability/health、Mac 预检 UI、导出 fixture、unsigned app bundle、基础 CI 和渲染 QA。
+2. 当前 `feature/platform-capability-panel` 已实现 MAC-09 设置页能力面板，需提交、开 PR、等待 CI 后合并。
+3. 合并 MAC-09 后进入 MAC-10，优先选择 settings 或 dialogs/files 这类低风险 service 拆分，保持 IPC contract 不变。
+4. 基础 CI 已按 `MAC-07` 增加，只跑 `npm ci` 和 puzzle smoke；LibreOffice 导出、字体探针、打包发布继续留作 optional 或独立任务。
+5. `dist:mac:dir` unsigned app bundle 已按 `MAC-06` 启用，后续再做签名、公证和发布包。
 
 ## 12. 禁止事项
 

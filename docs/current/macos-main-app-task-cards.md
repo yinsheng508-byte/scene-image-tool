@@ -632,6 +632,7 @@ Risks and rollback：
 Priority：P2
 Platform：Renderer / Shared
 Branch：`feature/platform-capability-panel`
+Status：已完成实现，待 PR/CI/合并。
 
 Objective：
 
@@ -682,7 +683,7 @@ PATH="/opt/homebrew/opt/node@22/bin:$PATH" npm --prefix code/desktop run puzzle:
 Deliverables：
 
 - Capability UI。
-- 手工截图或验收记录。
+- Electron DOM / 布局验收记录：macOS 显示 5 项 capability，刷新按钮可恢复，无横向溢出和元素重叠；系统截图受其他前台窗口遮挡，未作为有效截图证据。
 
 Risks and rollback：
 

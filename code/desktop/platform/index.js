@@ -59,6 +59,24 @@ function createPlatformAdapter(platform = process.platform) {
     },
     packaging: {
       getCapability() {
+        if (platform === "darwin") {
+          return createCapabilitySuccess({
+            platform,
+            capability: "packaging",
+            source: "electron-builder:mac-dir",
+            message: "macOS unsigned app bundle is configured through dist:mac:dir.",
+            actions: ["运行 npm --prefix code/desktop run dist:mac:dir 生成本地开发包。"]
+          });
+        }
+        if (platform === "win32") {
+          return createCapabilitySuccess({
+            platform,
+            capability: "packaging",
+            source: "electron-builder:win",
+            message: "Windows packaging remains handled by the existing electron-builder config.",
+            actions: ["Windows 打包继续使用既有 dist / dist:full 脚本。"]
+          });
+        }
         return createUnsupportedCapability({
           platform,
           capability: "packaging",

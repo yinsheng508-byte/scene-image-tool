@@ -311,9 +311,8 @@ git rev-list --objects --all | Select-String -Pattern 'API_key|\.env|settings\.l
 
 当前 public 仓库已上线，下一步建议顺序：
 
-1. 合并 `platform/macos-runtime-detection` / PR #1 到 `platform/macos-bootstrap`。
-2. 合并或重建 Mac 主应用规划文档 PR，确保当前代码审查结论进入基线文档。
-3. 按 `MAC-01` 建立 platform adapter 总壳。
-4. 按 `MAC-03` 修正 macOS Office COM unsupported 早退，不能触发 PowerShell。
-5. 基础 CI 已按 `MAC-07` 建立；打包、字体探针、LibreOffice 导出作为后续 optional 或独立任务。
-6. 字体二进制、Windows LibreOffice runtime 和 redist 继续走 artifact / provisioning，不回填到普通 Git。
+1. MAC-01 至 MAC-09 已完成到功能分支或合并基线：adapter 总壳、进程 adapter、统一 capability/health、Mac 导出预检 UI、LibreOffice fixture smoke、`dist:mac:dir`、基础 CI、渲染 QA 和设置页能力面板。
+2. 当前 `feature/platform-capability-panel` 需提交、开 PR、等待 CI 后合并到 `platform/macos-bootstrap`。
+3. 合并 MAC-09 后进入 MAC-10，优先做最小 service 层拆分，继续避免大范围业务重构。
+4. 基础 CI 已按 `MAC-07` 建立；字体探针、LibreOffice 导出和打包发布继续作为 optional 或独立任务。
+5. 字体二进制、Windows LibreOffice runtime 和 redist 继续走 artifact / provisioning，不回填到普通 Git。

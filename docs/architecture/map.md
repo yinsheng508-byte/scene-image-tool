@@ -13,7 +13,7 @@
 | 场景化图片排版 | 底图、叠图、四角定位、批量导出 | `code/desktop/renderer/compose.html`、`compose.js`、`compose.css` | Canvas、FileSaver、JSZip | 旧工具页集成进主界面 |
 | 百变拼图编辑器 | 模板、坑位、文字、图片元素、裁剪、多文件夹、预览、生成 | `code/desktop/renderer/puzzle/*` | Canvas、shared render spec、字体加载、Pickr | 当前 `puzzle/index.js` 过大 |
 | 共享渲染规范 | 字体映射、文字布局、拼图渲染规则 | `code/desktop/shared/*` | ESM | 主进程和渲染进程共享 |
-| 平台适配层 | 平台专属 runtime、进程和打包能力逐步隔离 | `code/desktop/platform/*` | Node `fs/path/child_process` | 当前已新增 platform 总入口、common capability helper、Darwin LibreOffice runtime 探测和跨平台进程终止 adapter，后续继续拆 Office / 打包 adapter |
+| 平台适配层 | 平台专属 runtime、进程和打包能力逐步隔离 | `code/desktop/platform/*` | Node `fs/path/child_process` | 当前已新增 platform 总入口、common capability helper、Darwin LibreOffice runtime 探测、跨平台进程终止 adapter 和 packaging capability；后续继续拆 Office / 打包实现细节 |
 | 文档转换脚本 | Office / LibreOffice 检测和转换 | `code/desktop/scripts/*` | PowerShell、Microsoft Office COM、LibreOffice | Windows 兼容重点 |
 | 应用资源 | 图标、二维码、字体、运行时 | `code/desktop/assets/`、`code/desktop/fonts/`、`code/desktop/vendor/` | electron-builder extraResources | 资源策略见 `docs/architecture/resources.md` |
 
