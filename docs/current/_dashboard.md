@@ -9,4 +9,4 @@
 | mac-development-runbook | docs | Complete | Ready for Mac | `platform/macos-bootstrap` | 已补齐真实 GitHub 地址、Mac 首次环境、clone、启动、smoke 和每日开发指令 |
 | macos-main-app-development | planning | Merged | Ready for MAC-01 | `platform/macos-bootstrap` | Mac 主应用需求、架构改造路线、任务卡和验收门禁已合入基线；下一步串行推进 adapter |
 | macos-adapter-boundary | platform | Merged | MAC-01 Done | `platform/macos-adapter-boundary` | PR #3 已合并，platform 总入口和 common capability helper 已进入 `platform/macos-bootstrap` |
-| macos-process-adapter | platform | In Review | MAC-02 Done | `platform/process-adapter` | 已抽出跨平台进程终止 adapter；macOS 不调用 `taskkill`，Windows adapter 保留 `taskkill /T /F` |
+| macos-process-adapter | platform | Merged | MAC-02 Done | `platform/process-adapter` | PR #4 已合并；跨平台进程终止 adapter 已进入 `platform/macos-bootstrap` |

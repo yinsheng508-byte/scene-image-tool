@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke 和 Darwin LibreOffice runtime 探测已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2 和 PR #3 已合并到 `platform/macos-bootstrap`；MAC-02 process adapter 已在 `platform/process-adapter` 完成，待 PR 合并。
+Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke 和 Darwin LibreOffice runtime 探测已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3 和 PR #4 已合并到 `platform/macos-bootstrap`；MAC-02 process adapter 已完成，下一阶段进入 MAC-03 capability / health 返回结构。
 
 ## 当前最高优先级任务
 
@@ -36,7 +36,7 @@ GitHub public 远端：
 - macOS 开发落地指令：已新增。
 - macOS 主应用开发改造规划：已新增 `docs/current/macos-main-app-development-requirements.md` 和 `docs/current/macos-main-app-task-cards.md`。
 - macOS 代码全面审查与文档校准：已完成，已把当前真实风险回写到需求、任务卡、资源、能力、闸口和并行开发文档。
-- 当前后续任务：先合并 `platform/process-adapter` 的 MAC-02 跨平台进程终止 adapter；随后优先执行 MAC-03，修正 macOS Office COM unsupported 早退，避免触发 PowerShell；基础 CI 先按 MAC-07 落地，打包在资源配置平台化后再做 MAC-06。
+- 当前后续任务：从 `platform/macos-bootstrap` 新建 `feature/shared-capability-status`，按 MAC-03 统一导出 capability / health 返回结构，修正 macOS Office COM unsupported 早退，避免触发 PowerShell；基础 CI 先按 MAC-07 落地，打包在资源配置平台化后再做 MAC-06。
 
 ## 上次停在哪里
 
@@ -101,6 +101,7 @@ GitHub public 远端：
 - 2026-08-28 MAC-01 已新增 `code/desktop/platform/index.js` 和 `code/desktop/platform/common/capability-result.js`；`main.js` 的 macOS LibreOffice runtime 入口已从 Darwin 模块直连改为 `currentPlatformAdapter.runtime.resolveLibreOffice()`。
 - 2026-08-28 PR #3 `platform/macos-adapter-boundary` 已合并到 `platform/macos-bootstrap`。
 - 2026-08-28 MAC-02 已新增 `code/desktop/platform/common/process-utils.js`、`code/desktop/platform/darwin/process-tree.js` 和 `code/desktop/platform/win32/process-tree.js`；`main.js` 的导出取消进程终止已通过 `currentPlatformAdapter.process.killProcessTreeByPid()` 进入平台 adapter；非 Windows `getProcessNameByPid()` 已早退，避免 macOS 取消路径触发 PowerShell 进程名查询。
+- 2026-08-28 PR #4 `platform/process-adapter` 已合并到 `platform/macos-bootstrap`。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-development-requirements.md`，把 Mac 主应用能力范围、platform adapter 目标、导出链路、UI capability、打包、CI、IPC hardening、资源治理和 M0-M11 阶段路线写成当前规划。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-task-cards.md`，拆出 MAC-00 至 MAC-13 任务卡；每张卡包含 Objective、Context、Scope、Out of scope、Steps、Acceptance、Validation、Deliverables 和 Risks。
 - `npm --prefix code/desktop run font:probe` 已通过。
@@ -161,7 +162,7 @@ GitHub public 远端：
 ## 当前环境状态
 
 - 当前执行环境为 macOS 工作区：`~/dev/scene-image-tool`。
-- 当前 Git 分支：`platform/process-adapter`，基于已包含 PR #1/#2/#3 的 `platform/macos-bootstrap`。
+- 当前 Git 分支：`platform/macos-bootstrap`，已包含 PR #1/#2/#3/#4。
 - GitHub public 远端已上线，Mac 端已完成首次 clone 和基础启动验证。
 - 不在生产部署流程中。
 

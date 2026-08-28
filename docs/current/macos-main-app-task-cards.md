@@ -185,7 +185,7 @@ Risks and rollback：
 Priority：P0
 Platform：Shared / Windows / macOS
 Branch：`platform/process-adapter`
-Status：已完成，待合并。
+Status：已完成，PR #4 已合并。
 
 Objective：
 
