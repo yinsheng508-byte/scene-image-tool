@@ -20,6 +20,7 @@ release/
 /code/desktop/vendor/redist/vc_redist.x64.exe
 /code/desktop/fonts/*
 !/code/desktop/fonts/README.md
+/code/desktop/resources/artifacts/
 
 # temporary outputs
 _tmp/

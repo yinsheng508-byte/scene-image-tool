@@ -92,6 +92,8 @@ npm --prefix code/desktop run puzzle:text:smoke
 `font:probe` 需要 bundled fonts。public 首次线上基线不带字体二进制，等字体 artifact 或 provisioning script 落地后再执行：
 
 ```bash
+npm --prefix code/desktop run resources:check
+npm --prefix code/desktop run resources:provision:dry-run -- --artifact-root /path/to/runtime-artifacts
 npm --prefix code/desktop run font:probe
 ```
 
@@ -147,7 +149,8 @@ git push -u origin platform/macos-<task-name>
 6. 已完成：GitHub Actions 基础 matrix 已增加，只跑 `npm ci` 和两个 puzzle smoke。
 7. 已完成：`dist:mac:dir` unsigned app bundle 已可作为 macOS 打包 smoke；签名、公证和 dmg/zip 后置。
 8. 已完成：MAC-09 设置页能力面板已通过 PR #11 合并到 `platform/macos-bootstrap`。
-9. 当前：进入 MAC-10 主进程 service 层最小拆分，优先选择 settings 或 dialogs/files 这类低风险 service，保持 IPC contract 不变。
+9. 已完成：MAC-10 settings service 已通过 PR #12 合并到 `platform/macos-bootstrap`，保持 IPC contract 和 userData `app-settings.json` 不变。
+10. 当前：进入 MAC-11 资源 artifact / provisioning，先落 manifest、dry-run 和 sha256 校验，不提交字体或 runtime 二进制。
 
 ## 5. Mac 常见问题
 
