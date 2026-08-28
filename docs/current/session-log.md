@@ -200,5 +200,5 @@
 
 - 阶段：MAC-07 GitHub Actions 基础 CI matrix。
 - 修改文件：新增 `.github/workflows/desktop-ci.yml`；更新 `docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`、`docs/current/win-mac-parallel-development.md`、`docs/current/acceptance.md` 和本日志。
-- 验证：Context7 已核对 GitHub Actions matrix 和 `actions/setup-node` npm cache / `cache-dependency-path` 口径；workflow 只配置 `windows-latest` / `macos-latest`、Node 22、`npm --prefix code/desktop ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 和 `git diff --check`，未调用 LibreOffice、字体探针、打包或发布脚本。
-- 风险：本地只能检查 YAML 和 smoke；真实 Windows/macOS runner 结果需 PR Actions 回传后确认。
+- 验证：Context7 已核对 GitHub Actions matrix 和 `actions/setup-node` npm cache / `cache-dependency-path` 口径；workflow 只配置 `windows-latest` / `macos-latest`、Node 22、`npm --prefix code/desktop ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 和 `git diff --check`，未调用 LibreOffice、字体探针、打包或发布脚本；本地 YAML 解析、两个 puzzle smoke 和 `git diff --check` 通过；PR #9 Actions 已通过，Windows job 45s，macOS job 37s。
+- 风险：第一版 CI 只覆盖基础依赖安装和 puzzle smoke；LibreOffice 导出、字体探针、打包发布仍是后续 optional / 独立任务。
