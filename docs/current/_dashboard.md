@@ -8,4 +8,4 @@
 | win-mac-parallel-development | planning | Complete | Ready for GitHub | `codex/project-structure-template-migration` | 已形成 Windows / macOS 并行开发、CI、Project 看板和发布策略 |
 | mac-development-runbook | docs | Complete | Ready for Mac | `platform/macos-bootstrap` | 已补齐真实 GitHub 地址、Mac 首次环境、clone、启动、smoke 和每日开发指令 |
 | macos-main-app-development | planning | Merged | Ready for MAC-01 | `platform/macos-bootstrap` | Mac 主应用需求、架构改造路线、任务卡和验收门禁已合入基线；下一步串行推进 adapter |
-| macos-adapter-boundary | platform | In Progress | MAC-01 | `platform/macos-adapter-boundary` | 已新增 platform 总入口和 common capability helper，等待 PR 验收/合并 |
+| macos-adapter-boundary | platform | Merged | MAC-01 Done | `platform/macos-adapter-boundary` | PR #3 已合并，platform 总入口和 common capability helper 已进入 `platform/macos-bootstrap` |
