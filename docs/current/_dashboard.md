@@ -17,4 +17,4 @@
 | github-desktop-ci | infra | Merged | MAC-07 Done | `infra/github-desktop-ci` | PR #9 已合并；Windows/macOS 基础 CI job 已进入 `platform/macos-bootstrap` |
 | macos-render-qa | qa | Merged | MAC-08 Done | `platform/macos-render-qa` | PR #10 已合并；render fixture smoke 和 Compose DOM smoke 记录已进入基线 |
 | platform-capability-panel | renderer | Merged | MAC-09 Done | `feature/platform-capability-panel` | PR #11 已合并；设置页平台能力面板和 5 项 capability 汇总已进入 `platform/macos-bootstrap`，Desktop CI Windows/macOS 通过 |
-| main-process-settings-service | refactor | Ready for PR | MAC-10 Done | `refactor/main-process-settings-service` | settings 持久化和 `settings:*` IPC registration 已从 `main.js` 拆入 service；本机 node check、Electron 启动和两个 puzzle smoke 通过 |
+| main-process-settings-service | refactor | Merged | MAC-10 Done | `refactor/main-process-settings-service` | PR #12 已合并；settings 持久化和 `settings:*` IPC registration 已从 `main.js` 拆入 service，Desktop CI Windows/macOS 通过 |

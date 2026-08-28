@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke、Darwin LibreOffice runtime 探测、导出 fixture smoke、unsigned app bundle、基础 CI matrix、Mac 渲染 QA 矩阵和 MAC-09 平台能力设置页 / 诊断区已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3、PR #4、PR #5、PR #6、PR #7、PR #8、PR #9、PR #10 和 PR #11 已合并到 `platform/macos-bootstrap`；MAC-10 settings service 最小拆分已完成，当前待 PR 验证和合并。
+Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke、Darwin LibreOffice runtime 探测、导出 fixture smoke、unsigned app bundle、基础 CI matrix、Mac 渲染 QA 矩阵、MAC-09 平台能力设置页 / 诊断区和 MAC-10 settings service 最小拆分已完成；Mac 主应用开发改造需求和任务卡已落地，并已按代码全面审查结果校准。PR #1、PR #2、PR #3、PR #4、PR #5、PR #6、PR #7、PR #8、PR #9、PR #10、PR #11 和 PR #12 已合并到 `platform/macos-bootstrap`；下一阶段进入 MAC-11 资源 artifact / provisioning。
 
 ## 当前最高优先级任务
 
@@ -36,7 +36,7 @@ GitHub public 远端：
 - macOS 开发落地指令：已新增。
 - macOS 主应用开发改造规划：已新增 `docs/current/macos-main-app-development-requirements.md` 和 `docs/current/macos-main-app-task-cards.md`。
 - macOS 代码全面审查与文档校准：已完成，已把当前真实风险回写到需求、任务卡、资源、能力、闸口和并行开发文档。
-- 当前后续任务：`refactor/main-process-settings-service` 已完成 settings service 最小拆分；待 PR 合并后进入 MAC-11 资源 artifact / provisioning，继续保持 public 仓库不携带字体二进制、Windows LibreOffice runtime、VC redist exe。
+- 当前后续任务：从 `platform/macos-bootstrap` 新建 MAC-11 分支，设计资源 artifact / provisioning；继续保持 public 仓库不携带字体二进制、Windows LibreOffice runtime、VC redist exe。
 
 ## 上次停在哪里
 
@@ -113,7 +113,7 @@ GitHub public 远端：
 - 2026-08-28 MAC-07 已新增 `.github/workflows/desktop-ci.yml`，使用 Windows/macOS matrix、Node 22、npm cache、`npm ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 和 `git diff --check`；第一版 CI 不调用 LibreOffice、字体探针、打包或发布脚本。PR #9 已合并，最新 Actions 已通过：Windows job 57s，macOS job 31s。
 - 2026-08-28 MAC-08 已新增 `render:fixture:smoke`，覆盖 Skia Canvas PNG、Sharp resize、PDFium PDF 渲染到 PNG；已用 Electron remote debugging 完成 Compose DOM smoke，走 file input 和 preload `saveImageFile()` 导出 1600x1000 PNG；结果写入 `docs/current/macos-render-qa-matrix.md`。PR #10 已合并，Desktop CI 已通过：Windows job 40s，macOS job 25s。
 - 2026-08-28 MAC-09 已扩展 `capability:getAll` 汇总，返回 LibreOffice、Office COM、PDF render、font 和 packaging 5 项结构化 capability；设置页新增平台能力面板，使用 `window.appApi.getCapabilities()` 展示 loading/refresh/unsupported/missing 状态。macOS Electron DOM 验收通过：LibreOffice `system_app` 可用，Office COM `PLATFORM_UNSUPPORTED`，字体走 `system_fallback` 且明确 public 仓库不含字体二进制，packaging 指向 `dist:mac:dir`；无横向溢出、无重叠、无 Windows 修复词。PR #11 已合并，Desktop CI 通过：Windows job 53s，macOS job 32s。
-- 2026-08-28 MAC-10 已新增 `code/desktop/services/settings-service.js`，把 settings 读写 helper、配置清洗和 `settings:getAll` / `settings:set` IPC registration 从 `main.js` 拆入 service；`main.js` 从 9180 行降至 9105 行；renderer API、IPC 名称、返回结构和 userData `app-settings.json` 路径保持不变。`node --check`、临时 userData service smoke、Electron 启动 smoke、`puzzle:shadow:smoke` 和 `puzzle:text:smoke` 已通过。
+- 2026-08-28 MAC-10 已新增 `code/desktop/services/settings-service.js`，把 settings 读写 helper、配置清洗和 `settings:getAll` / `settings:set` IPC registration 从 `main.js` 拆入 service；`main.js` 从 9180 行降至 9105 行；renderer API、IPC 名称、返回结构和 userData `app-settings.json` 路径保持不变。`node --check`、临时 userData service smoke、Electron 启动 smoke、`puzzle:shadow:smoke` 和 `puzzle:text:smoke` 已通过；PR #12 Desktop CI 通过：Windows job 47s，macOS job 24s。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-development-requirements.md`，把 Mac 主应用能力范围、platform adapter 目标、导出链路、UI capability、打包、CI、IPC hardening、资源治理和 M0-M11 阶段路线写成当前规划。
 - 2026-08-28 已新增并校准 `docs/current/macos-main-app-task-cards.md`，拆出 MAC-00 至 MAC-13 任务卡；每张卡包含 Objective、Context、Scope、Out of scope、Steps、Acceptance、Validation、Deliverables 和 Risks。
 - `npm --prefix code/desktop run font:probe` 已通过。
@@ -156,7 +156,7 @@ GitHub public 远端：
 - `runLibreOfficeHealthCheck()` 和 renderer LibreOffice 弹窗已完成 MAC-04 文案校准；完整平台能力设置区已在 MAC-09 实现并通过 PR #11 合并。
 - `code/desktop/package.json` 已完成 MAC-06 平台化构建配置；`dist:mac:dir` 可生成 macOS arm64 `.app`，Windows build 仍需 Windows 实机复测。
 - `shell:openExternal` / `shell:openPath` 主进程侧缺少 allowlist，XHS 下载 / 飞书上传取消还不能稳定中断当前网络请求；已追加 MAC-13 hardening 任务。
-- MAC-10 settings service 已在 macOS 本机验证；Windows 实机 settings UI 未单独复测，需依赖 PR Desktop CI 和后续 Windows 回归补充信心。
+- Windows 实机 settings UI 未单独复测；PR #12 Desktop CI 已覆盖 Windows `npm ci`、两个 puzzle smoke 和 `git diff --check`，完整人工 UI 仍待后续 Windows 回归。
 
 ## 本轮必读文件
 
@@ -175,7 +175,7 @@ GitHub public 远端：
 ## 当前环境状态
 
 - 当前执行环境为 macOS 工作区：`~/dev/scene-image-tool`。
-- 当前 Git 分支：`refactor/main-process-settings-service`，基于已包含 PR #1/#2/#3/#4/#5/#6/#7/#8/#9/#10/#11 的 `platform/macos-bootstrap`。
+- 当前 Git 分支：`platform/macos-bootstrap`，已包含 PR #1/#2/#3/#4/#5/#6/#7/#8/#9/#10/#11/#12。
 - GitHub public 远端已上线，Mac 端已完成首次 clone 和基础启动验证。
 - 不在生产部署流程中。
 

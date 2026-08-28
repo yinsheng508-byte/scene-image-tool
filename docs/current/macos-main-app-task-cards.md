@@ -694,7 +694,7 @@ Risks and rollback：
 Priority：P2
 Platform：Shared Architecture
 Branch：`refactor/main-process-settings-service`
-Status：已完成，待 PR。
+Status：已完成，PR #12 已合并。
 
 Objective：
 
