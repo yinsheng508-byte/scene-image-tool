@@ -265,7 +265,7 @@ D:\deptask\scene-image-tool-github-public-split
 
 执行：
 
-- 新增 GitHub Actions：
+- 已按 MAC-07 新增 GitHub Actions：
   - Windows job：`npm ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke`。
   - macOS job：`npm ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke`。
 - LibreOffice 相关 CI 分成 optional / required，避免没有 runtime 时阻断所有 PR。
@@ -315,5 +315,5 @@ git rev-list --objects --all | Select-String -Pattern 'API_key|\.env|settings\.l
 2. 合并或重建 Mac 主应用规划文档 PR，确保当前代码审查结论进入基线文档。
 3. 按 `MAC-01` 建立 platform adapter 总壳。
 4. 按 `MAC-03` 修正 macOS Office COM unsupported 早退，不能触发 PowerShell。
-5. 按 `MAC-07` 建立基础 CI；打包、字体探针、LibreOffice 导出作为后续 optional 或独立任务。
+5. 基础 CI 已按 `MAC-07` 建立；打包、字体探针、LibreOffice 导出作为后续 optional 或独立任务。
 6. 字体二进制、Windows LibreOffice runtime 和 redist 继续走 artifact / provisioning，不回填到普通 Git。

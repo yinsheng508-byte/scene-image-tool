@@ -507,7 +507,7 @@ Risks and rollback：
 Priority：P1
 Platform：Infra
 Branch：`infra/github-desktop-ci`
-Status：已完成，PR #9 Actions 已通过，待合并。
+Status：已完成，PR #9 已合并。
 
 Objective：
 

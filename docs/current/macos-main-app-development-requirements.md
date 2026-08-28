@@ -2,7 +2,7 @@
 
 > 日期：2026-08-28
 > 模式：深度分析，落地需求文档和任务卡文档
-> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7/#8 已合并；MAC-07 已在 `infra/github-desktop-ci` 完成，PR #9 Actions 已通过，待合并。
+> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7/#8/#9 已合并；下一阶段进入 MAC-08。
 > 目标：把现有 Windows Electron 工具稳妥落地到 macOS，形成可持续主应用开发架构，而不是复制一套 Mac 分叉。
 
 ## 1. 结论
@@ -322,7 +322,7 @@ MAC-06 已完成 `extraResources` 平台化，避免 macOS 打包读取不存在
 - macOS：`puzzle:text:smoke`
 - `git diff --check` 类空白检查可放在任一 OS。
 
-MAC-07 已新增 `.github/workflows/desktop-ci.yml`，PR #9 Windows/macOS Actions 已通过：
+MAC-07 已新增 `.github/workflows/desktop-ci.yml`，PR #9 已合并，最新 Windows/macOS Actions 已通过：
 
 - `actions/checkout@v6`
 - `actions/setup-node@v7`

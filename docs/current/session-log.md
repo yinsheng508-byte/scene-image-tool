@@ -131,7 +131,7 @@
 - 阶段：macOS LibreOffice runtime 探测。
 - 修改文件：新增 `code/desktop/platform/darwin/libreoffice-runtime.js`；更新 `code/desktop/main.js`、`docs/current/tasks.md`、`docs/current/session-log.md`、`docs/current/WORKING_CONTEXT.md`、`docs/architecture/map.md`、`docs/architecture/capabilities.md`、`docs/architecture/resources.md`。
 - 验证：`node --check code/desktop/platform/darwin/libreoffice-runtime.js` 和 `node --check code/desktop/main.js` 通过；直接调用 Darwin runtime adapter 可返回结构化结果，真实环境命中 `source=system_app`、`path=/Applications/LibreOffice.app/Contents/MacOS/soffice`、`version=26.8.0.3`；空候选测试返回 `ok=false`、`errorCode=LO_MISSING_BINARY` 和明确安装/配置 actions；`runtimeMode=embedded` 在 macOS 返回 `errorCode=PLATFORM_UNSUPPORTED`，不崩溃；`cd code/desktop && npm exec electron .` 启动自检已显示 `[LO_RUNTIME_STARTUP] source=system_app ... probe=ok`；`puzzle:shadow:smoke` 和 `puzzle:text:smoke` 复跑通过。
-- 风险：本阶段只完成 Darwin LibreOffice runtime 探测和小范围预检适配；Windows Office COM / PowerShell / taskkill 的系统性 win32 adapter 拆分尚未开始；macOS 打包脚本和 GitHub Actions matrix 尚未实现。
+- 风险：本阶段只完成 Darwin LibreOffice runtime 探测和小范围预检适配；当时 Windows Office COM / PowerShell / taskkill 的系统性 win32 adapter 拆分尚未开始，macOS 打包脚本和 GitHub Actions matrix 也尚未实现；后续 MAC-02、MAC-06、MAC-07 已分别推进部分边界。
 
 ## 2026-08-28
 
@@ -145,7 +145,7 @@
 - 阶段：代码全面审查与 macOS 规划文档校准。
 - 修改文件：更新 `docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`、`docs/current/win-mac-parallel-development.md`、`docs/current/github-sync-macos-plan.md`、`docs/current/mac-development-runbook.md`、`docs/current/acceptance.md`、`docs/current/_dashboard.md`、`docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/architecture/map.md`、`docs/architecture/capabilities.md`、`docs/architecture/gates.md`、`docs/architecture/do-not-break.md`、`docs/architecture/resources.md`。
 - 验证：已审查 `code/desktop/main.js`、`code/desktop/preload.js`、`code/desktop/package.json`、`code/desktop/scripts/check-lo-runtime.js`、`code/desktop/platform/darwin/libreoffice-runtime.js` 和 renderer 相关调用点；确认 macOS Office engine 当前仍可能进入 PowerShell、LibreOffice 预检/弹窗文案仍偏 Windows、顶层 `extraResources` 仍引用 public 仓库缺失的 Windows runtime/redist、`check:lo-runtime` 是 Windows-only 检查、shell IPC 和网络长任务取消需独立 hardening。`git diff --check`、`node --check code/desktop/main.js`、`node --check code/desktop/preload.js`、`node --check code/desktop/platform/darwin/libreoffice-runtime.js`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 均通过。
-- 风险：本轮只修改文档，不改业务代码；上述代码风险需按任务卡逐个小 PR 落地，MAC-01、MAC-03、MAC-04、MAC-06 已完成，MAC-07、MAC-13 等仍待推进。第一阶段仍未运行 `font:probe`、`check:lo-runtime`、`dist`、`dist:full`、`dist:dev`。
+- 风险：本轮只修改文档，不改业务代码；上述代码风险需按任务卡逐个小 PR 落地，MAC-01、MAC-03、MAC-04、MAC-06、MAC-07 已完成，MAC-13 等仍待推进。第一阶段仍未运行 `font:probe`、`check:lo-runtime`、`dist`、`dist:full`、`dist:dev`。
 
 ## 2026-08-28
 
@@ -200,5 +200,5 @@
 
 - 阶段：MAC-07 GitHub Actions 基础 CI matrix。
 - 修改文件：新增 `.github/workflows/desktop-ci.yml`；更新 `docs/current/tasks.md`、`docs/current/WORKING_CONTEXT.md`、`docs/current/_dashboard.md`、`docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`、`docs/current/win-mac-parallel-development.md`、`docs/current/acceptance.md` 和本日志。
-- 验证：Context7 已核对 GitHub Actions matrix 和 `actions/setup-node` npm cache / `cache-dependency-path` 口径；workflow 只配置 `windows-latest` / `macos-latest`、Node 22、`npm --prefix code/desktop ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 和 `git diff --check`，未调用 LibreOffice、字体探针、打包或发布脚本；本地 YAML 解析、两个 puzzle smoke 和 `git diff --check` 通过；PR #9 Actions 已通过，Windows job 45s，macOS job 37s。
-- 风险：第一版 CI 只覆盖基础依赖安装和 puzzle smoke；LibreOffice 导出、字体探针、打包发布仍是后续 optional / 独立任务。
+- 验证：Context7 已核对 GitHub Actions matrix 和 `actions/setup-node` npm cache / `cache-dependency-path` 口径；workflow 只配置 `windows-latest` / `macos-latest`、Node 22、`npm --prefix code/desktop ci`、`puzzle:shadow:smoke`、`puzzle:text:smoke` 和 `git diff --check`，未调用 LibreOffice、字体探针、打包或发布脚本；本地 YAML 解析、两个 puzzle smoke 和 `git diff --check` 通过；PR #9 最新 Actions 已通过，Windows job 57s，macOS job 31s。
+- 风险：第一版 CI 只覆盖基础依赖安装和 puzzle smoke；LibreOffice 导出、字体探针、打包发布仍是后续 optional / 独立任务。PR #9 已合并到 `platform/macos-bootstrap`。

@@ -144,7 +144,7 @@ git push -u origin platform/macos-<task-name>
 3. 修正 macOS Office COM unsupported 早退，不能触发 PowerShell。
 4. 新增统一 capability 返回结构，让 UI 根据能力状态显示可用/不可用。
 5. 修正 macOS LibreOffice / Office 预检文案。
-6. 增加 GitHub Actions 基础 matrix，只跑 `npm ci` 和两个 puzzle smoke。
+6. GitHub Actions 基础 matrix 已增加，只跑 `npm ci` 和两个 puzzle smoke。
 7. `dist:mac:dir` unsigned app bundle 已可作为 macOS 打包 smoke；签名、公证和 dmg/zip 后置。
 
 ## 5. Mac 常见问题

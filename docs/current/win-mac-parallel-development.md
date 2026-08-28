@@ -298,7 +298,7 @@ jobs:
 - 第一版 required CI 不运行 `dist:dev`、`dist:mac:dir`、`font:probe`、`check:lo-runtime`。
 - LibreOffice smoke 不应在第一版 CI 中作为必需检查，除非 runner 上已明确安装 runtime。
 - macOS 签名和 notarization 不进入第一阶段 CI。
-- MAC-07 已新增 `.github/workflows/desktop-ci.yml`，PR 后观察 Windows/macOS 两个基础 job。
+- MAC-07 已新增 `.github/workflows/desktop-ci.yml`，PR #9 Windows/macOS 两个基础 job 已通过并合并。
 
 ### 7.2 第二阶段 CI
 
@@ -470,7 +470,7 @@ code/desktop/resources/runtime-manifest.json
 2. 合并或重建 Mac 主应用规划文档 PR，确保任务卡与最新代码审查结论一致。
 3. 按 `MAC-01` 建立 platform adapter 总壳，不在 UI 层堆平台分支。
 4. 按 `MAC-03` 先修正 macOS Office COM unsupported 早退，避免触发 PowerShell。
-5. 按 `MAC-07` 增加基础 CI，只跑 `npm ci` 和 puzzle smoke。
+5. 基础 CI 已按 `MAC-07` 增加，只跑 `npm ci` 和 puzzle smoke。
 6. `dist:mac:dir` unsigned app bundle 已按 `MAC-06` 启用，后续再做签名、公证和发布包。
 
 ## 12. 禁止事项
