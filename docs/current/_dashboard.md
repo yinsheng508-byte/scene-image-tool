@@ -19,3 +19,4 @@
 | platform-capability-panel | renderer | Merged | MAC-09 Done | `feature/platform-capability-panel` | PR #11 已合并；设置页平台能力面板和 5 项 capability 汇总已进入 `platform/macos-bootstrap`，Desktop CI Windows/macOS 通过 |
 | main-process-settings-service | refactor | Merged | MAC-10 Done | `refactor/main-process-settings-service` | PR #12 已合并；settings 持久化和 `settings:*` IPC registration 已从 `main.js` 拆入 service，Desktop CI Windows/macOS 通过 |
 | runtime-artifact-provisioning | infra | Merged | MAC-11 Done | `infra/runtime-artifact-provisioning` | PR #13 已合并；runtime manifest 和 provisioning script 已进入 `platform/macos-bootstrap`，Desktop CI Windows/macOS 通过 |
+| macos-release-signing | release | Ready for PR / Credentials Pending | MAC-12 Prep Done | `platform/macos-release-signing` | signing preflight、signed dmg/zip build script、tag workflow、entitlements 和 runbook 已落地；真实签名公证等待 Apple 凭据 |

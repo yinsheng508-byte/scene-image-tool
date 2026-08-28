@@ -2,7 +2,7 @@
 
 > 日期：2026-08-28
 > 模式：深度分析，落地需求文档和任务卡文档
-> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7/#8/#9/#10/#11/#12/#13 已合并；下一阶段进入 MAC-12 macOS 签名、公证和发布准备。
+> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7/#8/#9/#10/#11/#12/#13 已合并；MAC-12 macOS 签名发布准备已完成，真实 signed/notarized 验收等待 Apple 凭据；下一阶段进入 MAC-13 hardening。
 > 目标：把现有 Windows Electron 工具稳妥落地到 macOS，形成可持续主应用开发架构，而不是复制一套 Mac 分叉。
 
 ## 1. 结论
@@ -291,7 +291,9 @@ MAC-06 已完成 `extraResources` 平台化，避免 macOS 打包读取不存在
 
 ```json
 {
-  "dist:mac:dir": "electron-builder --mac dir"
+  "dist:mac:dir": "electron-builder --mac dir",
+  "signing:mac:check": "node scripts/check-macos-signing-env.js",
+  "dist:mac": "node scripts/build-macos-release.js"
 }
 ```
 
@@ -300,7 +302,8 @@ MAC-06 已完成 `extraResources` 平台化，避免 macOS 打包读取不存在
 - `mac.target`: `dir`
 - `mac.category`: `public.app-category.productivity`
 - `mac.icon`: `assets/app-icon.icns`
-- signing / notarization 后置；开发包明确 unsigned。
+- `dist:mac:dir` 继续作为 unsigned fallback；`dist:mac` 会先检查 Developer ID / CSC 和 notarization 环境，再生成 signed dmg/zip。
+- MAC-12 已新增 `build/entitlements.mac.plist`、`build/entitlements.mac.inherit.plist` 和 `.github/workflows/macos-release.yml`。
 - macOS `extraResources` 当前为空，不包含 scripts、Windows LibreOffice、PowerShell helper 或 VC redist。
 - Windows runtime / redist / packaged scripts 保留在 `win.extraResources`，避免影响现有 Windows 打包配置意图。
 
@@ -310,7 +313,8 @@ MAC-06 已完成 `extraResources` 平台化，避免 macOS 打包读取不存在
 - Windows LibreOffice runtime 继续不进 public Git。
 - VC redist exe 继续不进 public Git。
 - macOS 使用系统 LibreOffice，不内置 runtime dump。
-- 后续用 `runtime-manifest.json` 描述外部资源来源、版本、sha256、平台路径。
+- 已用 `runtime-manifest.json` 描述外部资源来源、版本、sha256、平台路径。
+- Apple Developer 证书、Apple ID、app-specific password、API key、issuer 和 team secrets 只允许存在于本机 Keychain / shell env / GitHub encrypted secrets，不进入仓库。
 
 ## 9. CI / QA 策略
 

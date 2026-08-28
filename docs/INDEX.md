@@ -23,6 +23,7 @@
 - macOS 主应用开发改造需求：`docs/current/macos-main-app-development-requirements.md`
 - macOS 主应用开发任务卡：`docs/current/macos-main-app-task-cards.md`
 - macOS 渲染 QA 矩阵：`docs/current/macos-render-qa-matrix.md`
+- macOS 签名发布手册：`docs/current/macos-release-signing-runbook.md`
 - 迁移规划：`docs/ai-project-template-项目结构迁移落地规划.md`
 
 ## 架构记忆

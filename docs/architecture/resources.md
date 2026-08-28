@@ -14,6 +14,7 @@
 | `code/desktop/vendor/README.md` | runtime 外部化策略说明 | 保持跟踪 | 公开仓库需要说明为什么没有内置 runtime | 随 runtime manifest 更新 |
 | `code/desktop/resources/runtime-manifest.json` | runtime / 字体 artifact 清单 | 保持跟踪 | 新 clone 需要知道每类外部资源的 source、version、sha256 / checksum 状态和 target path | 随资源版本、checksum 和授权状态更新 |
 | `code/desktop/scripts/provision-runtime-artifacts.js` | 本地 artifact provisioning 脚本 | 保持跟踪 | 从外部 artifact root 复制资源并校验 sha256；支持 dry-run 和 check-only | 不负责下载或上传未授权资源 |
+| macOS signing secrets | Developer ID 证书、notarization credentials、App Store Connect API key | 不跟踪 | 发布凭据属于高敏 secret，只能通过本机 Keychain 或 GitHub encrypted secrets 注入 | MAC-12 已新增 preflight 和 runbook；真实签名需用户配置 |
 | macOS 系统 LibreOffice | 通过 `code/desktop/platform/darwin/libreoffice-runtime.js` 探测 `/Applications/LibreOffice.app/Contents/MacOS/soffice`、`/opt/homebrew/bin/soffice`、`/usr/local/bin/soffice` 和 `LIBREOFFICE_PATH` | 不跟踪二进制 | macOS 开发基线依赖系统安装，不携带 runtime dump | 后续与统一 platform adapter / runtime manifest 对齐 |
 | `local-artifacts/` | 已物理删除 | 不跟踪 | 本地敏感资料、样例和临时碎片不应作为项目常驻内容 | 如需团队共享，改为脱敏模板、密钥管理系统或 `code/desktop/test-fixtures/` |
 | `code/desktop/test-fixtures/` | 已新增 `export-basic/` 生成式 DOCX/PPTX fixture manifest | 可跟踪脱敏样例，不跟踪运行生成的 Office/PDF/PNG 输出 | `.gitignore` 已对该目录放行；`export:fixture:smoke` 的实际输出进入 `code/desktop/_test_output/` | 后续新增 fixture 继续使用小型公开样例或生成式定义 |
