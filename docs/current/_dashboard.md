@@ -14,3 +14,4 @@
 | macos-export-preflight-ui | renderer | Merged | MAC-04 Done | `platform/macos-export-preflight-ui` | PR #6 已合并；macOS 导出预检文案和 Office unsupported 交互已进入基线 |
 | macos-export-smoke | test | Merged | MAC-05 Done | `platform/macos-export-smoke` | PR #7 已合并；生成式 DOCX/PPTX LibreOffice fixture smoke 已进入 `platform/macos-bootstrap` |
 | macos-package-dir | packaging | Merged | MAC-06 Done | `platform/macos-package-dir` | PR #8 已合并；unsigned macOS app bundle 配置已进入 `platform/macos-bootstrap` |
+| github-desktop-ci | infra | In Review | MAC-07 Actions Passed | `infra/github-desktop-ci` | PR #9 Windows/macOS 基础 CI job 已通过，待合并 |

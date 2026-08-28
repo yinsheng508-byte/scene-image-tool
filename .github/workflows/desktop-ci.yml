@@ -1,0 +1,56 @@
+name: Desktop CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - platform/macos-bootstrap
+    paths:
+      - code/desktop/**
+      - .github/workflows/desktop-ci.yml
+      - docs/current/win-mac-parallel-development.md
+  push:
+    branches:
+      - main
+      - platform/macos-bootstrap
+    paths:
+      - code/desktop/**
+      - .github/workflows/desktop-ci.yml
+
+permissions:
+  contents: read
+
+jobs:
+  desktop-smoke:
+    name: Desktop Smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-latest
+          - macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: code/desktop/package-lock.json
+
+      - name: Install desktop dependencies
+        run: npm --prefix code/desktop ci
+
+      - name: Puzzle shadow smoke
+        run: npm --prefix code/desktop run puzzle:shadow:smoke
+
+      - name: Puzzle text smoke
+        run: npm --prefix code/desktop run puzzle:text:smoke
+
+      - name: Whitespace check
+        run: git diff --check

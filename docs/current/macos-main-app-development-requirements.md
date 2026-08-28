@@ -2,7 +2,7 @@
 
 > 日期：2026-08-28
 > 模式：深度分析，落地需求文档和任务卡文档
-> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7/#8 已合并；下一阶段进入 MAC-07。
+> 当前基线：`platform/macos-bootstrap`，PR #1/#2/#3/#4/#5/#6/#7/#8 已合并；MAC-07 已在 `infra/github-desktop-ci` 完成，PR #9 Actions 已通过，待合并。
 > 目标：把现有 Windows Electron 工具稳妥落地到 macOS，形成可持续主应用开发架构，而不是复制一套 Mac 分叉。
 
 ## 1. 结论
@@ -54,7 +54,7 @@
 - 飞书上传和小红书下载的取消逻辑主要在队列间检查；当前正在进行的 `fetch` / upload 请求仍缺统一 AbortController 或超时取消模型。
 - macOS 文档导出真实文件 smoke 已建立生成式脱敏 fixture，输出进入 ignored `_test_output`。
 - `dist:mac:dir` 已实现并可生成可启动的 macOS arm64 `.app`。
-- `.github/workflows` 尚不存在。
+- `.github/workflows/desktop-ci.yml` 已新增，第一版只跑 Windows/macOS 基础 CI。
 - macOS `.icns` 图标已准备为 `code/desktop/assets/app-icon.icns`。
 - 字体二进制不在 public 仓库，严格字体探针和最终字体分发策略仍待 artifact / provisioning 设计。
 - `npm ci` 仍报告既有 21 个 audit 漏洞，需后续独立治理。
@@ -321,6 +321,15 @@ MAC-06 已完成 `extraResources` 平台化，避免 macOS 打包读取不存在
 - macOS：`puzzle:shadow:smoke`
 - macOS：`puzzle:text:smoke`
 - `git diff --check` 类空白检查可放在任一 OS。
+
+MAC-07 已新增 `.github/workflows/desktop-ci.yml`，PR #9 Windows/macOS Actions 已通过：
+
+- `actions/checkout@v6`
+- `actions/setup-node@v7`
+- `node-version: "22"`
+- `cache: npm`
+- `cache-dependency-path: code/desktop/package-lock.json`
+- matrix: `windows-latest`、`macos-latest`
 
 ### 9.2 Optional / Nightly
 

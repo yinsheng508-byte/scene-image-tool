@@ -27,6 +27,7 @@
 | macOS LibreOffice 缺失模拟 | `npm --prefix code/desktop run export:fixture:smoke -- --runtime-mode embedded --output _test_output/export-fixture-smoke-missing` | 通过 | 返回 SKIP，`ok=false`、`skipped=true`、`errorCode=PLATFORM_UNSUPPORTED`，不误报 pass |
 | macOS unsigned app bundle | `npm --prefix code/desktop run dist:mac:dir` | 通过 | 生成 `code/desktop/dist/mac-arm64/流量蜂虚拟笔记工具.app`；10 秒启动 smoke 通过，启动自检命中系统 LibreOffice |
 | macOS app bundle 资源检查 | `find code/desktop/dist ...` + `asar list` + `git status --ignored --short code/desktop/dist` | 通过 | 包内 `app.asar` 包含 `platform/**`；Resources 下无 `libreoffice`、`redist`、`scripts`、`*.ps1`、`soffice.exe`、`vc_redist*`；`dist/` ignored |
+| GitHub Actions 基础 CI matrix | PR #9 `Desktop CI` | 通过，待合并 | Windows job 45s、macOS job 37s；只运行 `npm ci`、两个 puzzle smoke 和 `git diff --check` |
 | 拼图阴影回归 | `npm --prefix code/desktop run puzzle:shadow:smoke` | 通过 | 不依赖 bundled fonts |
 | 拼图文字回归 | `npm --prefix code/desktop run puzzle:text:smoke` | 通过 | 不依赖 bundled fonts |
 | 第一阶段禁跑命令 | 未执行 | 符合约束 | 未运行 `font:probe`、`check:lo-runtime`、`dist`、`dist:full`、`dist:dev` |

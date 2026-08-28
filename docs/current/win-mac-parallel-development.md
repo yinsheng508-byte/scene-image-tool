@@ -280,8 +280,8 @@ jobs:
             platform: darwin
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -298,6 +298,7 @@ jobs:
 - 第一版 required CI 不运行 `dist:dev`、`dist:mac:dir`、`font:probe`、`check:lo-runtime`。
 - LibreOffice smoke 不应在第一版 CI 中作为必需检查，除非 runner 上已明确安装 runtime。
 - macOS 签名和 notarization 不进入第一阶段 CI。
+- MAC-07 已新增 `.github/workflows/desktop-ci.yml`，PR 后观察 Windows/macOS 两个基础 job。
 
 ### 7.2 第二阶段 CI
 
