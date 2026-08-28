@@ -4,7 +4,7 @@
 
 ## 当前阶段
 
-Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。下一阶段进入 macOS adapter / 打包前置开发。
+Standard-Development：GitHub public 首次上线已完成；采用 GitHub-ready 干净导出仓库，不公开当前迁移仓库历史。macOS 首次 clone、依赖安装、Electron 开发启动、基础 puzzle smoke 和 Darwin LibreOffice runtime 探测已完成，下一阶段进入 platform adapter 边界拆分。
 
 ## 当前最高优先级任务
 
@@ -34,11 +34,11 @@ GitHub public 远端：
 - GitHub 公开同步执行手册：已完成；public 远端已上线并完成 clone 验收。
 - Windows / macOS 并行开发方案：已完成。
 - macOS 开发落地指令：已新增。
-- 当前后续任务：在 Mac 上 clone `https://github.com/yinsheng508-byte/scene-image-tool.git`，切到 `platform/macos-bootstrap`，按 `docs/current/mac-development-runbook.md` 开始 macOS adapter / runtime 探测 / 打包配置任务。
+- 当前后续任务：继续在 `platform/macos-runtime-detection` 或后续短分支上推进 platform adapter 边界，把 Windows-only 的 PowerShell、Office COM、taskkill、Windows embedded LibreOffice 逐步隔离到 win32 adapter，macOS 保持系统 LibreOffice 和 Node spawn 路径。
 
 ## 上次停在哪里
 
-已创建迁移分支 `codex/project-structure-template-migration`，已完成 `ai-project-template` 治理脚手架、根 `.gitignore`、索引产物清理、代码目录迁移、历史文档归档、资源治理、根目录清理和自动化验收。迁移后已继续完成文档/代码规范检查和本地构建垃圾清理。当前已完成 GitHub 同步审计、Windows / macOS 并行开发方案，并新增 GitHub 公开同步和 macOS 开发落地手册。
+已创建迁移分支 `codex/project-structure-template-migration`，已完成 `ai-project-template` 治理脚手架、根 `.gitignore`、索引产物清理、代码目录迁移、历史文档归档、资源治理、根目录清理和自动化验收。迁移后已继续完成文档/代码规范检查和本地构建垃圾清理。当前已完成 GitHub 同步审计、Windows / macOS 并行开发方案、GitHub 公开同步、macOS 开发落地手册、macOS 首次开发启动验证和 Darwin LibreOffice runtime 探测。
 
 ## 已验证 vs 仍是猜测
 
@@ -86,6 +86,15 @@ GitHub public 远端：
 - `desktop/` 旧目录已不存在。
 - `git ls-files desktop` 无跟踪条目。
 - `code/desktop/package.json` 是当前应用入口。
+- 2026-08-28 macOS 首次环境准备已完成：Xcode Command Line Tools 位于 `/Library/Developer/CommandLineTools`，Homebrew 位于 `/opt/homebrew/bin/brew`，git 位于 `/opt/homebrew/bin/git`，git-lfs 为 `3.7.1`，Homebrew `node@22` 可用且版本为 `v22.23.2`，npm 为 `10.9.8`，LibreOffice 为 `26.8.0.3`。
+- 2026-08-28 macOS 已 clone public 仓库到 `~/dev/scene-image-tool`，当前分支 `platform/macos-bootstrap` 跟踪 `origin/platform/macos-bootstrap`，HEAD 为 `cb7307830cd428f6ff6d80415d448f0bbb047053`。
+- 2026-08-28 macOS `npm --prefix code/desktop ci` 已通过，仍报告既有 21 个 npm audit 漏洞。
+- 2026-08-28 macOS 初始 `cd code/desktop && npm exec electron .` 已能打开 Electron 主界面并持续运行；修复前启动日志曾出现 `[LO_RUNTIME_STARTUP] missing mode=auto checked=4`，说明当时探测尚未识别 macOS 系统 LibreOffice。
+- 2026-08-28 macOS `npm --prefix code/desktop run puzzle:shadow:smoke` 已通过。
+- 2026-08-28 macOS `npm --prefix code/desktop run puzzle:text:smoke` 已通过。
+- 2026-08-28 已新增 `code/desktop/platform/darwin/libreoffice-runtime.js`，macOS 能识别 `/Applications/LibreOffice.app/Contents/MacOS/soffice`、`/opt/homebrew/bin/soffice`、`/usr/local/bin/soffice` 和 `LIBREOFFICE_PATH`，并返回 `ok/platform/capability/source/path/version/warnings/errorCode/message/actions`。
+- 2026-08-28 Darwin LibreOffice runtime 探测在本机命中 `source=system_app`，版本 `26.8.0.3`；空候选返回 `errorCode=LO_MISSING_BINARY`，embedded 模式返回 `errorCode=PLATFORM_UNSUPPORTED`，均不崩溃。
+- 2026-08-28 接入后 Electron 启动自检已显示 `[LO_RUNTIME_STARTUP] source=system_app path=/Applications/LibreOffice.app/Contents/MacOS/soffice version=26.8.0.3 probe=ok`。
 - `npm --prefix code/desktop run font:probe` 已通过。
 - `docs/` 根目录当前只保留 `INDEX.md`、`context.md` 和迁移规划文档。
 - 历史资料已归档为 41 份历史方案、9 份报告、7 份参考说明。
@@ -120,6 +129,7 @@ GitHub public 远端：
 - 本地样例已清理后，PPT smoke 需要外部样例路径或新增脱敏 fixture 才能复跑。
 - 当前迁移前业务改动是全部纳入 GitHub 基线，还是拆分后逐步合并。
 - Windows / macOS 并行开发的实际人员分工、GitHub Project 是否启用、CI 是否先走 required + optional 分层。
+- platform adapter 边界尚未系统性拆分；Windows Office COM、PowerShell、taskkill 和 Windows embedded LibreOffice 仍主要集中在 `code/desktop/main.js`。
 
 ## 本轮必读文件
 
@@ -135,16 +145,16 @@ GitHub public 远端：
 
 ## 当前环境状态
 
-- 本地 Windows 工作区。
-- 当前 Git 工作区迁移前已有大量未提交改动。
-- GitHub public 远端已上线，Mac 端可从 `https://github.com/yinsheng508-byte/scene-image-tool.git` clone。
+- 当前执行环境为 macOS 工作区：`~/dev/scene-image-tool`。
+- 当前 Git 分支：`platform/macos-bootstrap`，跟踪 `origin/platform/macos-bootstrap`。
+- GitHub public 远端已上线，Mac 端已完成首次 clone 和基础启动验证。
 - 不在生产部署流程中。
 
 ## 已知风险、阻塞、验收标准
 
 风险：
 
-- 当前工作区不干净，本轮检查必须只 stage / 提交本轮明确修复文件。
+- 当前 macOS clone 在第一阶段回写文档后工作区会出现文档修改；后续检查必须只 stage / 提交本轮明确文件。
 - Git 历史已经包含大文件，历史瘦身需要后续独立任务。
 - 当前迁移仓库仍不能直接 push 到 GitHub：当前 HEAD 和历史均存在 100 MiB+ blob；只能使用干净导出仓库或后续独立历史瘦身结果。
 - 历史中出现过敏感路径，不能公开当前迁移历史；只允许公开 GitHub-ready 干净导出仓库。
@@ -156,16 +166,18 @@ GitHub public 远端：
 
 阶段验收：
 
+- macOS 首次开发启动验证已完成：`npm ci`、Electron 开发启动、`puzzle:shadow:smoke`、`puzzle:text:smoke` 均通过。
+- macOS LibreOffice runtime 探测已完成：Darwin adapter 命中系统 LibreOffice，缺失和 unsupported mode 返回结构化错误，不影响 Electron 启动。
 - 文档或规范修复完成后，更新 `docs/current/tasks.md` 和 `docs/current/session-log.md`。
 - 如修改代码脚本，执行对应最小自动化验证。
 
 ## 本轮禁区
 
-- 不修改业务逻辑。
+- 第一阶段已完成；后续 macOS runtime 探测仍不应大范围重构业务逻辑。
 - 不删除 `code/desktop/fonts/`、`code/desktop/vendor/`、`code/desktop/node_modules/` 和 `.git/`。
 - 不做 Git 历史重写。
-- 不直接 push 当前历史到 GitHub。
-- 不升级依赖。
+- 不把 `node_modules/`、`dist/`、`release/`、`out/`、本地样例、密钥、字体二进制或 runtime dump 提交到 Git。
+- 不运行第一阶段禁跑命令作为 macOS 首次启动验收：`font:probe`、`check:lo-runtime`、`dist`、`dist:full`、`dist:dev`。
 - 后续不要把迁移前业务改动混入治理修复提交；需要单独审查和提交。
 
 ## 不要再踩的坑
