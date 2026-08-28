@@ -7,3 +7,4 @@
 | github-sync-macos | planning | Ready for macOS Work | M0 Pending | `platform/macos-bootstrap` | 已完成公开干净导出基线；后续从 macOS 分支推进平台 adapter、runtime 探测和 macOS 打包 |
 | win-mac-parallel-development | planning | Complete | Ready for GitHub | `codex/project-structure-template-migration` | 已形成 Windows / macOS 并行开发、CI、Project 看板和发布策略 |
 | mac-development-runbook | docs | Complete | Ready for Mac | `platform/macos-bootstrap` | 已补齐真实 GitHub 地址、Mac 首次环境、clone、启动、smoke 和每日开发指令 |
+| macos-main-app-development | planning | Drafted | Requirements + Task Cards | `docs/macos-main-app-plan` | 已落地 Mac 主应用需求、架构改造路线、任务卡和验收门禁；需先合并 PR #1，再串行推进 adapter |

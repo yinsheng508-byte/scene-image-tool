@@ -132,3 +132,10 @@
 - 修改文件：新增 `code/desktop/platform/darwin/libreoffice-runtime.js`；更新 `code/desktop/main.js`、`docs/current/tasks.md`、`docs/current/session-log.md`、`docs/current/WORKING_CONTEXT.md`、`docs/architecture/map.md`、`docs/architecture/capabilities.md`、`docs/architecture/resources.md`。
 - 验证：`node --check code/desktop/platform/darwin/libreoffice-runtime.js` 和 `node --check code/desktop/main.js` 通过；直接调用 Darwin runtime adapter 可返回结构化结果，真实环境命中 `source=system_app`、`path=/Applications/LibreOffice.app/Contents/MacOS/soffice`、`version=26.8.0.3`；空候选测试返回 `ok=false`、`errorCode=LO_MISSING_BINARY` 和明确安装/配置 actions；`runtimeMode=embedded` 在 macOS 返回 `errorCode=PLATFORM_UNSUPPORTED`，不崩溃；`cd code/desktop && npm exec electron .` 启动自检已显示 `[LO_RUNTIME_STARTUP] source=system_app ... probe=ok`；`puzzle:shadow:smoke` 和 `puzzle:text:smoke` 复跑通过。
 - 风险：本阶段只完成 Darwin LibreOffice runtime 探测和小范围预检适配；Windows Office COM / PowerShell / taskkill 的系统性 win32 adapter 拆分尚未开始；macOS 打包脚本和 GitHub Actions matrix 尚未实现。
+
+## 2026-08-28
+
+- 阶段：macOS 主应用开发改造规划和任务卡。
+- 修改文件：新增 `docs/current/macos-main-app-development-requirements.md`、`docs/current/macos-main-app-task-cards.md`；更新 `docs/INDEX.md`、`docs/current/_dashboard.md`、`docs/current/tasks.md`、`docs/current/session-log.md`、`docs/current/WORKING_CONTEXT.md`。
+- 验证：已把 Mac 主应用能力范围、platform adapter 目标、LibreOffice 导出链路、capability 结构、unsigned 打包、CI matrix、资源治理和 M0-M10 阶段门禁落到文档；已拆 MAC-00 至 MAC-12 任务卡，每张卡包含目标、范围、验收、验证命令和风险回滚；`git diff --check`、`npm --prefix code/desktop run puzzle:shadow:smoke`、`npm --prefix code/desktop run puzzle:text:smoke` 通过。
+- 风险：本阶段为规划和任务拆分，不包含新的业务代码实现；当前规划分支基于 `platform/macos-runtime-detection`，需要先合并 PR #1，再把规划文档合入后续基线。
